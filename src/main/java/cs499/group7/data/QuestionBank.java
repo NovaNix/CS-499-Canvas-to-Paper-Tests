@@ -1,152 +1,76 @@
 package cs499.group7.data;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+import cs499.group7.data.utils.DataUtils;
 
-public class QuestionBank implements List<Question>
+/**
+ * A collection of {@link Question Questions} that can be used when generating quizzes 
+ * 
+ * @author Michael Nix
+ */
+public class QuestionBank 
 {
 
+	private final String id;
 	private String title;
-	private final String id = "";
 	
-	@Override
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	
+	private List<Question> questions = new ArrayList<Question>();
 
-	@Override
-	public boolean isEmpty() {
-		// TODO Auto-generated method stub
-		return false;
+	
+	public QuestionBank(String title)
+	{
+		this.id = DataUtils.generateId();
+		this.title = title;
 	}
-
-	@Override
-	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+	
+	public QuestionBank(String id, String title)
+	{
+		this.id = id;
+		this.title = title;
 	}
-
-	@Override
-	public Iterator<Question> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	// TODO add helper methods for generating quizzes
+	
+	public boolean add(Question q)
+	{
+		return questions.add(q);
 	}
-
-	@Override
-	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public boolean remove(Question q)
+	{
+		return questions.remove(q);
 	}
-
-	@Override
-	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public Question get(int index)
+	{
+		return questions.get(index);
 	}
-
-	@Override
-	public boolean add(Question e) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends Question> c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean addAll(int index, Collection<? extends Question> c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void clear() {
-		// TODO Auto-generated method stub
+	
+	public Question getFromId(String id)
+	{
+		for (var question : questions)
+		{
+			if (question.getId().equals(id))
+				return question;
+		}
 		
-	}
-
-	@Override
-	public Question get(int index) {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Question set(int index, Question element) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public String getTitle()
+	{
+		return title;
 	}
-
-	@Override
-	public void add(int index, Question element) {
-		// TODO Auto-generated method stub
-		
+	
+	public void setTitle(String title)
+	{
+		this.title = title;
 	}
-
-	@Override
-	public Question remove(int index) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public String getId()
+	{
+		return id;
 	}
-
-	@Override
-	public int indexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int lastIndexOf(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public ListIterator<Question> listIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ListIterator<Question> listIterator(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<Question> subList(int fromIndex, int toIndex) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
