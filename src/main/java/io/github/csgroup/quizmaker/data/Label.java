@@ -1,10 +1,10 @@
-package cs499.group7.data;
+package io.github.csgroup.quizmaker.data;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cs499.group7.data.labels.LabelPart;
-import cs499.group7.data.labels.LabelText;
+import io.github.csgroup.quizmaker.data.labels.LabelPart;
+import io.github.csgroup.quizmaker.data.labels.LabelText;
 
 /**
  * A label displayed when showing a question or answer<br>

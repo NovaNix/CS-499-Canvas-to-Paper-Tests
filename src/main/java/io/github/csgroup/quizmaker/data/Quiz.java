@@ -1,6 +1,6 @@
-package cs499.group7.data;
+package io.github.csgroup.quizmaker.data;
 
-import cs499.group7.data.utils.DataUtils;
+import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 public class Quiz 
 {

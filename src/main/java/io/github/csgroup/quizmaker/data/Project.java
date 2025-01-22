@@ -1,4 +1,4 @@
-package cs499.group7.data;
+package io.github.csgroup.quizmaker.data;
 
 import java.util.List;
 

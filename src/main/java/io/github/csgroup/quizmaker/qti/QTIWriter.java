@@ -1,8 +1,8 @@
-package cs499.group7.qti;
+package io.github.csgroup.quizmaker.qti;
 
 import java.io.File;
 
-import cs499.group7.data.Project;
+import io.github.csgroup.quizmaker.data.Project;
 
 /**
  * 

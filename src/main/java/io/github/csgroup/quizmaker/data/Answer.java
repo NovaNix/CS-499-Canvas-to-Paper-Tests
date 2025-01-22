@@ -1,4 +1,4 @@
-package cs499.group7.data;
+package io.github.csgroup.quizmaker.data;
 
 /**
  * An answer to a {@link Question Question}

@@ -1,4 +1,4 @@
-package cs499.group7.ui;
+package io.github.csgroup.quizmaker.ui;
 
 public class UIManager 
 {

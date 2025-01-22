@@ -1,4 +1,4 @@
-package cs499.group7.qti;
+package io.github.csgroup.quizmaker.qti;
 
 import java.io.File;
 

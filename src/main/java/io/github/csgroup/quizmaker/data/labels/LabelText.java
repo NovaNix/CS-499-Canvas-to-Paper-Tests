@@ -1,4 +1,4 @@
-package cs499.group7.data.labels;
+package io.github.csgroup.quizmaker.data.labels;
 
 public class LabelText extends LabelPart
 {

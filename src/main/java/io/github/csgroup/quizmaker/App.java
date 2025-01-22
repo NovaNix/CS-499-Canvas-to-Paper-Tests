@@ -1,9 +1,9 @@
-package cs499.group7;
+package io.github.csgroup.quizmaker;
 
 import javax.swing.SwingUtilities;
 
-import cs499.group7.data.Project;
-import cs499.group7.ui.UIManager;
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.ui.UIManager;
 
 public class App 
 {

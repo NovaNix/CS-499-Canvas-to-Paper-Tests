@@ -1,4 +1,4 @@
-package cs499.group7.word;
+package io.github.csgroup.quizmaker.word;
 
 public class WordExporter 
 {

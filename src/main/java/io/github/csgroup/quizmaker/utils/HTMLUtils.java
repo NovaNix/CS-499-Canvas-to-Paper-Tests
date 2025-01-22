@@ -1,4 +1,4 @@
-package cs499.group7.utils;
+package io.github.csgroup.quizmaker.utils;
 
 /**
  * Provides several common utilities for working with HTML

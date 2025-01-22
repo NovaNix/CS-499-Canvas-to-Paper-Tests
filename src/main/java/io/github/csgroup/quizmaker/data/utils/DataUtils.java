@@ -1,4 +1,4 @@
-package cs499.group7.data.utils;
+package io.github.csgroup.quizmaker.data.utils;
 
 public final class DataUtils 
 {

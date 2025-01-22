@@ -1,8 +1,9 @@
-package cs499.group7.data;
+package io.github.csgroup.quizmaker.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import cs499.group7.data.utils.DataUtils;
+
+import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 /**
  * A collection of {@link Question Questions} that can be used when generating quizzes 

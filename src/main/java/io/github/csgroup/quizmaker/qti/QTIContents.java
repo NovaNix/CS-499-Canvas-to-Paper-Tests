@@ -1,10 +1,10 @@
-package cs499.group7.qti;
+package io.github.csgroup.quizmaker.qti;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import cs499.group7.data.QuestionBank;
-import cs499.group7.data.Quiz;
+import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.data.Quiz;
 
 /**
  * A container for the contents extracted from a QTI file
