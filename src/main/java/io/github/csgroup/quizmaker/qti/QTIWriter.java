@@ -2,6 +2,9 @@ package io.github.csgroup.quizmaker.qti;
 
 import java.io.File;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.github.csgroup.quizmaker.data.Project;
 
 /**
@@ -9,6 +12,7 @@ import io.github.csgroup.quizmaker.data.Project;
  */
 public class QTIWriter 
 {
+	public static final Logger logger = LoggerFactory.getLogger(QTIWriter.class);
 
 	public QTIWriter()
 	{
