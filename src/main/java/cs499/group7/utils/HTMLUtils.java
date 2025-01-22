@@ -1,5 +1,10 @@
 package cs499.group7.utils;
 
+/**
+ * Provides several common utilities for working with HTML
+ * 
+ * @author Michael Nix
+ */
 public final class HTMLUtils 
 {
 
