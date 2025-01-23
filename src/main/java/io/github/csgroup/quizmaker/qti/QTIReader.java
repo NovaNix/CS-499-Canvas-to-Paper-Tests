@@ -1,6 +1,6 @@
 package io.github.csgroup.quizmaker.qti;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class QTIReader
 		
 	}
 	
-	public QTIContents readFile(File file)
+	public QTIContents readFile(Path path)
 	{
 		// TODO implement
 		return null;

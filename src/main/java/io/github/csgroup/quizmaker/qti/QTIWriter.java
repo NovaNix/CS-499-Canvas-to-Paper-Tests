@@ -1,6 +1,6 @@
 package io.github.csgroup.quizmaker.qti;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +21,9 @@ public class QTIWriter
 		
 	}
 	
-	public void writeProject(Project project, File destination)
+	public void writeProject(Project project, Path destination)
 	{
-		
+		// TODO implement
 	}
 	
 }
