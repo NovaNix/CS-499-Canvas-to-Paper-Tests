@@ -8,6 +8,7 @@ package io.github.csgroup.quizmaker.utils;
 public final class HTMLUtils 
 {
 
+	// Prevent instantiation of the class
 	private HTMLUtils() {};
 	
 	/**

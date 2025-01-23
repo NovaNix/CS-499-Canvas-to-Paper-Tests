@@ -6,6 +6,8 @@ import io.github.csgroup.quizmaker.data.utils.DataUtils;
  * A dynamically generated quiz that pulls {@link Question Questions} from {@link QuestionBank QuestionBanks}.<br>
  * 
  * This is not completely implemented. Do not use yet. 
+ * 
+ * @author Michael Nix
  */
 public class Quiz 
 {

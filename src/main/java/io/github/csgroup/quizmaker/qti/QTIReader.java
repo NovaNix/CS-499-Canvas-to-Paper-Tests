@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * An object responsible for reading QTI files and extracting the information contained inside
  * 
+ * @author 
  */
 public class QTIReader 
 {

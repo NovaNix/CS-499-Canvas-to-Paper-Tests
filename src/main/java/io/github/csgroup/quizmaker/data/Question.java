@@ -2,8 +2,16 @@ package io.github.csgroup.quizmaker.data;
 
 import java.util.List;
 
+/**
+ * A question to be used on a quiz.<br>
+ * 
+ * This is not currently fully implemented. Do not use yet
+ * 
+ * @author Michael Nix
+ */
 public class Question 
 {
+	// TODO finish implementation
 
 	private final String id = "";
 	private String title;

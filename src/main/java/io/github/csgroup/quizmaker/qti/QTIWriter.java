@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import io.github.csgroup.quizmaker.data.Project;
 
 /**
+ * An object responsible for writing Projects to QTI files
  * 
+ * @author 
  */
 public class QTIWriter 
 {

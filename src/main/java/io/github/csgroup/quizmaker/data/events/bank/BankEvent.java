@@ -2,6 +2,11 @@ package io.github.csgroup.quizmaker.data.events.bank;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 
+/**
+ * An event related to {@link Bank Banks}
+ * 
+ * @author Michael Nix
+ */
 public abstract class BankEvent 
 {
 

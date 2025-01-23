@@ -1,5 +1,10 @@
 package io.github.csgroup.quizmaker.data.labels;
 
+/**
+ * A basic text component of a {@link Label}. 
+ * 
+ * @author Michael Nix
+ */
 public class LabelText extends LabelPart
 {
 
