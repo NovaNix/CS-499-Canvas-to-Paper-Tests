@@ -2,11 +2,19 @@ package io.github.csgroup.quizmaker.data;
 
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
+/**
+ * A dynamically generated quiz that pulls {@link Question Questions} from {@link QuestionBank QuestionBanks}.<br>
+ * 
+ * This is not completely implemented. Do not use yet. 
+ */
 public class Quiz 
 {
 
 	private final String id;
 	private String title;
+	
+	/** A list of ids of {@link QuestionBank QuestionBanks} to use to generate the quiz */
+	//private List<String> banks; 
 	
 	public Quiz(String title)
 	{
@@ -25,4 +33,28 @@ public class Quiz
 		
 	}
 	
+//	public boolean addBank(String id)
+//	{
+//		return banks.add(id);
+//	}
+//	
+//	public boolean addBank(QuestionBank bank)
+//	{
+//		return banks.add(bank.getId());
+//	}
+	
+	public void setTitle(String title)
+	{
+		this.title = title;
+	}
+	
+	public String getTitle()
+	{
+		return title;
+	}
+	
+	public String getId()
+	{
+		return id;
+	}
 }
