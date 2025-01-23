@@ -18,17 +18,26 @@ public class Label
 
 	private List<LabelPart> parts = new ArrayList<LabelPart>();
 	
+	/**
+	 * Creates a blank label.
+	 */
 	public Label()
 	{
 		
 	}
 	
+	/**
+	 * Creates a deep copy of another label.<br>
+	 * @param label The label to copy
+	 */
+	public Label(Label label)
+	{
+		this.add(label.parts);
+	}
+	
 	public Label(List<LabelPart> parts)
 	{
-		for (var part : parts)
-		{
-			this.parts.add(part.clone());
-		}
+		this.add(parts);
 	}
 	
 	/**
@@ -59,6 +68,19 @@ public class Label
 	public boolean add(LabelPart part)
 	{
 		return this.parts.add(part);
+	}
+	
+	/**
+	 * Adds a list of parts to the Label.<br>
+	 * Note: the contents of the list are deep copied to avoid reference issues 
+	 * @param parts
+	 */
+	public void add(List<LabelPart> parts)
+	{
+		for (var part : parts)
+		{
+			this.parts.add(part.clone());
+		}
 	}
 	
 	public boolean remove(LabelPart part)
