@@ -46,7 +46,7 @@ public class QuestionBank
 		if (added)
 		{
 			// If this question was added to the list, we need to send an addition event
-			fireEvent(new BankUpdateEvent(this, ListUpdateType.Deletion, q));
+			fireEvent(new BankUpdateEvent(this, ListUpdateType.Addition, q));
 		}
 		
 		return added;
