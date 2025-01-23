@@ -1,5 +1,7 @@
 package io.github.csgroup.quizmaker.data.utils;
 
+import java.util.UUID;
+
 public final class DataUtils 
 {
 
@@ -7,7 +9,7 @@ public final class DataUtils
 	
 	public static String generateId()
 	{
-		return "";
+		return UUID.randomUUID().toString();
 	}
 	
 }
