@@ -6,21 +6,18 @@ import java.util.List;
 import io.github.csgroup.quizmaker.data.events.ProjectListener;
 import io.github.csgroup.quizmaker.data.events.project.ProjectBankUpdateEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
+import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
  * A container for a set of {@link QuestionBank QuestionBanks} and {@link Quiz Quizzes}. 
  * 
- * Quizzes are not currently supported, this will be addressed soon.
- * 
  * @author Michael Nix
  */
 public class Project 
-{
-	// TODO add quiz support
-	
+{	
 	private List<QuestionBank> banks = new ArrayList<QuestionBank>();
-	//private List<Quiz> quizzes = new ArrayList<Quiz>();
+	private List<Quiz> quizzes = new ArrayList<Quiz>();
 
 	public Project()
 	{
@@ -61,11 +58,39 @@ public class Project
 		return new ArrayList<QuestionBank>(banks);
 	}
 	
-//	public boolean addQuiz(Quiz quiz)
-//	{
-//		return quizzes.add(quiz);
-//	}
+	public boolean addQuiz(Quiz quiz)
+	{
+		boolean added = quizzes.add(quiz);
+		
+		if (added)
+		{
+			// If this Quiz was added to the list, we need to send an addition event
+			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Addition, quiz));
+		}
+		
+		return added;
+	}
 	
+	public boolean removeQuiz(Quiz quiz)
+	{
+		boolean included = quizzes.remove(quiz); 
+		
+		if (included)
+		{
+			// If this Quiz was included in the list, we need to send a deletion event
+			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Deletion, quiz));
+		}
+		
+		return included;
+	}
+	
+	/**
+	 * @return A shallow copy of the list of Quizzes included in the Project
+	 */
+	public List<Quiz> getQuizzes()
+	{
+		return new ArrayList<Quiz>(quizzes);
+	}
 	
 	// Event Processing
 	
