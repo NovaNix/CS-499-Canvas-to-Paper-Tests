@@ -19,22 +19,23 @@ import java.awt.event.ActionEvent;
  */
 public class AddBankFrame 
 {
+        // the name of the quiz bank
         public String bankName;
     
         /**
          * 
          * @param name sets the name of the quiz bank
          */
-        public void setData(String name)
+        public void setBankName(String name)
         {
                 bankName = name;
         }
     
         /**
          * 
-         * @return data returns the name of the quiz bank
+         * @return bankName returns the name of the quiz bank
          */
-        public String getData()
+        public String getBankName()
         {
                 return bankName;
         }
