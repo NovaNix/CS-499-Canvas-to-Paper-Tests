@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 
 /**
  * The central manager for the user interface. 
@@ -14,7 +15,6 @@ import javax.swing.JMenuItem;
  */
 public class UIManager 
 {
-
 	public static final Logger logger = LoggerFactory.getLogger(UIManager.class);
 	
 	public UIManager()
@@ -22,7 +22,9 @@ public class UIManager
 		logger.info("Starting UI");
 	}
         
-        // add (probably javadoc comment) about what this method does      
+        /**
+         * This method creates a frame that will host multiple panels for the system
+         */      
         public void createHomeFrame() 
         {
             // main JFrame that will host all JPanels for the system
@@ -53,7 +55,16 @@ public class UIManager
         
             // add the JMenuBar menuBar to homeFrame
             homeFrame.setJMenuBar(menuBar);
-                                                
+            
+            // panel that will hold the quiz bank list and quiz bank questions 
+            // and answers
+            JPanel questionBankPanel;        
+            BankPanel selectPanel = new BankPanel();
+            // get the panel from the BankPanel class
+            questionBankPanel = selectPanel.createBankPanel();
+            // add the panel to homeFrame
+            homeFrame.add(questionBankPanel);
+                                                                                                
             // if the JFrame is closed terminate the running program
             homeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             // makes the JFrame appear in the center of the screen
