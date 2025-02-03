@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.github.csgroup.quizmaker.ui;
 
 import java.awt.Dimension;
@@ -38,7 +34,6 @@ public class BankPanel
          */
         public JPanel createBankPanel()
         {
-                System.out.println("made it here");
                 // label that is placed above the list of quiz banks
                 JLabel quizBankLabel = new JLabel("Quiz Banks");
 

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package io.github.csgroup.quizmaker.ui;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
@@ -23,7 +19,7 @@ import java.awt.event.ActionEvent;
  */
 public class AddBankFrame 
 {
-        public String data;
+        public String bankName;
     
         /**
          * 
@@ -31,7 +27,7 @@ public class AddBankFrame
          */
         public void setData(String name)
         {
-                data = name;
+                bankName = name;
         }
     
         /**
@@ -40,7 +36,7 @@ public class AddBankFrame
          */
         public String getData()
         {
-                return data;
+                return bankName;
         }
         
         /**
