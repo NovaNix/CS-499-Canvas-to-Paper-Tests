@@ -59,4 +59,10 @@ public class Quiz
 	{
 		return id;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return title;
+	}
 }

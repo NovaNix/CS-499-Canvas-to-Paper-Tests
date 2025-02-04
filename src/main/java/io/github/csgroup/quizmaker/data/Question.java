@@ -205,4 +205,10 @@ public class Question
 		}
 	}
 	
+	@Override
+	public String toString()
+	{
+		return label.asText();
+	}
+	
 }
