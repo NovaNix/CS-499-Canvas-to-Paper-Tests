@@ -104,20 +104,20 @@ public class WordExporter
         nameField.setSpacingAfter(0);
         nameField.setSpacingBetween(1, LineSpacingRule.AUTO);
         nameField.setAlignment(ParagraphAlignment.RIGHT); 
-        XWPFRun run1 = nameField.createRun();
-        run1.setFontFamily("Times New Roman"); 
-        run1.setFontSize(12);
-        run1.setText("Name: _____________________________________");
+        XWPFRun nameRun = nameField.createRun();
+        nameRun.setFontFamily("Times New Roman"); 
+        nameRun.setFontSize(12);
+        nameRun.setText("Name: _____________________________________");
         
         // Create a break between name field and numbered list
-        XWPFParagraph paragraph2 = document.createParagraph();
-        paragraph2.setSpacingAfter(0);
-        paragraph2.setSpacingBetween(1, LineSpacingRule.AUTO);
-        XWPFRun run2 = paragraph2.createRun();
-        run2.setFontFamily("Times New Roman");
-        run2.setFontSize(12);
-        run2.addBreak();
-        run2.setText("Test Instructions:");
+        XWPFParagraph testInstruction = document.createParagraph();
+        testInstruction.setSpacingAfter(0);
+        testInstruction.setSpacingBetween(1, LineSpacingRule.AUTO);
+        XWPFRun preListRun = testInstruction.createRun();
+        preListRun.setFontFamily("Times New Roman");
+        preListRun.setFontSize(12);
+        preListRun.addBreak();
+        preListRun.setText("Test Instructions:");
 
         // Setup for creating numbered list
         XWPFNumbering numbering = document.createNumbering();
@@ -142,16 +142,16 @@ public class WordExporter
         addNumberedParagraph(document, "The time limit on this exam is (Time) minutes.", numId, 0);
         
         // Create space between numbered list and the section list
-        XWPFParagraph paragraph3 = document.createParagraph();
-        paragraph3.setSpacingAfter(0);
-        paragraph3.setSpacingBetween(1, LineSpacingRule.AUTO);
-        XWPFRun run3 = paragraph3.createRun();
-        run3.setFontFamily("Times New Roman");
-        run3.setFontSize(12);
-        run3.addBreak();
-        run3.addBreak();
-        run3.addBreak();
-        run3.setText("This test covers sections: (SectionList)");
+        XWPFParagraph sectionPar = document.createParagraph();
+        sectionPar.setSpacingAfter(0);
+        sectionPar.setSpacingBetween(1, LineSpacingRule.AUTO);
+        XWPFRun sectionRun = sectionPar.createRun();
+        sectionRun.setFontFamily("Times New Roman");
+        sectionRun.setFontSize(12);
+        sectionRun.addBreak();
+        sectionRun.addBreak();
+        sectionRun.addBreak();
+        sectionRun.setText("This test covers sections: (SectionList)");
         
         
         // Setup to create the name and score table
