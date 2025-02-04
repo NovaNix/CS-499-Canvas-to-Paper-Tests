@@ -1,12 +1,12 @@
 package io.github.csgroup.quizmaker;
 
 import javax.swing.SwingUtilities;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.ui.UIManager;
+import io.github.csgroup.quizmaker.word.WordExporter;
 
 /**
  * The central management point of the application. <br>
@@ -34,6 +34,9 @@ public class App
 			// The UI needs to be started on the event threads
 			ui = new UIManager();
 		});
+		
+		// Temporary call to test word exportation
+		WordExporter test = new WordExporter();
 	}
 
 	public static Project getCurrentProject()
