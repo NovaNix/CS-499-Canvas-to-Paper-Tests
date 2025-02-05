@@ -3,21 +3,24 @@ package io.github.csgroup.quizmaker.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ListModel;
+
 import io.github.csgroup.quizmaker.data.events.ProjectListener;
 import io.github.csgroup.quizmaker.data.events.project.ProjectBankUpdateEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
+import io.github.csgroup.quizmaker.data.models.ProjectBankListModel;
 
 /**
  * A container for a set of {@link QuestionBank QuestionBanks} and {@link Quiz Quizzes}. 
  * 
  * @author Michael Nix
  */
-public class Project 
+public class Project
 {	
-	private List<QuestionBank> banks = new ArrayList<QuestionBank>();
-	private List<Quiz> quizzes = new ArrayList<Quiz>();
+	private final List<QuestionBank> banks = new ArrayList<QuestionBank>();
+	private final List<Quiz> quizzes = new ArrayList<Quiz>();
 
 	public Project()
 	{
@@ -30,8 +33,10 @@ public class Project
 		
 		if (added)
 		{
+			int index = quizzes.size() - 1;
+			
 			// If this QuestionBank was added to the list, we need to send an addition event
-			fireEvent(new ProjectBankUpdateEvent(this, ListUpdateType.Addition, bank));
+			fireEvent(new ProjectBankUpdateEvent(this, ListUpdateType.Addition, bank, index));
 		}
 		
 		return added;
@@ -39,15 +44,31 @@ public class Project
 	
 	public boolean removeBank(QuestionBank bank)
 	{
+		int index = banks.indexOf(bank);
 		boolean included = banks.remove(bank); 
 		
 		if (included)
 		{
 			// If this QuestionBank was included in the list, we need to send a deletion event
-			fireEvent(new ProjectBankUpdateEvent(this, ListUpdateType.Deletion, bank));
+			fireEvent(new ProjectBankUpdateEvent(this, ListUpdateType.Deletion, bank, index));
 		}
 		
 		return included;
+	}
+	
+	public int getBankCount()
+	{
+		return banks.size();
+	}
+	
+	public QuestionBank getBank(int index)
+	{
+		return banks.get(index);
+	}
+	
+	public int getBankIndex(QuestionBank bank)
+	{
+		return banks.indexOf(bank);
 	}
 	
 	/**
@@ -64,8 +85,10 @@ public class Project
 		
 		if (added)
 		{
+			int index = quizzes.size() - 1;
+			
 			// If this Quiz was added to the list, we need to send an addition event
-			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Addition, quiz));
+			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Addition, quiz, index));
 		}
 		
 		return added;
@@ -73,12 +96,13 @@ public class Project
 	
 	public boolean removeQuiz(Quiz quiz)
 	{
+		int index = quizzes.indexOf(quiz);
 		boolean included = quizzes.remove(quiz); 
 		
 		if (included)
-		{
+		{	
 			// If this Quiz was included in the list, we need to send a deletion event
-			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Deletion, quiz));
+			fireEvent(new ProjectQuizUpdateEvent(this, ListUpdateType.Deletion, quiz, index));
 		}
 		
 		return included;
@@ -90,6 +114,21 @@ public class Project
 	public List<Quiz> getQuizzes()
 	{
 		return new ArrayList<Quiz>(quizzes);
+	}
+	
+	public int getQuizCount()
+	{
+		return quizzes.size();
+	}
+	
+	public Quiz getQuiz(int index)
+	{
+		return quizzes.get(index);
+	}
+	
+	public int getQuizIndex(Quiz quiz)
+	{
+		return quizzes.indexOf(quiz);
 	}
 	
 	// Event Processing
@@ -128,6 +167,20 @@ public class Project
 		{
 			listener.onProjectEvent(this, event);
 		}
+	}
+	
+	// List Model Functions
+	
+	private ListModel<QuestionBank> bankModel = new ProjectBankListModel(this);
+	
+	public ListModel<QuestionBank> getBankModel()
+	{
+		return bankModel;
+	}
+	
+	public ListModel<Quiz> getQuizModel()
+	{
+		return null;
 	}
 	
 }

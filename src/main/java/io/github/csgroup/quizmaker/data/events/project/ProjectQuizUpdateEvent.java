@@ -13,13 +13,15 @@ public class ProjectQuizUpdateEvent extends ProjectEvent
 {
 	private final ListUpdateType action;
 	private final Quiz modified;
+	private final int index;
 	
-	public ProjectQuizUpdateEvent(Project project, ListUpdateType action, Quiz modified) 
+	public ProjectQuizUpdateEvent(Project project, ListUpdateType action, Quiz modified, int index) 
 	{
 		super(project);
 		
 		this.action = action;
 		this.modified = modified;
+		this.index = index;
 	}
 
 	/**
@@ -36,5 +38,13 @@ public class ProjectQuizUpdateEvent extends ProjectEvent
 	public Quiz getModified()
 	{
 		return modified;
+	}
+	
+	/**
+	 * @return The index of the modified item
+	 */
+	public int getIndex()
+	{
+		return index;
 	}
 }

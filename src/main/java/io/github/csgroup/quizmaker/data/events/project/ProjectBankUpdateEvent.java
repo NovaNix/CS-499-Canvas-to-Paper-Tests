@@ -14,13 +14,15 @@ public class ProjectBankUpdateEvent extends ProjectEvent
 
 	private final ListUpdateType action;
 	private final QuestionBank modified;
+	private final int index;
 	
-	public ProjectBankUpdateEvent(Project project, ListUpdateType action, QuestionBank modified) 
+	public ProjectBankUpdateEvent(Project project, ListUpdateType action, QuestionBank modified, int index) 
 	{
 		super(project);
 		
 		this.action = action;
 		this.modified = modified;
+		this.index = index;
 	}
 
 	/**
@@ -37,6 +39,14 @@ public class ProjectBankUpdateEvent extends ProjectEvent
 	public QuestionBank getModified()
 	{
 		return modified;
+	}
+	
+	/**
+	 * @return The index of the modified item
+	 */
+	public int getIndex()
+	{
+		return index;
 	}
 	
 }
