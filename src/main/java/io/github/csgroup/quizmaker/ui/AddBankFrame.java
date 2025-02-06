@@ -11,87 +11,83 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.DefaultListModel;
 
 /**
  * Creates a frame that allows the user to enter a name for a new quiz bank
  * 
  * @author Emily Palmer
  */
-public class AddBankFrame 
+public class AddBankFrame
 {
         // the name of the quiz bank
         public String bankName;
-    
-        /**
-         * 
-         * @param name sets the name of the quiz bank
-         */
-        public void setBankName(String name)
-        {
-                bankName = name;
-        }
-    
-        /**
-         * 
-         * @return bankName returns the name of the quiz bank
-         */
-        public String getBankName()
-        {
-                return bankName;
-        }
         
         /**
-         * This method creates a frame that contains an instruction message, 
-         * text field, and create bank button
+         * Creates a frame that prompts the user to enter a quiz bank name 
+         * and then add the bank with a button. Once the button is clicked, 
+         * the new quiz bank is displayed on the screen.
          * 
-         * @return newBankFrame 
+         * @param bankProject used to add the new question bank to the QuestionBank list
+         * @param nameList list of quiz bank names 
          */
-        public JFrame createAddBankFrame()
+        public void createAddBankFrame(Project bankProject, DefaultListModel<String> nameList)
         {
                 JFrame newBankFrame = new JFrame();
-                /*newBankFrame.setSize(400, 290);
+                newBankFrame.setSize(400, 290);
                 
                 JLabel instructionLabel = new JLabel("Enter quiz bank name: ");
                 JTextField bankTextField = new JTextField();
-                JButton addQuizBankButton = new JButton("Create");
+                JButton addButton = new JButton("Add");
                 
+                // contains instructionLabel, bankTextField, and addQuizBankButton
                 JPanel newBankPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints labelConstraint = new GridBagConstraints();
                 GridBagConstraints textFieldConstraint = new GridBagConstraints();
                 GridBagConstraints buttonConstraint = new GridBagConstraints();
                 
+                // places intructionLabel at the top of the panel
                 labelConstraint.fill = GridBagConstraints.HORIZONTAL;
                 labelConstraint.gridx = 0;
                 labelConstraint.gridy = 0;
                 newBankPanel.add(instructionLabel, labelConstraint);
         
+                // places bankTextField in the middel of the panel
                 textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
                 textFieldConstraint.gridx = 0;
                 textFieldConstraint.gridy = 1;
                 newBankPanel.add(bankTextField, textFieldConstraint);
                 
+                // places addButton beside bankTextField
                 buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 buttonConstraint.gridx = 1;
                 buttonConstraint.gridy = 1;
-                newBankPanel.add(addQuizBankButton, buttonConstraint);
+                newBankPanel.add(addButton, buttonConstraint);
         
-                addQuizBankButton.addActionListener(new ActionListener()
+                newBankFrame.add(newBankPanel);
+                
+                // listens for when addButton is clicked
+                addButton.addActionListener(new ActionListener()
                 {
-                    @Override
-                    public void actionPerformed(ActionEvent e)
-                    {                                                
-                        data = bankTextField.getText();
-                        setData(data);
-                        newBankFrame.dispose();                        
-                        // add more code here 
-                    }
+                        @Override
+                        public void actionPerformed(ActionEvent e)
+                        {  
+                                // get the question bank name from bankTextField
+                                bankName = bankTextField.getText();
+                                // create a QuestionBank object for bankName
+                                QuestionBank newBank = new QuestionBank(bankName);
+                                // add the QuesionBank object to the QuestionBank list                               
+                                bankProject.addBank(newBank);                                
+                                // close newBankFrame
+                                newBankFrame.dispose();
+                                // add quiz bank name to nameList to display on BankPanel
+                                nameList.addElement(bankName);                                
+                        }
                 });     
-        
-                newBankFrame.add(newBankPanel);                                   
+                
+                // makes the JFrame appear in the center of the screen
                 newBankFrame.setLocationRelativeTo(null);
-                // make the JFrame visible
-                newBankFrame.setVisible(true); */ 
-        
-                return newBankFrame;
-    }
+                // makes the JFrame visible
+                newBankFrame.setVisible(true);
+        }
 }
