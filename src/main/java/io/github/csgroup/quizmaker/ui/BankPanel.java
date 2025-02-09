@@ -13,10 +13,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 /**
  * Controls and creates the panel that is first seen when the system is started up
@@ -148,42 +146,27 @@ public class BankPanel
                 containerPanel.add(tablePanel, tablePanelConstraint);
                      
                 // listens for when addBankButton is clicked 
-                addBankButton.addActionListener(new ActionListener()
-                {
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {  
-                                // display the frame that prompts the user to enter a bank name
-                                AddBankFrame addQuizBank = new AddBankFrame();
-                                addQuizBank.createAddBankFrame(bankProject, quizBankNameList); 
-                        }
+                addBankButton.addActionListener((ActionEvent e) -> {
+                    // display the frame that prompts the user to enter a bank name
+                    AddBankFrame addQuizBank = new AddBankFrame();
+                    addQuizBank.createAddBankFrame(bankProject, quizBankNameList);
                 });    
                 
                 // listens for when a quiz bank is selected
-                quizBankList.addListSelectionListener(new ListSelectionListener()
-                {
-                        @Override
-                        public void valueChanged(ListSelectionEvent e)
-                        {
-                                // once a quiz bank has been selected enable removaBankButton
-                                removeBankButton.setEnabled(true);
-                        }
+                quizBankList.addListSelectionListener((ListSelectionEvent e) -> {
+                    // once a quiz bank has been selected enable removaBankButton
+                    removeBankButton.setEnabled(true);
                 });
                                                 
                 // listens for when removeBankButton is clicked
-                removeBankButton.addActionListener(new ActionListener()
-                {
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {  
-                                // the name of the selected quiz bank
-                                String removeBankName = (String)quizBankList.getSelectedValue();
-                                int bankIndex = quizBankNameList.indexOf(removeBankName);
-                                // display the frame that ensures that the user is deleting the 
-                                // correct quiz bank
-                                RemoveBankFrame removeBank = new RemoveBankFrame();                                                                               
-                                removeBank.createRemoveBankFrame(removeBankName, bankProject, bankIndex, quizBankNameList);                                 
-                        }
+                removeBankButton.addActionListener((ActionEvent e) -> {
+                    // the name of the selected quiz bank
+                    String removeBankName = (String)quizBankList.getSelectedValue();
+                    int bankIndex = quizBankNameList.indexOf(removeBankName);
+                    // display the frame that ensures that the user is deleting the
+                    // correct quiz bank
+                    RemoveBankFrame removeBank = new RemoveBankFrame();
+                    removeBank.createRemoveBankFrame(removeBankName, bankProject, bankIndex, quizBankNameList);
                 });                            
                 return containerPanel;
         }    

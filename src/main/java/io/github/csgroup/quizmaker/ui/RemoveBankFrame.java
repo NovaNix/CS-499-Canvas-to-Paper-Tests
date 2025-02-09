@@ -7,7 +7,6 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
 import java.util.List;
@@ -78,30 +77,20 @@ public class RemoveBankFrame
                 removeFrame.add(removeBankPanel);
                 
                 // listens for when yesButton is clicked
-                yesButton.addActionListener(new ActionListener()
-                {
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        { 
-                               // close removeBankFrame
-                               removeFrame.dispose();
-                               List<QuestionBank> quizBankList = bankProject.getQuestionBanks();
-                               // remove the quiz bank from the QuestionBank list                               
-                               bankProject.removeBank(quizBankList.get(index)); 
-                               // remove the quiz bank from the list on the screen
-                               inputBankList.removeElement(name);
-                        }
+                yesButton.addActionListener((ActionEvent e) -> {
+                    // close removeBankFrame
+                    removeFrame.dispose();
+                    List<QuestionBank> quizBankList = bankProject.getQuestionBanks();
+                    // remove the quiz bank from the QuestionBank list
+                    bankProject.removeBank(quizBankList.get(index));
+                    // remove the quiz bank from the list on the screen
+                    inputBankList.removeElement(name);
                 });
                 
                 // listens for when noButton is clicked
-                noButton.addActionListener(new ActionListener()
-                {
-                        @Override
-                        public void actionPerformed(ActionEvent e)
-                        {     
-                                // close removeFrame
-                                removeFrame.dispose();
-                        }
+                noButton.addActionListener((ActionEvent e) -> {
+                    // close removeFrame
+                    removeFrame.dispose();
                 });
                 
                 // makes the JFrame appear in the center of the screen
