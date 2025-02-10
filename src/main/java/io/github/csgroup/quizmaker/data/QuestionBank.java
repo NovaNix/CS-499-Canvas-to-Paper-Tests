@@ -137,4 +137,10 @@ public class QuestionBank
 			listener.onBankEvent(this, event);
 		}
 	}
+	
+	@Override
+	public String toString()
+	{
+		return title;
+	}
 }
