@@ -33,6 +33,7 @@ public class App
 		SwingUtilities.invokeLater(() -> {
 			// The UI needs to be started on the event threads
 			ui = new UIManager();
+                        ui.createHomeFrame();
 		});
 		
 		// Temporary call to test word exportation

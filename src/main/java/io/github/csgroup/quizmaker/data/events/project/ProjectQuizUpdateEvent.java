@@ -1,22 +1,21 @@
 package io.github.csgroup.quizmaker.data.events.project;
 
 import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
- * An event fired when a QuestionBank is added or removed from the Project
+ * An event fired when a Quiz is added or removed from the Project
  * 
  * @author Michael Nix
  */
-public class ProjectBankUpdateEvent extends ProjectEvent 
+public class ProjectQuizUpdateEvent extends ProjectEvent 
 {
-
 	private final ListUpdateType action;
-	private final QuestionBank modified;
+	private final Quiz modified;
 	private final int index;
 	
-	public ProjectBankUpdateEvent(Project project, ListUpdateType action, QuestionBank modified, int index) 
+	public ProjectQuizUpdateEvent(Project project, ListUpdateType action, Quiz modified, int index) 
 	{
 		super(project);
 		
@@ -34,9 +33,9 @@ public class ProjectBankUpdateEvent extends ProjectEvent
 	}
 	
 	/**
-	 * @return What item was added or removed from the Project's QuestionBank list
+	 * @return What item was added or removed from the Project's Quiz list
 	 */
-	public QuestionBank getModified()
+	public Quiz getModified()
 	{
 		return modified;
 	}
@@ -48,5 +47,4 @@ public class ProjectBankUpdateEvent extends ProjectEvent
 	{
 		return index;
 	}
-	
 }
