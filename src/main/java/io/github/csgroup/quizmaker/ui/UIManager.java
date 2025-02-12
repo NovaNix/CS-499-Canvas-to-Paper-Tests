@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.ui;
 
+import java.awt.event.ActionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.swing.JFrame;
@@ -23,53 +24,58 @@ public class UIManager
 	}
         
         /**
-         * This method creates a frame that will host multiple panels for the system
+         * Creates a frame that will host multiple panels for the system
          */      
         public void createHomeFrame() 
         {
-            // main JFrame that will host all JPanels for the system
-            JFrame homeFrame = new JFrame("Canvas to Paper Tests");
+                // main JFrame that will host all JPanels for the system
+                JFrame homeFrame = new JFrame("Canvas to Paper Tests");
                
-            //size of the JFrame (width, height)
-            homeFrame.setSize(685, 495);
+                //size of the JFrame (width, height)
+                homeFrame.setSize(690, 495);
             
-            // will contain the menus "File" and "About"
-            JMenuBar menuBar = new JMenuBar();
-            // "File" menu
-            JMenu fileMenu = new JMenu("File");
-            // items for the user to select in the "File" menu
-            JMenuItem importFileItem = new JMenuItem("Import QTI Files");
-            JMenuItem exportFileItem = new JMenuItem("Export QTI Files");
-            JMenuItem exportDocumentItem = new JMenuItem("Export Word Document");            
-            // add items to the JMenu fileMenu
-            fileMenu.add(importFileItem);
-            fileMenu.add(exportFileItem);
-            fileMenu.add(exportDocumentItem);       
-            // add JMenu "File" to the JMenuBar menuBar
-            menuBar.add(fileMenu);
+                // will contain the menus "File" and "About"
+                JMenuBar menuBar = new JMenuBar();
+                // "File" menu
+                JMenu fileMenu = new JMenu("File");
+                // items for the user to select in the "File" menu
+                JMenuItem importFileItem = new JMenuItem("Import QTI Files");
+                JMenuItem exportFileItem = new JMenuItem("Export QTI Files");
+                JMenuItem exportDocumentItem = new JMenuItem("Export Word Document");            
+                // add items to the JMenu fileMenu
+                fileMenu.add(importFileItem);
+                fileMenu.add(exportFileItem);
+                fileMenu.add(exportDocumentItem);       
+                // add JMenu "File" to the JMenuBar menuBar
+                menuBar.add(fileMenu);
             
-            // "About" menu
-            JMenu aboutMenu = new JMenu("About");               
-            // add JMenu "About" to the JMenuBar menuBar
-            menuBar.add(aboutMenu);
+                // "About" menu
+                JMenu aboutMenu = new JMenu("About");               
+                // add JMenu "About" to the JMenuBar menuBar
+                menuBar.add(aboutMenu);
         
-            // add the JMenuBar menuBar to homeFrame
-            homeFrame.setJMenuBar(menuBar);
+                // add the JMenuBar menuBar to homeFrame
+                homeFrame.setJMenuBar(menuBar);
             
-            // panel that will hold the quiz bank list and quiz bank questions 
-            // and answers
-            JPanel questionBankPanel;        
-            BankPanel selectPanel = new BankPanel();
-            // get the panel from the BankPanel class
-            questionBankPanel = selectPanel.createBankPanel();
-            // add the panel to homeFrame
-            homeFrame.add(questionBankPanel);
-                                                                                                
-            // if the JFrame is closed terminate the running program
-            homeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            // makes the JFrame appear in the center of the screen
-            homeFrame.setLocationRelativeTo(null);
-            // make the JFrame visible
-            homeFrame.setVisible(true);  
+                // panel that will hold the quiz bank list and quiz bank questions 
+                // and answers
+                JPanel questionBankPanel;        
+                ContainerPanel selectPanel = new ContainerPanel();
+                // get the panel from the BankPanel class
+                questionBankPanel = selectPanel.createContainerPanel();
+                // add the panel to homeFrame
+                homeFrame.add(questionBankPanel);
+            
+                importFileItem.addActionListener((ActionEvent e) -> {
+                    ImportFileFrame importFrame = new ImportFileFrame();
+                    importFrame.createImportFileFrame();
+                });
+                                                                                                  
+                // if the JFrame is closed terminate the running program
+                homeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                // makes the JFrame appear in the center of the screen
+                homeFrame.setLocationRelativeTo(null);
+                // make the JFrame visible
+                homeFrame.setVisible(true);  
         }	
 }
