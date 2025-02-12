@@ -9,8 +9,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
-import java.util.List;
-import javax.swing.DefaultListModel;
 
 /**
  * Creates a frame that ensures the user is deleting the correct quiz bank
@@ -18,7 +16,7 @@ import javax.swing.DefaultListModel;
  * 
  * @author Emily Palmer
  */
-public class RemoveBankFrame 
+public class RemoveBankDialogue 
 { 
         /**
          * Creates a frame that contains asks if the user is deleting the correct
@@ -26,11 +24,9 @@ public class RemoveBankFrame
          * it gets deleted.
          * 
          * @param name the name of the quiz bank to be removed
-         * @param index the index of the quiz bank in the QuestionBank list 
          * @param bankProject used to remove the new question bank to the QuestionBank list
-         * @param inputBankList list of quiz bank names from the BankPanel class
          */
-        public void createRemoveBankFrame(String name, Project bankProject, int index, DefaultListModel<String> inputBankList)
+        public void createRemoveBankFrame(QuestionBank name, Project bankProject)
         {            
                 JFrame removeFrame = new JFrame();
                 removeFrame.setSize(400, 290);
@@ -78,13 +74,10 @@ public class RemoveBankFrame
                 
                 // listens for when yesButton is clicked
                 yesButton.addActionListener((ActionEvent e) -> {
-                    // close removeBankFrame
+                    // remove the bank from the list
+                    bankProject.removeBank(name);
+                    // close removeFrame
                     removeFrame.dispose();
-                    List<QuestionBank> quizBankList = bankProject.getQuestionBanks();
-                    // remove the quiz bank from the QuestionBank list
-                    bankProject.removeBank(quizBankList.get(index));
-                    // remove the quiz bank from the list on the screen
-                    inputBankList.removeElement(name);
                 });
                 
                 // listens for when noButton is clicked

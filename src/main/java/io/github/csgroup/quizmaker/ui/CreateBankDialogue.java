@@ -10,28 +10,23 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
-import javax.swing.DefaultListModel;
 
 /**
  * Creates a frame that allows the user to enter a name for a new quiz bank
  * 
  * @author Emily Palmer
  */
-public class AddBankFrame
-{
-        // the name of the quiz bank
-        public String bankName;
-        
+public class CreateBankDialogue
+{       
         /**
          * Creates a frame that prompts the user to enter a quiz bank name 
          * and then add the bank with a button. Once the button is clicked, 
          * the new quiz bank is displayed on the screen.
          * 
          * @param bankProject used to add the new question bank to the QuestionBank list
-         * @param nameList list of quiz bank names 
          */
-        public void createAddBankFrame(Project bankProject, DefaultListModel<String> nameList)
-        {
+        public void createAddBankFrame(Project bankProject)
+        {                
                 JFrame newBankFrame = new JFrame();
                 newBankFrame.setSize(400, 290);
                 
@@ -68,15 +63,14 @@ public class AddBankFrame
                 // listens for when addButton is clicked
                 addButton.addActionListener((ActionEvent e) -> {
                     // get the question bank name from bankTextField
-                    bankName = bankTextField.getText();
+                    String bankName = bankTextField.getText();
                     // create a QuestionBank object for bankName
                     QuestionBank newBank = new QuestionBank(bankName);
-                    // add the QuesionBank object to the QuestionBank list
+                    // add the QuesionBank object to the QuestionBank list                    
                     bankProject.addBank(newBank);
-                    // close newBankFrame
+                    // close newBankFrame                    
                     newBankFrame.dispose();
                     // add quiz bank name to nameList to display on BankPanel
-                    nameList.addElement(bankName);
                 });     
                 
                 // makes the JFrame appear in the center of the screen
