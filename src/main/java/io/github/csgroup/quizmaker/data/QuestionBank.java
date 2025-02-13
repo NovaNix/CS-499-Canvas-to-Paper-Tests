@@ -45,8 +45,10 @@ public class QuestionBank
 		
 		if (added)
 		{
+			int index = questions.size() - 1;
+			
 			// If this question was added to the list, we need to send an addition event
-			fireEvent(new BankUpdateEvent(this, ListUpdateType.Addition, q));
+			fireEvent(new BankUpdateEvent(this, ListUpdateType.Addition, q, index));
 		}
 		
 		return added;
@@ -54,12 +56,13 @@ public class QuestionBank
 	
 	public boolean remove(Question q)
 	{
+		int index = questions.indexOf(q);
 		boolean included = questions.remove(q); 
 		
 		if (included)
 		{
 			// If this question was included in the list, we need to send a deletion event
-			fireEvent(new BankUpdateEvent(this, ListUpdateType.Deletion, q));
+			fireEvent(new BankUpdateEvent(this, ListUpdateType.Deletion, q, index));
 		}
 		
 		return included;
@@ -68,6 +71,11 @@ public class QuestionBank
 	public Question get(int index)
 	{
 		return questions.get(index);
+	}
+	
+	public int indexOf(Question q)
+	{
+		return questions.indexOf(q);
 	}
 	
 	public Question getFromId(String id)

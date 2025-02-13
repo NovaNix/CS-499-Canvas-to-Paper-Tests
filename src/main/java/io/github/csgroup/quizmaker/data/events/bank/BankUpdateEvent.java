@@ -14,13 +14,15 @@ public class BankUpdateEvent extends BankEvent
 
 	private final ListUpdateType action;
 	private final Question modified;
+	private final int index;
 	
-	public BankUpdateEvent(QuestionBank source, ListUpdateType action, Question modified) 
+	public BankUpdateEvent(QuestionBank source, ListUpdateType action, Question modified, int index) 
 	{
 		super(source);
 		
 		this.action = action;
 		this.modified = modified;
+		this.index = index;
 	}
 	
 	/**
@@ -37,6 +39,14 @@ public class BankUpdateEvent extends BankEvent
 	public Question getModified()
 	{
 		return modified;
+	}
+	
+	/**
+	 * @return The index of the modified item
+	 */
+	public int getIndex()
+	{
+		return index;
 	}
 
 }
