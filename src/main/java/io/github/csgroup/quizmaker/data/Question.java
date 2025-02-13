@@ -151,7 +151,18 @@ public class Question
 	
 	public enum Type
 	{
-		TrueFalse("True or False")
+		MultipleChoice("Multiple Choice"),
+		TrueFalse("True or False"),
+		FillInTheBlank("Fill in the Blank"),
+		FillInMultipleBlanks("Fill in Multiple Blanks"),
+		MultipleAnswers("Multiple Answers"),
+		MultipleDropdowns("Multiple Dropdowns"),
+		Matching("Matching"),
+		NumericalAnswer("Numerical Answer"),
+		FormulaQuestion("Formula Question"),
+		EssayQuestion("Essay Question"),
+		// File Upload Question
+		// Text
 		;
 		
 		String displayName;
