@@ -81,6 +81,11 @@ public class QuestionBank
 		return null;
 	}
 	
+	public int getQuestionCount()
+	{
+		return questions.size();
+	}
+	
 	public String getTitle()
 	{
 		return title;

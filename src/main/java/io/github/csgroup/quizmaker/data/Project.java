@@ -33,7 +33,7 @@ public class Project
 		
 		if (added)
 		{
-			int index = quizzes.size() - 1;
+			int index = banks.size() - 1;
 			
 			// If this QuestionBank was added to the list, we need to send an addition event
 			fireEvent(new ProjectBankUpdateEvent(this, ListUpdateType.Addition, bank, index));
