@@ -10,6 +10,11 @@ import io.github.csgroup.quizmaker.data.events.bank.BankRenameEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectBankUpdateEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
 
+/**
+ * A {@link ListModel} implementation for the list of {@link QuestionBank QuestionBanks} inside of a {@link Project}. 
+ * 
+ * @author Michael Nix
+ */
 public class ProjectBankListModel extends AbstractListModel<QuestionBank> implements ProjectListener, BankListener
 {
 	private static final long serialVersionUID = -6841022113137439678L;
@@ -20,21 +25,9 @@ public class ProjectBankListModel extends AbstractListModel<QuestionBank> implem
 	{
 		this.project = project;
 		
-		project.addListener(this); // TODO remove this listener when destroying the object, this might cause a small memory leak
+		project.addListener(this);
 	}
 	
-	@Override
-	public int getSize() 
-	{
-		return project.getBankCount();
-	}
-
-	@Override
-	public QuestionBank getElementAt(int index) 
-	{
-		return project.getBank(index);
-	}
-
 	@Override
 	public void onProjectEvent(Project source, ProjectEvent e) 
 	{
@@ -75,6 +68,18 @@ public class ProjectBankListModel extends AbstractListModel<QuestionBank> implem
 			}
 		}
 		
+	}
+	
+	@Override
+	public int getSize() 
+	{
+		return project.getBankCount();
+	}
+
+	@Override
+	public QuestionBank getElementAt(int index) 
+	{
+		return project.getBank(index);
 	}
 
 }

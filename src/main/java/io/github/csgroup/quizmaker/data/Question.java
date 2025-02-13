@@ -95,6 +95,42 @@ public class Question
 		return correct;
 	}
 	
+	public String getAnswerString()
+	{
+		List<Answer> correctAnswers = getCorrectAnswers();
+		List<Answer> incorrectAnswers = getAnswers();
+		incorrectAnswers.removeAll(correctAnswers);
+		
+		StringBuilder s = new StringBuilder("<html>");
+		
+		boolean added = false;
+		
+		for (var answer : correctAnswers)
+		{
+			if (added)
+			{
+				s.append(", ");
+			}
+			
+			s.append("<b>");
+			s.append(answer.asText());
+			s.append("</b>");
+		}
+		
+		for (var answer : incorrectAnswers)
+		{
+			if (added)
+			{
+				s.append(", ");
+			}
+			
+			s.append(answer.asText());
+		}
+		
+		s.append("</html>");
+		
+		return s.toString();
+	}
 	
 	public String getTitle()
 	{
