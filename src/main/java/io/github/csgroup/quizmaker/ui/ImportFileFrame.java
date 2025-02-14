@@ -16,6 +16,10 @@ import javax.swing.JTextField;
  */
 public class ImportFileFrame {
     
+        /**
+         * Creates a frame that prompts the user to attach a QTI file
+         * 
+         */
         public void createImportFileFrame()
         {            
                 JFrame importFrame = new JFrame();
@@ -26,47 +30,51 @@ public class ImportFileFrame {
         
                 JTextField fileTextField = new JTextField(15);
         
+                // contains fileTextField and attachButton
                 JPanel importFilePanel = new JPanel(new GridBagLayout());
                 GridBagConstraints attachButtonConstraint = new GridBagConstraints();
                 GridBagConstraints textFieldConstraint = new GridBagConstraints();
         
+                // places fileTextField at the top of importFilePanel
                 textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
                 textFieldConstraint.gridx = 0;
                 textFieldConstraint.gridy = 0;
                 importFilePanel.add(fileTextField, textFieldConstraint);
         
+                // places attachButton at the bottom of importFilePanel
                 attachButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 attachButtonConstraint.gridx = 1;
                 attachButtonConstraint.gridy = 0;
                 attachButtonConstraint.insets = new Insets(0, 5, 0, 0);
                 importFilePanel.add(attachButton, attachButtonConstraint);
         
+                // contains importButton
                 JPanel importButtonPanel = new JPanel(new GridBagLayout());
-                GridBagConstraints importButtonConstraint = new GridBagConstraints();
+                importButtonPanel.add(importButton);
         
-                importButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
-                importButtonConstraint.gridx = 0;
-                importButtonConstraint.gridy = 0;
-                importButtonPanel.add(importButton, importButtonConstraint);
-        
+                // contains importButtonPanel and importFilePanel
                 JPanel importPanel = new JPanel(new GridBagLayout());
                 GridBagConstraints importPanelConstraint = new GridBagConstraints();
                 GridBagConstraints buttonPanelConstraint = new GridBagConstraints();
         
+                // places importFilePanel at the top of the panel
                 importPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
                 importPanelConstraint.gridx = 0;
                 importPanelConstraint.gridy = 0;
                 importPanel.add(importFilePanel, importPanelConstraint);
         
+                // places importButtonPanel at the bottom of the panel
                 buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
                 buttonPanelConstraint.gridx = 0;
                 buttonPanelConstraint.gridy = 1;
                 buttonPanelConstraint.insets = new Insets(15, 50, 0, 0);
-                importFilePanel.add(importButton, buttonPanelConstraint);
+                importFilePanel.add(importButtonPanel, buttonPanelConstraint);
         
                 importFrame.add(importPanel);
         
+                // makes the JFrame appear in the center of the screen
                 importFrame.setLocationRelativeTo(null);
+                // makes the JFrame visible
                 importFrame.setVisible(true);  
         }
 }

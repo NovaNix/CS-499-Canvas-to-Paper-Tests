@@ -21,7 +21,7 @@ public class CreateBankDialogue
         /**
          * Creates a frame that prompts the user to enter a quiz bank name 
          * and then add the bank with a button. Once the button is clicked, 
-         * the new quiz bank is displayed on the screen.
+         * the new quiz bank is displayed on the main dashboard.
          * 
          * @param bankProject used to add the new question bank to the QuestionBank list
          */

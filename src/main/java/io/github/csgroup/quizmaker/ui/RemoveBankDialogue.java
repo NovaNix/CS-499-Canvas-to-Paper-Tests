@@ -41,13 +41,13 @@ public class RemoveBankDialogue
                 GridBagConstraints yesButtonConstraint = new GridBagConstraints();
                 GridBagConstraints noButtonConstraint = new GridBagConstraints();
             
-                // places yesButton on the left side of the panel
+                // places yesButton on the left side buttonPanel
                 yesButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 yesButtonConstraint.gridx = 0;
                 yesButtonConstraint.gridy = 0;
                 buttonPanel.add(yesButton, yesButtonConstraint);
         
-                // places noButton on the right side of the panel
+                // places noButton on the right side of buttonPanel
                 noButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 noButtonConstraint.gridx = 1;
                 noButtonConstraint.gridy = 0;
@@ -58,13 +58,13 @@ public class RemoveBankDialogue
                 GridBagConstraints questionConstraint = new GridBagConstraints();
                 GridBagConstraints buttonConstraint = new GridBagConstraints();
                 
-                // places questionLabel at the top of the panel
+                // places questionLabel at the top of removeBankPanel
                 questionConstraint.fill = GridBagConstraints.HORIZONTAL;
                 questionConstraint.gridx = 0;
                 questionConstraint.gridy = 0;
                 removeBankPanel.add(questionLabel, questionConstraint);
         
-                // places buttonPanel at the bottom of the panel
+                // places buttonPanel at the bottom of removeBankPanel
                 buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 buttonConstraint.gridx = 0;
                 buttonConstraint.gridy = 1;

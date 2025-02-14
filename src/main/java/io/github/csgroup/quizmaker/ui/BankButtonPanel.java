@@ -12,8 +12,10 @@ import java.awt.GridBagConstraints;
  */
 public class BankButtonPanel {
  
-        public JButton addBankButton;       
-        public JButton removeBankButton;
+        // button to add a quiz bank
+        private JButton addBankButton;
+        // button to remove a quiz bank
+        private JButton removeBankButton;
         
         /**
          * Creates the add and remove buttons and places them 
@@ -34,14 +36,14 @@ public class BankButtonPanel {
                 GridBagConstraints addButtonConstraint = new GridBagConstraints();
                 GridBagConstraints removeButtonConstraint = new GridBagConstraints();
         
-                // places addBankButton on the left side of the panel
+                // places addBankButton on the left side of buttonPanel
                 addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 addButtonConstraint.gridx = 0;
                 addButtonConstraint.gridy = 0;
                 addButtonConstraint.ipadx = 55;
                 buttonPanel.add(addBankButton, addButtonConstraint);
         
-                // places removeBankButton on the right side of the panel
+                // places removeBankButton on the right side of buttonPanel
                 removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
                 removeButtonConstraint.gridx = 1;
                 removeButtonConstraint.gridy = 0;

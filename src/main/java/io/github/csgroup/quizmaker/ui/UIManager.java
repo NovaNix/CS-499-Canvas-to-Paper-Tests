@@ -24,7 +24,8 @@ public class UIManager
 	}
         
         /**
-         * Creates a frame that will host multiple panels for the system
+         * Creates a frame that will host multiple panels and the 
+         * file menu for the system
          */      
         public void createHomeFrame() 
         {
@@ -58,15 +59,16 @@ public class UIManager
                 homeFrame.setJMenuBar(menuBar);
             
                 // panel that will hold the quiz bank list and quiz bank questions 
-                // and answers
-                JPanel questionBankPanel;        
+                // and answers       
                 ContainerPanel selectPanel = new ContainerPanel();
                 // get the panel from the BankPanel class
-                questionBankPanel = selectPanel.createContainerPanel();
+                JPanel questionBankPanel = selectPanel.createContainerPanel();
                 // add the panel to homeFrame
                 homeFrame.add(questionBankPanel);
             
+                // listens for when the user selects importFileItems
                 importFileItem.addActionListener((ActionEvent e) -> {
+                    // display the frame that lets the user attach their QTI files
                     ImportFileFrame importFrame = new ImportFileFrame();
                     importFrame.createImportFileFrame();
                 });

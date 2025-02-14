@@ -22,9 +22,8 @@ public class ContainerPanel {
         public JPanel createContainerPanel()
         {
                 // get the quiz bank panel from the BankPanel class
-                JPanel quizBankPanel;
                 BankPanel quizBanks = new BankPanel();
-                quizBankPanel = quizBanks.createBankPanel();
+                JPanel quizBankPanel = quizBanks.createBankPanel();
                          
                 // get the table panel from the TablePanel class
                 JPanel bankTablePanel;
@@ -47,9 +46,7 @@ public class ContainerPanel {
                 tablePanelConstraint.gridy = 0;
                 containerPanel.add(bankTablePanel, tablePanelConstraint);
                                                 
-                return containerPanel;
-                
-            
+                return containerPanel;            
         }
     
 }
