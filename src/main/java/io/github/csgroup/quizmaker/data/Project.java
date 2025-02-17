@@ -11,6 +11,7 @@ import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 import io.github.csgroup.quizmaker.data.models.ProjectBankListModel;
+import io.github.csgroup.quizmaker.qti.QTIContents;
 
 /**
  * A container for a set of {@link QuestionBank QuestionBanks} and {@link Quiz Quizzes}. 
@@ -27,6 +28,16 @@ public class Project
 		
 	}
 	
+	/**
+	 * Adds the contents of a QTI file to the Project
+	 * @param qti The contents of the QTI file
+	 */
+	public void addQTI(QTIContents qti)
+	{
+		addBanks(qti.banks);
+		addQuizzes(qti.quizzes);
+	}
+	
 	public boolean addBank(QuestionBank bank)
 	{
 		boolean added = banks.add(bank);
@@ -40,6 +51,24 @@ public class Project
 		}
 		
 		return added;
+	}
+	
+	public void addBanks(List<QuestionBank> banks)
+	{
+		for (var bank : banks)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addBank(bank);
+		}
+	}
+	
+	public void addBanks(QuestionBank... banks)
+	{
+		for (var bank : banks)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addBank(bank);
+		}
 	}
 	
 	public boolean removeBank(QuestionBank bank)
@@ -92,6 +121,24 @@ public class Project
 		}
 		
 		return added;
+	}
+	
+	public void addQuizzes(List<Quiz> quizzes)
+	{
+		for (var quiz : quizzes)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addQuiz(quiz);
+		}
+	}
+	
+	public void addQuizzes(Quiz... quizzes)
+	{
+		for (var quiz : quizzes)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addQuiz(quiz);
+		}
 	}
 	
 	public boolean removeQuiz(Quiz quiz)
