@@ -38,6 +38,12 @@ public class Project
 		addQuizzes(qti.quizzes);
 	}
 	
+	/**
+	 * Adds a single {@link QuestionBank} to this Project.<br>
+	 * Fires an event when the bank is added.
+	 * @param bank the bank to add to the Project
+	 * @return true (to match Collection.add)
+	 */
 	public boolean addBank(QuestionBank bank)
 	{
 		boolean added = banks.add(bank);
@@ -53,6 +59,11 @@ public class Project
 		return added;
 	}
 	
+	/**
+	 * Adds multiple {@link QuestionBank QuestionBanks} to this Project.<br>
+	 * Fires an event for each bank added
+	 * @param banks the banks to add
+	 */
 	public void addBanks(List<QuestionBank> banks)
 	{
 		for (var bank : banks)
@@ -62,6 +73,11 @@ public class Project
 		}
 	}
 	
+	/**
+	 * Adds multiple {@link QuestionBank QuestionBanks} to this Project.<br>
+	 * Fires an event for each bank added
+	 * @param banks the banks to add
+	 */
 	public void addBanks(QuestionBank... banks)
 	{
 		for (var bank : banks)
@@ -71,6 +87,12 @@ public class Project
 		}
 	}
 	
+	/**
+	 * Removes a {@link QuestionBank} from this Project.<br>
+	 * Fires an event when the bank is removed
+	 * @param bank the bank to remove
+	 * @return whether the bank was included in the Project
+	 */
 	public boolean removeBank(QuestionBank bank)
 	{
 		int index = banks.indexOf(bank);
@@ -85,6 +107,9 @@ public class Project
 		return included;
 	}
 	
+	/**
+	 * @return the number of {@link QuestionBank QuestionBanks} in this Project
+	 */
 	public int getBankCount()
 	{
 		return banks.size();
@@ -95,6 +120,11 @@ public class Project
 		return banks.get(index);
 	}
 	
+	/**
+	 * Finds the index of a {@link QuestionBank} included in this Project
+	 * @param bank the bank to search for
+	 * @return the index of the bank, or -1 if the bank is not included in this Project
+	 */
 	public int getBankIndex(QuestionBank bank)
 	{
 		return banks.indexOf(bank);
@@ -108,6 +138,12 @@ public class Project
 		return new ArrayList<QuestionBank>(banks);
 	}
 	
+	/**
+	 * Adds a single {@link Quiz} to this Project.<br>
+	 * Fires an event when the quiz is added.
+	 * @param quiz the quiz to add to the Project
+	 * @return true (to match Collection.add)
+	 */
 	public boolean addQuiz(Quiz quiz)
 	{
 		boolean added = quizzes.add(quiz);
@@ -123,6 +159,11 @@ public class Project
 		return added;
 	}
 	
+	/**
+	 * Adds multiple {@link Quiz Quizzes} to this Project.<br>
+	 * Fires an event for each quiz added
+	 * @param quizzes the quizzes to add
+	 */
 	public void addQuizzes(List<Quiz> quizzes)
 	{
 		for (var quiz : quizzes)
@@ -132,6 +173,11 @@ public class Project
 		}
 	}
 	
+	/**
+	 * Adds multiple {@link Quiz Quizzes} to this Project.<br>
+	 * Fires an event for each quiz added
+	 * @param quizzes the quizzes to add
+	 */
 	public void addQuizzes(Quiz... quizzes)
 	{
 		for (var quiz : quizzes)
@@ -141,6 +187,12 @@ public class Project
 		}
 	}
 	
+	/**
+	 * Removes a {@link Quiz} from this Project.<br>
+	 * Fires an event when the quiz is removed
+	 * @param quiz the quiz to remove
+	 * @return whether the quiz was included in the Project
+	 */
 	public boolean removeQuiz(Quiz quiz)
 	{
 		int index = quizzes.indexOf(quiz);
@@ -163,6 +215,9 @@ public class Project
 		return new ArrayList<Quiz>(quizzes);
 	}
 	
+	/**
+	 * @return the number of {@link Quiz Quizzes} in this Project
+	 */
 	public int getQuizCount()
 	{
 		return quizzes.size();
