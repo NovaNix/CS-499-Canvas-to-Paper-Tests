@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.util.zip.ZipException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test to verify that the QTI files are unzipped and extracted properly. <br>
@@ -25,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class QTIImportManagerTest 
 {
     
+	private static final Logger logger = LoggerFactory.getLogger(QTIImportManagerTest.class);
+	
 	// path to the test QTI ZIP file
 	private static final String TestZipPATH = "/group-3-project-quiz-export.zip"; 
     
@@ -87,10 +91,10 @@ public class QTIImportManagerTest
 		assertNotNull(extracted_Files, "ERROR!! No files were extracted.");
 		assertTrue(extracted_Files.length > 0, "ERROR!! Temporary directory is EMPTY (contains zero files).");
         
-		System.out.println("List of Extracted Files:");
+		logger.info("List of Extracted Files:");
 		for (File file : extracted_Files) 
 		{
-			System.out.println(" - " + file.getName());
+			logger.info(" - {}", file.getName());
 		}
 	}
 

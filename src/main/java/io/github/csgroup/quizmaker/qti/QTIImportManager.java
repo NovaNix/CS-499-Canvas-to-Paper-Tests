@@ -30,6 +30,7 @@ public class QTIImportManager
 	public Path extractQTIFile(String zipFilePath) throws IOException, ZipException 
 	{
 		File zipFile = new File(zipFilePath);
+		
 		if (!zipFile.exists()) 
 		{
 			logger.error("ERROR!! ZIP file does not exist: {}", zipFilePath);
@@ -55,11 +56,14 @@ public class QTIImportManager
 	 * @param zipFilePath The path to the QTI Zip file.
 	 * @param extractedFilePath The path to the directory where the files will be extracted.
 	 */
-	private void unzipFile(String zipFilePath, String extractedFilePath) throws ZipException 
+	private void unzipFile(String zipFilePath, String extractedFilePath) throws IOException, ZipException 
 	{
-		ZipFile zipFile = new ZipFile(zipFilePath);
-		zipFile.extractAll(extractedFilePath);
-		logger.info("Unzipping success, extracted to: {}", extractedFilePath);
+		try (ZipFile zipFile = new ZipFile(zipFilePath))
+		{
+			zipFile.extractAll(extractedFilePath);
+			
+			logger.info("Unzipping success, extracted to: {}", extractedFilePath);
+		}	
 	}
     
 	// Returns the path to the temporary directory
