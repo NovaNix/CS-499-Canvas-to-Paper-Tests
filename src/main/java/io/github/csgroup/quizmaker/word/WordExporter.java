@@ -2,10 +2,15 @@ package io.github.csgroup.quizmaker.word;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,173 +32,46 @@ public class WordExporter
 {
 	public static final Logger logger = LoggerFactory.getLogger(WordExporter.class);
 
-	// TODO add more template files, add correct function parameters
+	// TODO add correct function parameters, change hardcoded values
 	
 	private Path testTemplate;
 	private Path keyTemplate;
 	
 	public WordExporter() //throws Exception
 	{
-		// TODO add check for if a template is being used or if a new document is being created
-		// Necessary for document creating
-        XWPFDocument document = new XWPFDocument();
+		String inputFilePath = "Test Template.docx";
+        String outputFilePath = "Modified Template.docx";
+        String searchText = "(Section)";
+        String replaceText = "88";
 
-        // Create a header (Header and footer creation might move to function calls in the future for organization)
-        XWPFHeader header = document.createHeader(HeaderFooterType.DEFAULT);
+        try (FileInputStream fis = new FileInputStream(inputFilePath);
+             XWPFDocument document = new XWPFDocument(fis)) {
 
-        // Create a table in the header to allow for justification (1 row and 3 columns for left, center, and right)
-        XWPFTable headerTable = header.createTable(1, 3);
+            for (XWPFHeader header : document.getHeaderList()) {
+                replaceTextInHeaderFooter(header, searchText, replaceText);
+            }
+            for (XWPFFooter footer : document.getFooterList()) {
+                replaceTextInHeaderFooter(footer, searchText, replaceText);
+            }
 
-        // Set table width to 100% (full page width) and use fixed layout
-        headerTable.setWidth("100%");
-        headerTable.setTableAlignment(TableRowAlign.CENTER);
-        headerTable.getCTTbl().getTblPr().addNewTblW().setW(BigInteger.valueOf(9100));
-        headerTable.setWidthType(TableWidthType.PCT);
-        headerTable.getCTTbl().addNewTblPr().addNewTblLayout().setType(STTblLayoutType.FIXED); 
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                replaceTextPreservingFormatting(paragraph, searchText, replaceText);
+            }
 
-        // Remove table borders
-        headerTable.getCTTbl().getTblPr().unsetTblBorders();
+            for (XWPFTable table : document.getTables()) {
+                replaceTextInTable(table, searchText, replaceText);
+            }
 
-        // Set each column to have an equal distribution
-        headerTable.getRow(0).getCell(0).setWidth("33.3%");
-        headerTable.getRow(0).getCell(1).setWidth("33.3%");
-        headerTable.getRow(0).getCell(2).setWidth("33.3%");
+            try (FileOutputStream fos = new FileOutputStream(outputFilePath)) {
+                document.write(fos);
+            }
 
-        // Function calls to correctly set the text in each cell
-        setCellText(headerTable.getRow(0).getCell(0), "CS(Class)-0(Section)\n(Professor)", ParagraphAlignment.LEFT);
-        setCellText(headerTable.getRow(0).getCell(1), "Test (Test)", ParagraphAlignment.CENTER);
-        setCellText(headerTable.getRow(0).getCell(2), "(Date)", ParagraphAlignment.RIGHT);
-        
-        // Create footer with correct properties
-        XWPFFooter footer = document.createFooter(HeaderFooterType.DEFAULT);
-        XWPFParagraph footerParagraph = footer.createParagraph();
-        footerParagraph.setAlignment(ParagraphAlignment.LEFT);
+            // System.out.println("Replacement done! Output saved to: " + outputFilePath);
 
-        // Create static text for the footer
-        XWPFRun footerRun = footerParagraph.createRun();
-        footerRun.setFontFamily("Times New Roman");
-        footerRun.setFontSize(10);
-        footerRun.setText("Page | ");
-        
-        // Set up for creating dynamic page numbers in the footer
-        XWPFRun pageNumberRun = footerParagraph.createRun();
-        pageNumberRun.setFontFamily("Times New Roman");
-        pageNumberRun.setFontSize(10);
-
-        // Begin Field
-        CTFldChar fldCharBegin = pageNumberRun.getCTR().addNewFldChar();
-        fldCharBegin.setFldCharType(STFldCharType.BEGIN);
-
-        // Field Instruction ("PAGE")
-        XWPFRun pageNumInstr = footerParagraph.createRun();
-        pageNumInstr.setFontFamily("Times New Roman");
-        pageNumInstr.setFontSize(10);
-        CTText instrText = pageNumInstr.getCTR().addNewInstrText();
-        instrText.setStringValue("PAGE \\* MERGEFORMAT"); // Proper format expected to insert page number
-        instrText.setSpace(SpaceAttribute.Space.PRESERVE);
-
-        // End Field
-        XWPFRun fldCharEndRun = footerParagraph.createRun();
-        fldCharEndRun.setFontFamily("Times New Roman");
-        fldCharEndRun.setFontSize(10);
-        CTFldChar fldCharEnd = fldCharEndRun.getCTR().addNewFldChar();
-        fldCharEnd.setFldCharType(STFldCharType.END);
-
-        // Create name field text
-        XWPFParagraph nameField = document.createParagraph();
-        nameField.setSpacingAfter(0);
-        nameField.setSpacingBetween(1, LineSpacingRule.AUTO);
-        nameField.setAlignment(ParagraphAlignment.RIGHT); 
-        XWPFRun nameRun = nameField.createRun();
-        nameRun.setFontFamily("Times New Roman"); 
-        nameRun.setFontSize(12);
-        nameRun.setText("Name: _____________________________________");
-        
-        // Create a break between name field and numbered list
-        XWPFParagraph testInstruction = document.createParagraph();
-        testInstruction.setSpacingAfter(0);
-        testInstruction.setSpacingBetween(1, LineSpacingRule.AUTO);
-        XWPFRun preListRun = testInstruction.createRun();
-        preListRun.setFontFamily("Times New Roman");
-        preListRun.setFontSize(12);
-        preListRun.addBreak();
-        preListRun.setText("Test Instructions:");
-
-        // Setup for creating numbered list
-        XWPFNumbering numbering = document.createNumbering();
-        String numId = createNumberingStyle(numbering); // Define numbering style
-
-        // Add numbered list items matching document format 
-        // TODO change this to a loop for dynamic numbered list
-        addNumberedParagraph(document, "Make sure your test has all the pages.", numId, 0);
-        addNumberedParagraph(document, "Do your own work.", numId, 0);
-        addNumberedParagraph(document, "Show your work. It is impossible to give partial credit if you do not show your work.", numId, 0);
-        addNumberedParagraph(document, "When you finish the exam turn it in at the front desk and immediately leave the room. Please do not hang around outside the classroom.", numId, 0);
-        addNumberedParagraph(document, "Do not use any paper other than what is provided. Use the back of these pages if needed.", numId, 0);
-        addNumberedParagraph(document, "No books, notes or other materials are allowed.", numId, 0);
-        addNumberedParagraph(document, "Only simple calculators are allowed. The calculator cannot store text.", numId, 0);
-        addNumberedParagraph(document, "Put your name on this page and the top of the next page.", numId, 0);
-        addNumberedParagraph(document, "Do NOT fold this exam and leave all the pages stapled together.", numId, 0);
-        addNumberedParagraph(document, "If there are provided reference information those sheets may be removed. Those sheets do NOT need to be returned with the test.", numId, 0);
-        addNumberedParagraph(document, "If you do not understand what the problem is asking for raise your hand or come to the front of the class.", numId, 0);
-        addNumberedParagraph(document, "Do not communicate with other students. Talk only to the proctor.", numId, 0);
-        addNumberedParagraph(document, "If you need a break during the exam, ask the proctor first. You must leave the exam and your cell phone in the classroom.", numId, 0);
-        addNumberedParagraph(document, "This is a ", "(Point)", " point exam.", numId, 0);
-        addNumberedParagraph(document, "The time limit on this exam is (Time) minutes.", numId, 0);
-        
-        // Create space between numbered list and the section list
-        XWPFParagraph sectionPar = document.createParagraph();
-        sectionPar.setSpacingAfter(0);
-        sectionPar.setSpacingBetween(1, LineSpacingRule.AUTO);
-        XWPFRun sectionRun = sectionPar.createRun();
-        sectionRun.setFontFamily("Times New Roman");
-        sectionRun.setFontSize(12);
-        sectionRun.addBreak();
-        sectionRun.addBreak();
-        sectionRun.addBreak();
-        sectionRun.setText("This test covers sections: (SectionList)");
-        
-        
-        // Setup to create the name and score table
-        XWPFTable nameTable = document.createTable(1, 2);
-        nameTable.setWidth("100%");
-        nameTable.getCTTbl().getTblPr().addNewTblInd().setW(BigInteger.ZERO);
-        nameTable.setTableAlignment(TableRowAlign.CENTER);
-        nameTable.getCTTbl().getTblPr().addNewTblW().setW(BigInteger.valueOf(9200));
-        nameTable.setTableAlignment(TableRowAlign.CENTER);
-        nameTable.setWidthType(TableWidthType.PCT);
-        nameTable.getCTTbl().addNewTblPr().addNewTblLayout().setType(STTblLayoutType.FIXED);
-        
-        nameTable.getRow(0).getCell(0).setWidth("66.7%");
-        nameTable.getRow(0).getCell(1).setWidth("33.3%");
-        
-        // The first cell needs to have a page break to ensure that the table is on the top of the next page.
-        XWPFTableCell cell1 = nameTable.getRow(0).getCell(0);
-        XWPFParagraph cellParagraph = cell1.getParagraphs().get(0);
-        cellParagraph.setPageBreak(true);
-        setCellText(nameTable.getRow(0).getCell(0), "  Name: \n ", ParagraphAlignment.LEFT);
-        setCellText(nameTable.getRow(0).getCell(1), "  Score:", ParagraphAlignment.LEFT);
-        
-        
-        
-        // Save document
-        try {
-        	File f = File.createTempFile("TestTemplate", ".docx");
-        	FileOutputStream fo = new FileOutputStream(f);
-        	document.write(fo);
-        	Desktop.getDesktop().open(f);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        catch (Exception e) {
-	        e.printStackTrace();
-	    }
-        
-        // This will be for actually saving the document
-        //FileOutputStream out = new FileOutputStream(new File("TestTemplate.docx"));
-        //document.write(out);
-        //out.close();
 	}
-
- 
 	
 	public void exportTest(Quiz quiz, Path destination)
 	{
@@ -205,96 +83,138 @@ public class WordExporter
 		
 	}
 	
-	// Function to correctly set text inside of a table cell
-    private static void setCellText(XWPFTableCell cell, String text, ParagraphAlignment alignment) {
-        XWPFParagraph paragraph = cell.getParagraphs().get(0); // Get the first paragraph in the cell
-        paragraph.setAlignment(alignment);
-        paragraph.setSpacingAfter(0);
-        paragraph.setSpacingBetween(1, LineSpacingRule.AUTO);
+	/**
+     * Replaces occurrences of a specific text within a paragraph while preserving the formatting.
+     */
+	private static void replaceTextPreservingFormatting(XWPFParagraph paragraph, String searchText, String replaceText) {
+        List<XWPFRun> runs = paragraph.getRuns();
+        if (runs == null || runs.isEmpty()) return;
 
-        XWPFRun run = paragraph.createRun();
-        run.setFontFamily("Times New Roman");
-        run.setFontSize(12);
+        StringBuilder fullText = new StringBuilder();
+        List<RunStyle> runStyles = new ArrayList<>();
+        Map<Integer, XWPFRun> runMap = new LinkedHashMap<>();
 
-        // Insert new line within the same cell
-        String[] lines = text.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            run.setText(lines[i]); // Set the text
-            if (i < lines.length - 1) {
-                run.addBreak(); // Add a new line
+        int index = 0;
+        for (XWPFRun run : runs) {
+            if (run.getText(0) != null) {
+                String text = run.getText(0);
+                fullText.append(text);
+                runStyles.add(new RunStyle(run));
+                runMap.put(index, run);
+                index += text.length();
+            }
+        }
+
+        String fullTextStr = fullText.toString();
+        int startIdx = fullTextStr.indexOf(searchText);
+        if (startIdx == -1) return;
+
+        int endIdx = startIdx + searchText.length();
+
+        XWPFRun firstRun = runMap.get(startIdx);
+        RunStyle firstRunStyle = new RunStyle(firstRun);
+
+        for (int i = runs.size() - 1; i >= 0; i--) {
+            paragraph.removeRun(i);
+        }
+
+        String before = fullTextStr.substring(0, startIdx);
+        String after = fullTextStr.substring(endIdx);
+
+        if (!before.isEmpty()) {
+            XWPFRun beforeRun = paragraph.createRun();
+            runStyles.get(0).applyTo(beforeRun);
+            beforeRun.setText(before);
+        }
+
+        XWPFRun newRun = paragraph.createRun();
+        firstRunStyle.applyTo(newRun);
+        newRun.setText(replaceText);
+
+        if (!after.isEmpty()) {
+            XWPFRun afterRun = paragraph.createRun();
+            runStyles.get(runStyles.size() - 1).applyTo(afterRun);
+            afterRun.setText(after);
+        }
+    }
+
+	/**
+     * Stores and applies formatting styles of an XWPFRun object.
+     */
+    static class RunStyle {
+        boolean isBold;
+        boolean isItalic;
+        UnderlinePatterns underline;
+        String fontFamily;
+        int fontSize;
+        String color;
+
+        RunStyle(XWPFRun run) {
+            this.isBold = run.isBold();
+            this.isItalic = run.isItalic();
+            this.underline = run.getUnderline();
+            this.fontFamily = getFontFamilySafely(run);
+            this.fontSize = (run.getFontSizeAsDouble() != null) ? run.getFontSizeAsDouble().intValue() : 12;
+            this.color = run.getColor();
+        }
+
+        void applyTo(XWPFRun run) {
+            run.setBold(isBold);
+            run.setItalic(isItalic);
+            run.setUnderline(underline);
+            run.setFontFamily(fontFamily);
+            run.setFontSize(fontSize);
+            if (color != null) run.setColor(color);
+        }
+    }
+
+    /**
+     * Safely retrieves the font family of an XWPFRun object, with a fallback to "Times New Roman".
+     */
+    private static String getFontFamilySafely(XWPFRun run) {
+        try {
+            String fontFamily = run.getFontFamily();
+            if (fontFamily == null || fontFamily.isEmpty()) {
+                fontFamily = run.getFontFamily(XWPFRun.FontCharRange.ascii);
+            }
+            return (fontFamily != null && !fontFamily.isEmpty()) ? fontFamily : "Times New Roman";
+        } catch (Exception e) {
+            return "Times New Roman";
+        }
+    }
+
+    /**
+     * Recursively replaces text in tables while preserving formatting.
+     */
+    private static void replaceTextInTable(XWPFTable table, String searchText, String replaceText) {
+        for (XWPFTableRow row : table.getRows()) {
+            for (XWPFTableCell cell : row.getTableCells()) {
+                for (XWPFParagraph paragraph : cell.getParagraphs()) {
+                    replaceTextPreservingFormatting(paragraph, searchText, replaceText);
+                }
+                for (XWPFTable nestedTable : cell.getTables()) {
+                    replaceTextInTable(nestedTable, searchText, replaceText);
+                }
             }
         }
     }
-    
-    // Function to create a correctly set numbered list
-    private static String createNumberingStyle(XWPFNumbering numbering) {
-        CTAbstractNum abstractNum = CTAbstractNum.Factory.newInstance();
-        abstractNum.setAbstractNumId(BigInteger.ZERO);
 
-        // Level 0 (Main Numbering: 1., 2., 3.)
-        CTLvl lvl0 = abstractNum.addNewLvl();
-        lvl0.setIlvl(BigInteger.ZERO);
-        lvl0.addNewNumFmt().setVal(STNumberFormat.DECIMAL);
-        lvl0.addNewLvlText().setVal("%1.");
-        lvl0.addNewStart().setVal(BigInteger.ONE);
-        lvl0.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(360)); // Indentation for level 0
-        
-        CTRPr rPr = lvl0.addNewRPr(); // Create a run properties section
-        CTFonts fonts = rPr.addNewRFonts();
-        fonts.setAscii("Times New Roman");
-        fonts.setHAnsi("Times New Roman");
-        rPr.addNewSz().setVal(BigInteger.valueOf(24)); // Font size uses half-points
-
-        // Level 1 (Sub-numbering: a., b., c.)
-        CTLvl lvl1 = abstractNum.addNewLvl();
-        lvl1.setIlvl(BigInteger.ONE);
-        lvl1.addNewNumFmt().setVal(STNumberFormat.LOWER_LETTER);
-        lvl1.addNewLvlText().setVal("%2.");
-        lvl1.addNewStart().setVal(BigInteger.ONE);
-        lvl1.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(720));
-        
-        CTRPr rPr1 = lvl1.addNewRPr();
-        CTFonts fonts1 = rPr1.addNewRFonts();
-        fonts1.setAscii("Times New Roman");
-        fonts1.setHAnsi("Times New Roman");
-        rPr1.addNewSz().setVal(BigInteger.valueOf(24));
-
-        XWPFAbstractNum xwpfAbstractNum = new XWPFAbstractNum(abstractNum);
-        BigInteger abstractNumID = numbering.addAbstractNum(xwpfAbstractNum);
-        return numbering.addNum(abstractNumID).toString(); // Returns the numId
+    /**
+     * Replaces text within headers and footers while preserving formatting.
+     */
+    private static void replaceTextInHeaderFooter(XWPFHeaderFooter headerFooter, String searchText, String replaceText) {
+        try { //Old error dont know if this is necessary anymore
+            for (XWPFParagraph paragraph : headerFooter.getParagraphs()) {
+                replaceTextPreservingFormatting(paragraph, searchText, replaceText);
+            }
+            for (XWPFTable table : headerFooter.getTables()) {
+                replaceTextInTable(table, searchText, replaceText);
+            }
+        } catch (Exception e) {
+            // System.err.println("Skipping a header/footer due to XmlValueDisconnectedException: " + e.getMessage());
+        }
     }
-
-    // Function to add a numbered list paragraph with proper indentation
-    private static void addNumberedParagraph(XWPFDocument document, String beforeBold, String boldText, String afterBold, String numId, int level) {
-    	XWPFParagraph paragraph = document.createParagraph();
-        paragraph.setNumID(new BigInteger(numId)); // Apply numbering
-        paragraph.setNumILvl(BigInteger.valueOf(level)); // Set level (0 = main, 1 = sub-item)
-        paragraph.setSpacingAfter(0);
-        paragraph.setSpacingBetween(1, LineSpacingRule.AUTO); 
-        
-        // Text before bolding
-        XWPFRun run1 = paragraph.createRun();
-        run1.setFontFamily("Times New Roman");
-        run1.setFontSize(12);
-        run1.setText(beforeBold);
-
-        // Bold text
-        XWPFRun boldRun = paragraph.createRun();
-        boldRun.setFontFamily("Times New Roman");
-        boldRun.setFontSize(12);
-        boldRun.setBold(true); // Make bold
-        boldRun.setText(boldText);
-
-        // Normal text after bold
-        XWPFRun run2 = paragraph.createRun();
-        run2.setFontFamily("Times New Roman");
-        run2.setFontSize(12);
-        run2.setText(afterBold);       
-    }
-    
-    // Overloaded function for cases without bold text
-    private static void addNumberedParagraph(XWPFDocument document, String noBold, String numId, int level) {
-        addNumberedParagraph(document, noBold, "", "", numId, level);
-    }
-
 }
+
+
+	
