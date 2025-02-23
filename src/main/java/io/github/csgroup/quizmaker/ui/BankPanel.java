@@ -13,27 +13,31 @@ import javax.swing.JScrollPane;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.ListModel;
+import javax.swing.JComponent;
 
 /**
  * Creates the JPanel that contains the JList of quiz bank names 
  * 
  * @author Emily Palmer
  */
-public class BankPanel 
-{       
+public class BankPanel extends JComponent
+{           
+        public BankPanel(Project currentProject)
+        {
+                createBankPanel(currentProject);
+        }
+    
         /**
          * Creates the quiz bank names JList and places them along with the 
          * add and remove bank buttons in a JPanel. The JPanel is organized 
          * using the GridBagLayout layout manager
-         * 
+         * *
+         * @param currentProject project used to add new quiz bank to Project list
          * @return the panel that holds the list of quiz bank names
          * and add and remove buttons
          */
-        public JPanel createBankPanel()
-        {
-                // quiz bank project variable used to add banks to QuestionBank list
-                Project bankProject = new Project();
-            
+        private void createBankPanel(Project bankProject)
+        {            
                 // label for the quiz question banks
                 JLabel quizBankLabel = new JLabel("Quiz Banks");
                 
@@ -62,38 +66,71 @@ public class BankPanel
                 bankPanel.add(bankScrollPane, bankScrollPaneConstraint);
                 
                 // add and remove button panel
-                BankButtonPanel addRemoveButtons = new BankButtonPanel();
-                JPanel buttonPanel = addRemoveButtons.createBankButtonPanel();
+                JPanel buttonPanel = bankButtonPanel(bankProject, quizBankList);
                
                 // contains bankPanel and buttonPanel
-                JPanel bankButtonPanel = new JPanel(new GridBagLayout());
+                this.setLayout(new GridBagLayout());
                 GridBagConstraints quizPanelConstraint = new GridBagConstraints();
                 GridBagConstraints buttonPanelConstraint = new GridBagConstraints();
         
-                // places bankPanel at the top of bankButtonPanel
+                // places bankPanel at the top of BankPanel
                 quizPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
                 quizPanelConstraint.gridx = 0;
                 quizPanelConstraint.gridy = 0;
-                bankButtonPanel.add(bankPanel, quizPanelConstraint);
+                this.add(bankPanel, quizPanelConstraint);
         
-                // places buttonPanel at the bottom of bankButtonPanel
+                // places buttonPanel at the bottom of BankPanel
                 buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
                 buttonPanelConstraint.gridx = 0;
                 buttonPanelConstraint.gridy = 1;
-                bankButtonPanel.add(buttonPanel, buttonPanelConstraint);
+                this.add(buttonPanel, buttonPanelConstraint);                            
+        }  
+        
+        /**
+         * Creates the button panel that contains the buttons to add and remove
+         * a quiz bank.
+         *
+         * @param currentProject the project that is used to add or remove the 
+         * quiz banks
+         * @param bankList list of quiz bank names
+         * @return the button panel
+         */
+        private JPanel bankButtonPanel(Project currentProject, JList bankList)
+        {
+                // button to add a quiz bank
+                JButton addBankButton = new JButton("+");
+                // button to remove a quiz bank
+                JButton removeBankButton = new JButton("-");
+                // disable the removeBankButton until the user selects a quiz bank
+                removeBankButton.setEnabled(false);
+            
+                JPanel buttonPanel = new JPanel(new GridBagLayout());
+                GridBagConstraints addButtonConstraint = new GridBagConstraints();
+                GridBagConstraints removeButtonConstraint = new GridBagConstraints();
+        
+                // places addBankButton on the left side of buttonPanel
+                addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+                addButtonConstraint.gridx = 0;
+                addButtonConstraint.gridy = 0;
+                addButtonConstraint.ipadx = 55;
+                buttonPanel.add(addBankButton, addButtonConstraint);
+        
+                // places removeBankButton on the right side of buttonPanel
+                removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+                removeButtonConstraint.gridx = 1;
+                removeButtonConstraint.gridy = 0;
+                removeButtonConstraint.ipadx = 55;
+                buttonPanel.add(removeBankButton, removeButtonConstraint); 
                 
-                JButton addBankButton = addRemoveButtons.getAddBankButton();
-                JButton removeBankButton = addRemoveButtons.getRemoveBankButton();
-                                
                 // listens for when addBankButton is clicked 
                 addBankButton.addActionListener((ActionEvent e) -> {
                     // display the frame that prompts the user to enter a bank name
-                    CreateBankDialogue addQuizBank = new CreateBankDialogue();
-                    addQuizBank.createAddBankFrame(bankProject);
+                    CreateBankDialog addQuizBank = new CreateBankDialog();
+                    addQuizBank.createAddBankFrame(currentProject);
                 });    
                 
                 // listens for when a quiz bank is selected
-                quizBankList.addListSelectionListener((ListSelectionEvent e) -> {
+                bankList.addListSelectionListener((ListSelectionEvent e) -> {
                     // once a quiz bank has been selected enable removaBankButton
                     removeBankButton.setEnabled(true);
                 });
@@ -101,12 +138,13 @@ public class BankPanel
                 // listens for when removeBankButton is clicked
                 removeBankButton.addActionListener((ActionEvent e) -> {
                     // the name of the selected quiz bank
-                    QuestionBank removeBankName = (QuestionBank) quizBankList.getSelectedValue();
-                    RemoveBankDialogue removeBank = new RemoveBankDialogue();
+                    QuestionBank removeBankName = (QuestionBank) bankList.getSelectedValue();
+                    RemoveBankDialog removeBank = new RemoveBankDialog();
                     // display the frame that prompts the user if they are sure they 
                     // are deleting the correct quiz bank
-                    removeBank.createRemoveBankFrame(removeBankName, bankProject);                    
-                });                            
-                return bankButtonPanel;
-        }    
+                    removeBank.createRemoveBankFrame(removeBankName, currentProject);                    
+                });             
+                                                                
+                return buttonPanel;            
+        }
 }

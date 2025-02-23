@@ -16,7 +16,7 @@ import java.awt.event.ActionEvent;
  * 
  * @author Emily Palmer
  */
-public class CreateBankDialogue
+public class CreateBankDialog
 {       
         /**
          * Creates a frame that prompts the user to enter a quiz bank name 

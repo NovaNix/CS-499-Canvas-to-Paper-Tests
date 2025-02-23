@@ -1,5 +1,7 @@
 package io.github.csgroup.quizmaker.ui;
 
+import io.github.csgroup.quizmaker.App;
+import io.github.csgroup.quizmaker.data.Project;
 import java.awt.event.ActionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 
 /**
  * The central manager for the user interface. 
@@ -59,17 +60,16 @@ public class UIManager
                 homeFrame.setJMenuBar(menuBar);
             
                 // panel that will hold the quiz bank list and quiz bank questions 
-                // and answers       
-                ContainerPanel selectPanel = new ContainerPanel();
-                // get the panel from the BankPanel class
-                JPanel questionBankPanel = selectPanel.createContainerPanel();
+                // and answers     
+                Project quizBankProject = App.getCurrentProject();
+                BankHostPanel selectPanel = new BankHostPanel(quizBankProject);
                 // add the panel to homeFrame
-                homeFrame.add(questionBankPanel);
+                homeFrame.add(selectPanel);
             
                 // listens for when the user selects importFileItems
                 importFileItem.addActionListener((ActionEvent e) -> {
                     // display the frame that lets the user attach their QTI files
-                    ImportFileFrame importFrame = new ImportFileFrame();
+                    ImportQTIDialog importFrame = new ImportQTIDialog();
                     importFrame.createImportFileFrame();
                 });
                                                                                                   

@@ -16,7 +16,7 @@ import io.github.csgroup.quizmaker.data.Project;
  * 
  * @author Emily Palmer
  */
-public class RemoveBankDialogue 
+public class RemoveBankDialog 
 { 
         /**
          * Creates a frame that contains asks if the user is deleting the correct

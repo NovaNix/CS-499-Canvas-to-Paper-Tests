@@ -5,6 +5,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.JPanel;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.JComponent;
 
 /**
  * Creates a JPanel that contains a table of the quiz bank questions
@@ -12,15 +15,20 @@ import javax.swing.JPanel;
  * 
  * @author Emily Palmer
  */
-public class TablePanel {
-   
+public class QuestionTable extends JComponent
+{    
+        public QuestionTable()
+        {
+                createTablePanel();
+        }
+    
         /**
          * Creates a JTable to hold the quiz bank questions and answers and 
          * places the JTable in a JPanel
          *
          * @return JPanel containing the JTable
          */
-        public JPanel createTablePanel()
+        private void createTablePanel()
         {
                 // column headers for dataTable
                 String[] columnHeaders = {"Questions", "Answers"};
@@ -38,8 +46,14 @@ public class TablePanel {
                 JScrollPane tableScrollPane = new JScrollPane(dataTable);
                 JPanel tablePanel = new JPanel();
                 tablePanel.add(tableScrollPane);
-                        
-                return tablePanel;
-    }
-    
+                
+                this.setLayout(new GridBagLayout());
+                GridBagConstraints tableConstraint = new GridBagConstraints();
+                
+                // places tablePanel at the top of QuestionTable
+                tableConstraint.fill = GridBagConstraints.HORIZONTAL;
+                tableConstraint.gridx = 0;
+                tableConstraint.gridy = 0;
+                this.add(tablePanel, tableConstraint);
+        }   
 }

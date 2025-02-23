@@ -14,7 +14,7 @@ import javax.swing.JTextField;
  * 
  * @author Emily Palmer
  */
-public class ImportFileFrame {
+public class ImportQTIDialog {
     
         /**
          * Creates a frame that prompts the user to attach a QTI file
