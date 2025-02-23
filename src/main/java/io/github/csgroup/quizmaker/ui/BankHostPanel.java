@@ -13,7 +13,7 @@ import javax.swing.JComponent;
  */
 public class BankHostPanel extends JComponent
 { 
-        public Project quizBankProject = new Project();
+        private final Project quizBankProject;
     
         public BankHostPanel(Project bankProject)
         {
