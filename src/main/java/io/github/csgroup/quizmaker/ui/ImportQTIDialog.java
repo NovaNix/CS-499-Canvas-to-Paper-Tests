@@ -14,15 +14,22 @@ import javax.swing.JTextField;
  * 
  * @author Emily Palmer
  */
-public class ImportQTIDialog {
+public class ImportQTIDialog 
+{ 
+        private JFrame importFrame;
     
+        public ImportQTIDialog()
+        {
+                createImportFileFrame();
+        }
+        
         /**
          * Creates a frame that prompts the user to attach a QTI file
          * 
          */
-        public void createImportFileFrame()
+        private void createImportFileFrame()
         {            
-                JFrame importFrame = new JFrame();
+                importFrame = new JFrame();
                 importFrame.setSize(400, 250);
         
                 JButton attachButton = new JButton("Attach");
@@ -70,11 +77,18 @@ public class ImportQTIDialog {
                 buttonPanelConstraint.insets = new Insets(15, 50, 0, 0);
                 importFilePanel.add(importButtonPanel, buttonPanelConstraint);
         
-                importFrame.add(importPanel);
+                importFrame.add(importPanel);  
+        }
         
+        /**
+         * Controls when and where the frame appears
+         * 
+         */
+        public void showImportDialog()
+        {
                 // makes the JFrame appear in the center of the screen
                 importFrame.setLocationRelativeTo(null);
                 // makes the JFrame visible
-                importFrame.setVisible(true);  
+                importFrame.setVisible(true);
         }
 }

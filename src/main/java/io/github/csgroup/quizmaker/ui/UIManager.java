@@ -70,7 +70,7 @@ public class UIManager
                 importFileItem.addActionListener((ActionEvent e) -> {
                     // display the frame that lets the user attach their QTI files
                     ImportQTIDialog importFrame = new ImportQTIDialog();
-                    importFrame.createImportFileFrame();
+                    importFrame.showImportDialog();
                 });
                                                                                                   
                 // if the JFrame is closed terminate the running program
