@@ -18,6 +18,13 @@ import io.github.csgroup.quizmaker.data.Project;
  */
 public class RemoveBankDialog 
 { 
+        private JFrame removeFrame;
+    
+        public RemoveBankDialog(QuestionBank bankName, Project currentProject)
+        {
+                createRemoveBankFrame(bankName, currentProject);
+        }
+            
         /**
          * Creates a frame that contains asks if the user is deleting the correct
          * quiz bank. If they confirm that they are deleting the correct quiz bank, 
@@ -26,9 +33,9 @@ public class RemoveBankDialog
          * @param name the name of the quiz bank to be removed
          * @param bankProject used to remove the new question bank to the QuestionBank list
          */
-        public void createRemoveBankFrame(QuestionBank name, Project bankProject)
+        private void createRemoveBankFrame(QuestionBank name, Project bankProject)
         {            
-                JFrame removeFrame = new JFrame();
+                removeFrame = new JFrame();
                 removeFrame.setSize(400, 290);
         
                 JLabel questionLabel = new JLabel("Are you sure you want to remove quiz bank: " + name + "?");
@@ -85,10 +92,17 @@ public class RemoveBankDialog
                     // close removeFrame
                     removeFrame.dispose();
                 });
-                
+        }
+        
+        /**
+         * Controls when and where the frame appears
+         * 
+         */
+        public void show()
+        {
                 // makes the JFrame appear in the center of the screen
                 removeFrame.setLocationRelativeTo(null);
                 // make the JFrame visible
-                removeFrame.setVisible(true); 
+                removeFrame.setVisible(true);            
         }
 }

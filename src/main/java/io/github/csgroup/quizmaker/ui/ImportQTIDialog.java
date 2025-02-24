@@ -84,7 +84,7 @@ public class ImportQTIDialog
          * Controls when and where the frame appears
          * 
          */
-        public void showImportDialog()
+        public void show()
         {
                 // makes the JFrame appear in the center of the screen
                 importFrame.setLocationRelativeTo(null);

@@ -125,8 +125,8 @@ public class BankPanel extends JComponent
                 // listens for when addBankButton is clicked 
                 addBankButton.addActionListener((ActionEvent e) -> {
                     // display the frame that prompts the user to enter a bank name
-                    CreateBankDialog addQuizBank = new CreateBankDialog();
-                    addQuizBank.createAddBankFrame(currentProject);
+                    CreateBankDialog addQuizBank = new CreateBankDialog(currentProject);
+                    addQuizBank.show();
                 });    
                 
                 // listens for when a quiz bank is selected
@@ -139,10 +139,10 @@ public class BankPanel extends JComponent
                 removeBankButton.addActionListener((ActionEvent e) -> {
                     // the name of the selected quiz bank
                     QuestionBank removeBankName = (QuestionBank) bankList.getSelectedValue();
-                    RemoveBankDialog removeBank = new RemoveBankDialog();
+                    RemoveBankDialog removeBank = new RemoveBankDialog(removeBankName, currentProject);
                     // display the frame that prompts the user if they are sure they 
                     // are deleting the correct quiz bank
-                    removeBank.createRemoveBankFrame(removeBankName, currentProject);                    
+                    removeBank.show();                    
                 });             
                                                                 
                 return buttonPanel;            

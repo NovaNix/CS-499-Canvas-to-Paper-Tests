@@ -17,7 +17,14 @@ import java.awt.event.ActionEvent;
  * @author Emily Palmer
  */
 public class CreateBankDialog
-{       
+{
+        private JFrame newBankFrame;
+    
+        public CreateBankDialog(Project currentProject)
+        {
+                createAddBankFrame(currentProject);
+        }
+        
         /**
          * Creates a frame that prompts the user to enter a quiz bank name 
          * and then add the bank with a button. Once the button is clicked, 
@@ -25,9 +32,9 @@ public class CreateBankDialog
          * 
          * @param bankProject used to add the new question bank to the QuestionBank list
          */
-        public void createAddBankFrame(Project bankProject)
+        private void createAddBankFrame(Project bankProject)
         {                
-                JFrame newBankFrame = new JFrame();
+                newBankFrame = new JFrame();
                 newBankFrame.setSize(400, 290);
                 
                 JLabel instructionLabel = new JLabel("Enter quiz bank name: ");
@@ -72,10 +79,17 @@ public class CreateBankDialog
                     newBankFrame.dispose();
                     // add quiz bank name to nameList to display on BankPanel
                 });     
-                
+        }
+        
+        /**
+         * Controls when and where the frame appears
+         * 
+         */
+        public void show()
+        {
                 // makes the JFrame appear in the center of the screen
                 newBankFrame.setLocationRelativeTo(null);
                 // makes the JFrame visible
-                newBankFrame.setVisible(true);
-        }
+                newBankFrame.setVisible(true);            
+        } 
 }
