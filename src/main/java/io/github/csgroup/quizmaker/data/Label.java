@@ -3,6 +3,9 @@ package io.github.csgroup.quizmaker.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Element;
+
 import io.github.csgroup.quizmaker.data.labels.LabelPart;
 import io.github.csgroup.quizmaker.data.labels.LabelText;
 
@@ -13,7 +16,7 @@ import io.github.csgroup.quizmaker.data.labels.LabelText;
  * 
  * @author Michael Nix
  */
-public class Label 
+public class Label extends AbstractDocument
 {
 
 	private List<LabelPart> parts = new ArrayList<LabelPart>();
@@ -114,6 +117,18 @@ public class Label
 	public String toString()
 	{
 		return asText();
+	}
+
+	@Override
+	public Element getDefaultRootElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Element getParagraphElement(int pos) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
