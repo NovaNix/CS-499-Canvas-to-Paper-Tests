@@ -5,11 +5,10 @@ import java.util.List;
 
 import io.github.csgroup.quizmaker.data.Answer;
 import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.events.answer.AnswerUpdateEvent;
 
 public class BlankAnswer extends Answer
-{
-	//String tag;
-	
+{	
 	private Label correctAnswer;
 	private List<Label> possibleAnswers = new ArrayList<Label>();
 	
@@ -30,16 +29,27 @@ public class BlankAnswer extends Answer
 	public void setCorrect(Label label)
 	{
 		this.correctAnswer = label;
+		
+		fireEvent(new AnswerUpdateEvent(this));
 	}
 	
 	public void addPossible(Label label)
 	{
 		possibleAnswers.add(label);
+		
+		fireEvent(new AnswerUpdateEvent(this));
 	}
 	
-	public void removePossible(Label label)
+	public boolean removePossible(Label label)
 	{
-		possibleAnswers.remove(label);
+		boolean included = possibleAnswers.remove(label);
+		
+		if (included)
+		{
+			fireEvent(new AnswerUpdateEvent(this));
+		}
+		
+		return included;
 	}
 	
 	public Label getPossible(int index)
