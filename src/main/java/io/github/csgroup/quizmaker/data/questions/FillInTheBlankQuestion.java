@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
+import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 
 public class FillInTheBlankQuestion extends Question
 {
@@ -22,9 +23,6 @@ public class FillInTheBlankQuestion extends Question
 	 */
 	private boolean showAnswers = false;
 	
-	// getTags, returns all of the tags found in the question label
-	// getAnswer(tag)
-	
 	public FillInTheBlankQuestion(String id, String title, float points) 
 	{
 		super(id, title, points);
@@ -33,6 +31,8 @@ public class FillInTheBlankQuestion extends Question
 	public void setAnswer(String tag, BlankAnswer answer)
 	{
 		answers.put(tag, answer);
+		
+		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
 	public BlankAnswer getAnswer(String tag)
@@ -85,6 +85,8 @@ public class FillInTheBlankQuestion extends Question
 	public void setShowAnswers(boolean showAnswers)
 	{
 		this.showAnswers = showAnswers;
+		
+		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
 	public boolean shouldShowAnswers()
