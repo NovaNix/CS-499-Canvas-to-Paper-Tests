@@ -9,16 +9,12 @@ import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 /**
- * A question to be used on a quiz.<br>
- * 
- * This is not currently fully implemented. Do not use yet
+ * A question to be used on a quiz.
  * 
  * @author Michael Nix
  */
 public abstract class Question 
 {
-	// TODO finish implementation
-
 	private final String id;
 	private String title;
 	
@@ -87,35 +83,6 @@ public abstract class Question
 	public float getPoints()
 	{
 		return points;
-	}
-	
-	public enum Type
-	{
-		MultipleChoice("Multiple Choice"), // Multiple Choice
-		TrueFalse("True or False"), // Multiple Choice?
-		FillInTheBlank("Fill in the Blank"), // FillInTheBlank
-		FillInMultipleBlanks("Fill in Multiple Blanks"), // FillInTheBlank
-		MultipleAnswers("Multiple Answers"), // Multiple Choice
-		MultipleDropdowns("Multiple Dropdowns"), 
-		Matching("Matching"), // Matching
-		NumericalAnswer("Numerical Answer"), // Written Response?
-		FormulaQuestion("Formula Question"), // delete
-		EssayQuestion("Essay Question"), // Written Response
-		// File Upload Question
-		// Text
-		;
-		
-		String displayName;
-		
-		private Type(String displayName)
-		{
-			this.displayName = displayName;
-		}
-		
-		public String getDisplayName()
-		{
-			return displayName;
-		}
 	}
 	
 	// Event Processing

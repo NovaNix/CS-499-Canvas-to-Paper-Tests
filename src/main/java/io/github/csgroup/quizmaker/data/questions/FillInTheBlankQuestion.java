@@ -11,6 +11,19 @@ import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 
+/**
+ * A {@link Question} where the user fills in blank spots.<br>
+ * <br>
+ * This question type should be used for the following QTI question types:
+ * <ul>
+ *   <li>Fill in the Blank</li>
+ *   <li>Fill in Multiple Blanks</li>
+ *   <li>Dropdown</li>
+ *   <li>Multiple Dropdowns</li>
+ * </ul>
+ * 
+ * @author Michael Nix
+ */
 public class FillInTheBlankQuestion extends Question
 {
 
@@ -33,6 +46,13 @@ public class FillInTheBlankQuestion extends Question
 		super(id, title, points);
 	}
 	
+	/**
+	 * Sets the answer for a specific placeholder tag<br>
+	 * <br>
+	 * For example, if your label is "Fill in the [0]", the tag is "0"
+	 * @param tag 
+	 * @param answer 
+	 */
 	public void setAnswer(String tag, BlankAnswer answer)
 	{
 		answers.put(tag, answer);
@@ -47,6 +67,13 @@ public class FillInTheBlankQuestion extends Question
 	
 	// TODO potentially externalize getTags so it can be reused and tested easier 
 	
+	/**
+	 * Finds all of the tags inside of this question.<br>
+	 * <br>
+	 * For example, if your label is "Fill in the [0], hello [world]", the tags will be "0" and "world"
+	 * 
+	 * @return A list of the placeholder tags used in this question's label
+	 */
 	public List<String> getTags()
 	{
 		List<String> tags = new ArrayList<String>();
@@ -80,7 +107,7 @@ public class FillInTheBlankQuestion extends Question
 			
 			if (answer != null)
 			{
-				a.append(answer.getCorrect().asText());
+				a.append(answer.getAnswer().asText());
 			}
 			
 			added = true;
@@ -89,6 +116,10 @@ public class FillInTheBlankQuestion extends Question
 		return a.toString();
 	}
 	
+	/**
+	 * Sets whether the possible answers for each blank should be displayed under the question
+	 * @param showAnswers
+	 */
 	public void setShowAnswers(boolean showAnswers)
 	{
 		this.showAnswers = showAnswers;
@@ -96,13 +127,12 @@ public class FillInTheBlankQuestion extends Question
 		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
+	/**
+	 * @return whether the possible answers for each blank should be shown under the question when exported to a Word file
+	 */
 	public boolean shouldShowAnswers()
 	{
 		return showAnswers;
 	}
-
-
-	
-
 	
 }

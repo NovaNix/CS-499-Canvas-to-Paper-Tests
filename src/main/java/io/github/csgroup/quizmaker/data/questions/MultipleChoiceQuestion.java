@@ -7,9 +7,20 @@ import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 
+/**
+ * A {@link Question} where the user selects one or more possible answers.<br>
+ * <br>
+ * This question type should be used for the following QTI question types:
+ * <ul>
+ *   <li>Multiple Choice</li>
+ *   <li>True or False</li>
+ *   <li>Multiple Answers</li>
+ * </ul>
+ */
 public class MultipleChoiceQuestion extends Question
 {
-
+	// TODO consider making true or false its own question type, for simplicity 
+	
 	// TODO this system should be refactored. I'm not happy with how answers and correct answers are stored right now. 
 	
 	private List<SimpleAnswer> answers = new ArrayList<SimpleAnswer>();

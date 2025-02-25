@@ -4,6 +4,15 @@ import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 
+/**
+ * A {@link Question} where the user writes out the correct answer.<br>
+ * <br>
+ * This question type should be used for the following QTI question types:
+ * <ul>
+ *   <li>Numerical Answer</li>
+ *   <li>Essay Question</li>
+ * </ul>
+ */
 public class WrittenResponseQuestion extends Question
 {
 
@@ -33,6 +42,10 @@ public class WrittenResponseQuestion extends Question
 		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
+	/**
+	 * Sets how much space should be given to answer this question.
+	 * @param length the amount of space to be given
+	 */
 	public void setResponseLength(ResponseLength length)
 	{
 		this.length = length;
@@ -41,7 +54,6 @@ public class WrittenResponseQuestion extends Question
 	}
 	
 	/**
-	 * 
 	 * @return how much space should be given to answer this question.
 	 */
 	public ResponseLength getResponseLength()

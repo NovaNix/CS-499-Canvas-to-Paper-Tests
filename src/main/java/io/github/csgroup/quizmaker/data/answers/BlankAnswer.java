@@ -7,11 +7,25 @@ import io.github.csgroup.quizmaker.data.Answer;
 import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.events.answer.AnswerUpdateEvent;
 
+/**
+ * An answer for a {@link FillInTheBlankQuestion}.<br>
+ * <br>
+ * 
+ * This answer type stores both a single correct answer, along with several incorrect "distractor" answers.
+ * 
+ * @author Michael Nix
+ */
 public class BlankAnswer extends Answer
 {	
 	private Label correctAnswer;
-	private List<Label> possibleAnswers = new ArrayList<Label>();
 	
+	/** A list of incorrect answers to hide the correct answer in */
+	private List<Label> distractors = new ArrayList<Label>();
+	
+	/**
+	 * Creates a new BlankAnswer with an empty correct answer
+	 * @param id
+	 */
 	public BlankAnswer(int id) 
 	{
 		super(id);
@@ -19,6 +33,11 @@ public class BlankAnswer extends Answer
 		this.correctAnswer = Label.blank();
 	}
 	
+	/**
+	 * Creates a new BlankAnswer with a specified id and answer
+	 * @param id
+	 * @param answer
+	 */
 	public BlankAnswer(int id, Label answer)
 	{
 		super(id);
@@ -26,23 +45,36 @@ public class BlankAnswer extends Answer
 		this.correctAnswer = answer;
 	}
 	
-	public void setCorrect(Label label)
+	/**
+	 * Sets the correct answer's label
+	 * @param label
+	 */
+	public void setAnswer(Label label)
 	{
 		this.correctAnswer = label;
 		
 		fireEvent(new AnswerUpdateEvent(this));
 	}
 	
-	public void addPossible(Label label)
+	/**
+	 * Adds a new incorrect distractor answer
+	 * @param label
+	 */
+	public void addDistractor(Label label)
 	{
-		possibleAnswers.add(label);
+		distractors.add(label);
 		
 		fireEvent(new AnswerUpdateEvent(this));
 	}
 	
-	public boolean removePossible(Label label)
+	/**
+	 * Removes a distractor from this answer
+	 * @param label The distractor to remove
+	 * @return whether or not the distractor was included in this answer
+	 */
+	public boolean removeDistractor(Label label)
 	{
-		boolean included = possibleAnswers.remove(label);
+		boolean included = distractors.remove(label);
 		
 		if (included)
 		{
@@ -52,9 +84,9 @@ public class BlankAnswer extends Answer
 		return included;
 	}
 	
-	public Label getPossible(int index)
+	public Label getDistractor(int index)
 	{
-		return possibleAnswers.get(index);
+		return distractors.get(index);
 	}
 	
 	/**
@@ -65,12 +97,12 @@ public class BlankAnswer extends Answer
 		List<Label> options = new ArrayList<Label>();
 		
 		options.add(correctAnswer);
-		options.addAll(possibleAnswers);
+		options.addAll(distractors);
 		
 		return options;
 	}
 	
-	public Label getCorrect()
+	public Label getAnswer()
 	{
 		return correctAnswer;
 	}
