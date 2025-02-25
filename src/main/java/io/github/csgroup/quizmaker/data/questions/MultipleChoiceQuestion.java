@@ -3,8 +3,8 @@ package io.github.csgroup.quizmaker.data.questions;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.csgroup.quizmaker.data.Answer;
 import io.github.csgroup.quizmaker.data.Question;
+import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 
 public class MultipleChoiceQuestion extends Question
@@ -12,7 +12,7 @@ public class MultipleChoiceQuestion extends Question
 
 	// TODO this system should be refactored. I'm not happy with how answers and correct answers are stored right now. 
 	
-	private List<Answer> answers = new ArrayList<Answer>();
+	private List<SimpleAnswer> answers = new ArrayList<SimpleAnswer>();
 	private List<Integer> correctAnswers = new ArrayList<Integer>();
 	
 	public MultipleChoiceQuestion(String id, String title, float points) 
@@ -20,7 +20,7 @@ public class MultipleChoiceQuestion extends Question
 		super(id, title, points);
 	}
 	
-	public void addAnswer(Answer answer, boolean correct)
+	public void addAnswer(SimpleAnswer answer, boolean correct)
 	{
 		answers.add(answer);
 		
@@ -32,7 +32,7 @@ public class MultipleChoiceQuestion extends Question
 		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
-	public void removeAnswer(Answer answer)
+	public void removeAnswer(SimpleAnswer answer)
 	{
 		boolean removed = answers.remove(answer);
 		
@@ -52,14 +52,14 @@ public class MultipleChoiceQuestion extends Question
 		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
-	public List<Answer> getAnswers()
+	public List<SimpleAnswer> getAnswers()
 	{
-		return new ArrayList<Answer>(answers);
+		return new ArrayList<SimpleAnswer>(answers);
 	}
 	
-	public List<Answer> getCorrectAnswers()
+	public List<SimpleAnswer> getCorrectAnswers()
 	{
-		ArrayList<Answer> correct = new ArrayList<Answer>();
+		List<SimpleAnswer> correct = new ArrayList<SimpleAnswer>();
 		
 		// TODO this could be optimized further. If we experience speed issues, address this
 		
@@ -77,8 +77,8 @@ public class MultipleChoiceQuestion extends Question
 	@Override
 	public String getAnswerString()
 	{
-		List<Answer> correctAnswers = getCorrectAnswers();
-		List<Answer> incorrectAnswers = getAnswers();
+		List<SimpleAnswer> correctAnswers = getCorrectAnswers();
+		List<SimpleAnswer> incorrectAnswers = getAnswers();
 		incorrectAnswers.removeAll(correctAnswers);
 		
 		StringBuilder s = new StringBuilder("<html>");

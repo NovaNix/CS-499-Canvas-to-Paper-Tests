@@ -5,48 +5,22 @@ package io.github.csgroup.quizmaker.data;
  * 
  * @author Michael Nix
  */
-public class Answer 
+public abstract class Answer 
 {
-
 	private final int id;
 	
-	private Label label;
+	// TODO add default constructor with randomly generating id
 	
-	public Answer(int id, String text)
+	public Answer(int id)
 	{
 		this.id = id;
-		this.label = Label.text(text);
 	}
 	
-	public Answer(int id, Label label)
-	{
-		this.id = id;
-		this.label = label;
-	}
-	
-	public void setLabel(Label label)
-	{
-		this.label = label;
-	}
-	
-	public void setLabel(String contents)
-	{
-		this.label = Label.text(contents);
-	}
+	public abstract String asText();
 	
 	public int getId()
 	{
 		return id;
-	}
-	
-	public Label getLabel()
-	{
-		return label;
-	}
-	
-	public String asText()
-	{
-		return label.asText();
 	}
 	
 	@Override
