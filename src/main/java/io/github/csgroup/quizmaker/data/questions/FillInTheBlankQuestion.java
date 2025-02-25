@@ -23,6 +23,11 @@ public class FillInTheBlankQuestion extends Question
 	 */
 	private boolean showAnswers = false;
 	
+	public FillInTheBlankQuestion(String title, float points)
+	{
+		super(title, points);
+	}
+	
 	public FillInTheBlankQuestion(String id, String title, float points) 
 	{
 		super(id, title, points);
@@ -39,6 +44,8 @@ public class FillInTheBlankQuestion extends Question
 	{
 		return answers.get(tag);
 	}
+	
+	// TODO potentially externalize getTags so it can be reused and tested easier 
 	
 	public List<String> getTags()
 	{

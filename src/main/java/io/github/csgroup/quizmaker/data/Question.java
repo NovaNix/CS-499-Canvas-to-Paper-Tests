@@ -6,6 +6,7 @@ import java.util.List;
 import io.github.csgroup.quizmaker.data.events.QuestionListener;
 import io.github.csgroup.quizmaker.data.events.question.QuestionEvent;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
+import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 /**
  * A question to be used on a quiz.<br>
@@ -24,6 +25,16 @@ public abstract class Question
 	private Label label;
 	
 	private float points;
+	
+	public Question(String title, float points)
+	{
+		this.id = DataUtils.generateId();
+		
+		this.title = title;
+		this.label = Label.text(title);
+		
+		this.points = points;
+	}
 	
 	public Question(String id, String title, float points)
 	{
