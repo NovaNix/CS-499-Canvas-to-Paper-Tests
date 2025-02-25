@@ -41,6 +41,11 @@ public class MatchingQuestion extends Question
 		return answers.get(index);
 	}
 	
+	public List<MatchingAnswer> getAnswers()
+	{
+		return new ArrayList<MatchingAnswer>(answers);
+	}
+	
 	public int getAnswerCount()
 	{
 		return answers.size();
