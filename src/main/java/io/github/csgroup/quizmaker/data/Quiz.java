@@ -1,5 +1,10 @@
 package io.github.csgroup.quizmaker.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 /**
@@ -15,24 +20,29 @@ public class Quiz
 	private final String id;
 	private String title;
 	
-	/** A list of ids of {@link QuestionBank QuestionBanks} to use to generate the quiz */
-	//private List<String> banks; 
+	private final QuestionBank internalQuestions;
+	
+	private List<BankSelection> banks = new ArrayList<BankSelection>();
 	
 	public Quiz(String title)
 	{
 		this.id = DataUtils.generateId();
 		this.title = title;
+		
+		this.internalQuestions = new QuestionBank(title + "-Questions");
 	}
 	
 	public Quiz(String id, String title)
 	{
 		this.id = id;
 		this.title = title;
+		
+		this.internalQuestions = new QuestionBank(title + "-Questions");
 	}
 	
-	public void regenerate()
+	public GeneratedQuiz generate()
 	{
-		
+		return null;
 	}
 	
 //	public boolean addBank(String id)
@@ -48,6 +58,8 @@ public class Quiz
 	public void setTitle(String title)
 	{
 		this.title = title;
+		
+		this.internalQuestions.setTitle(title + "-Questions");
 	}
 	
 	public String getTitle()
