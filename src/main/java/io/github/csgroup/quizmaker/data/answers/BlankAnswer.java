@@ -102,6 +102,14 @@ public class BlankAnswer extends Answer
 		return options;
 	}
 	
+	/**
+	 * @return a list of all of the distractors used in this answer
+	 */
+	public List<Label> getDistractors()
+	{
+		return new ArrayList<Label>(distractors);
+	}
+	
 	public Label getAnswer()
 	{
 		return correctAnswer;
