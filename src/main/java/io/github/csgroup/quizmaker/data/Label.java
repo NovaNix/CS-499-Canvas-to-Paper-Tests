@@ -13,6 +13,8 @@ import javax.swing.text.html.HTMLDocument;
 public class Label
 {
 
+	// TODO consider adding Label events that bubble up to whatever data types contain the labels
+	
 	/**
 	 * The display contents of the label<br>
 	 * <br>
