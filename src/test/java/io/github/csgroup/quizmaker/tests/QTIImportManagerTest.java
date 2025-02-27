@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.csgroup.quizmaker.qti.importing.QTIImportManager;
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 
 /**
  * Test to verify that the QTI files are unzipped and extracted properly. <br>
@@ -35,7 +35,7 @@ public class QTIImportManagerTest
     
 	// store the path to the temporary directory
 	private Path extractedTestFilePath;
-	private QTIImportManager manager;
+	private QTIZipManager manager;
     
     
 	/**
@@ -47,7 +47,7 @@ public class QTIImportManagerTest
 	@BeforeEach
 	void setUp() throws IOException, ZipException, URISyntaxException 
 	{
-		manager = new QTIImportManager();
+		manager = new QTIZipManager();
         
 		URL resourceUrl = getClass().getResource(TestZipPATH);
 		assertNotNull(resourceUrl, "ERROR!! Test ZIP File is MISSING");

@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sarah Singhirunnusorn
  */
-public class QTIImportManager 
+public class QTIZipManager 
 {
     
-	private final Logger logger = LoggerFactory.getLogger(QTIImportManager.class);    
+	private final Logger logger = LoggerFactory.getLogger(QTIZipManager.class);    
 
 	/**
 	* Extracts the QTI files into a temporary directory.
