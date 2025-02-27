@@ -1,47 +1,71 @@
 package io.github.csgroup.quizmaker.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.Element;
-
-import io.github.csgroup.quizmaker.data.labels.LabelPart;
-import io.github.csgroup.quizmaker.data.labels.LabelText;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.html.HTMLDocument;
 
 /**
  * A label displayed when showing a question or answer<br>
  * 
- * Labels consist of multiple {@link LabelPart LabelParts}. 
- * 
  * @author Michael Nix
  */
-public class Label extends AbstractDocument
+public class Label
 {
 
-	private List<LabelPart> parts = new ArrayList<LabelPart>();
+	private Document content;
+
+	// TODO consider adding the ability to change the type. This could require making a new document
+	private Type type;
 	
 	/**
 	 * Creates a blank label.
 	 */
 	public Label()
 	{
+		this("");
+	}
+	
+	public Label(String text)
+	{
+		this(text, Type.plain);
+	}
+	
+	public Label(String text, Type type)
+	{
+		this.type = type;
 		
+		switch (type)
+		{
+			case plain:
+				
+				content = new PlainDocument();
+				
+				break;
+				
+			case html:
+				
+				content = new HTMLDocument();
+				
+				break;
+		}
+		
+		setContent(text);
 	}
 	
 	/**
 	 * Creates a deep copy of another label.<br>
 	 * @param label The label to copy
 	 */
-	public Label(Label label)
-	{
-		this.add(label.parts);
-	}
-	
-	public Label(List<LabelPart> parts)
-	{
-		this.add(parts);
-	}
+//	public Label(Label label)
+//	{
+//		this.add(label.parts);
+//	}
+//	
+//	public Label(List<LabelPart> parts)
+//	{
+//		this.add(parts);
+//	}
 	
 	/**
 	 * Shorthand for creating a new label consisting of a single plaintext part.
@@ -50,7 +74,7 @@ public class Label extends AbstractDocument
 	 */
 	public static Label text(String contents)
 	{
-		return text(contents, LabelText.Type.plain);
+		return text(contents, Type.plain);
 	}
 	
 	/**
@@ -59,58 +83,56 @@ public class Label extends AbstractDocument
 	 * @param type The type of the text
 	 * @return The generated label
 	 */
-	public static Label text(String contents, LabelText.Type type)
+	public static Label text(String contents, Type type)
 	{
-		Label label = new Label();
+		Label label = new Label(contents);
 		
-		label.add(new LabelText(contents, type));
+		//label.add(new LabelText(contents, type));
 		
 		return label;
 	}
 	
-	public boolean add(LabelPart part)
+	public void setContent(String text)
 	{
-		return this.parts.add(part);
-	}
-	
-	/**
-	 * Adds a list of parts to the Label.<br>
-	 * Note: the contents of the list are deep copied to avoid reference issues 
-	 * @param parts
-	 */
-	public void add(List<LabelPart> parts)
-	{
-		for (var part : parts)
+		try 
 		{
-			this.parts.add(part.clone());
+			content.remove(0, content.getLength());
+			content.insertString(0, text, null);
+		} 
+		
+		catch (BadLocationException e) 
+		{
+			// This should never be executed. This catch is here to remove the exception from remove and insertString. 
+			// If it is executed, then we have a lot of problems
+			
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	
-	public boolean remove(LabelPart part)
-	{
-		return this.parts.remove(part);
-	}
-	
-	public LabelPart get(int index)
-	{
-		return this.parts.get(index);
-	}
-	
-	
 	/**
-	 * 
-	 * @return Each of the LabelParts of the Label as a String
+	 * @return the contents of the label as a string
 	 */
 	public String asText()
 	{
-		StringBuilder text = new StringBuilder();
-		
-		for (var part : parts)
+		try 
 		{
-			text.append(part.asText());
-		}
+			return content.getText(0, content.getLength());
+		} 
 		
-		return text.toString();
+		catch (BadLocationException e) 
+		{
+			// This should never be executed. This catch is here to remove the exception from getText. 
+			// If it is executed, then we have a lot of problems
+			
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public Document getDocument()
+	{
+		return content;
 	}
 	
 	@Override
@@ -118,17 +140,28 @@ public class Label extends AbstractDocument
 	{
 		return asText();
 	}
-
-	@Override
-	public Element getDefaultRootElement() {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public Type getType()
+	{
+		return type;
+	}
+	
+	public static enum Type
+	{
+		plain("text/plain"), html("text/html");
+		
+		private String mime;
+		
+		private Type(String mime)
+		{
+			this.mime = mime;
+		}
+		
+		public String getContentType()
+		{
+			return mime;
+		}
 	}
 
-	@Override
-	public Element getParagraphElement(int pos) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	
 }
