@@ -27,7 +27,7 @@ public abstract class Question
 		this.id = DataUtils.generateId();
 		
 		this.title = title;
-		this.label = Label.text(title);
+		this.label = new Label(title);
 		
 		this.points = points;
 	}
@@ -37,7 +37,7 @@ public abstract class Question
 		this.id = id;
 		
 		this.title = title;
-		this.label = Label.text(title);
+		this.label = new Label(title);
 		
 		this.points = points;
 	}

@@ -79,40 +79,6 @@ public class Label
 	}
 	
 	/**
-	 * Shorthand for creating a new label consisting of a single plaintext part, without any text inside.
-	 * @return the generated label
-	 */
-	public static Label blank()
-	{
-		return Label.text("");
-	}
-	
-	/**
-	 * Shorthand for creating a new label consisting of a single plaintext part.
-	 * @param contents The text to be used in the label
-	 * @return The generated label
-	 */
-	public static Label text(String contents)
-	{
-		return text(contents, Type.plain);
-	}
-	
-	/**
-	 * Shorthand for creating a new label consisting of a single text part
-	 * @param contents The text to be used in the label
-	 * @param type The type of the text
-	 * @return The generated label
-	 */
-	public static Label text(String contents, Type type)
-	{
-		Label label = new Label(contents);
-		
-		//label.add(new LabelText(contents, type));
-		
-		return label;
-	}
-	
-	/**
 	 * Sets the text content of the label
 	 * @param text
 	 */

@@ -15,8 +15,8 @@ public class MatchingAnswer extends Answer
 	{
 		super(id);
 		
-		this.left = Label.blank();
-		this.right = Label.blank();
+		this.left =  new Label();
+		this.right = new Label();
 	}
 	
 	public MatchingAnswer(int id, Label left, Label right)

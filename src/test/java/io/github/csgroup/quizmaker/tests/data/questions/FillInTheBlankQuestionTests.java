@@ -23,7 +23,7 @@ public class FillInTheBlankQuestionTests
 	public void getTags()
 	{
 		var question = new FillInTheBlankQuestion("Test Question", 5.0f);
-		question.setLabel(Label.text("This is a fill in the [0] question! [this] should be filled with [something]"));
+		question.setLabel(new Label("This is a fill in the [0] question! [this] should be filled with [something]"));
 		
 		var expected = Arrays.asList("0", "this", "something");
 		var tags = question.getTags();
