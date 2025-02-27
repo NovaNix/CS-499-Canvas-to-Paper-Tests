@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 public class QTIImportManager 
 {
     
-	private final Logger logger = LoggerFactory.getLogger(QTIImportManager.class);
-	private Path qtiTempDirectory;      
+	private final Logger logger = LoggerFactory.getLogger(QTIImportManager.class);    
 
 	/**
 	* Extracts the QTI files into a temporary directory.
@@ -38,8 +37,8 @@ public class QTIImportManager
 		}
 
 		// Creates a temporary directory
-		qtiTempDirectory = Files.createTempDirectory("qti_temp_");
-		String extractedFilePath = qtiTempDirectory.toAbsolutePath().toString();
+		Path tempDirectory = Files.createTempDirectory("qti_temp_");
+		String extractedFilePath = tempDirectory.toAbsolutePath().toString();
             
 		logger.info("Extracting QTI ZIP file to: {}", extractedFilePath);
 
@@ -47,7 +46,7 @@ public class QTIImportManager
 		unzipFile(zipFilePath, extractedFilePath);
 
 		logger.info("QTI ZIP file extracted successfully to: {}", extractedFilePath);
-		return qtiTempDirectory;    // returns path to the temporary directory
+		return tempDirectory;    // returns path to the temporary directory
 	}
     
 	/**
@@ -65,12 +64,4 @@ public class QTIImportManager
 			logger.info("Unzipping success, extracted to: {}", extractedFilePath);
 		}	
 	}
-    
-	// Returns the path to the temporary directory
-	public Path getTempDirectory() 
-	{
-		return qtiTempDirectory;
-	}
 }
-
-
