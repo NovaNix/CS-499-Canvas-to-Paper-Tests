@@ -16,24 +16,24 @@ public class App
 {
 
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
-	
+
 	@SuppressWarnings("unused")
 	private static UIManager ui;
-	
+
 	private static Project project;
-	
+
 	public static void main(String[] args)
 	{
 		logger.info("Starting Application");
-		
+
 		// Create a new blank project
 		project = new Project();
-		
+
 		// Initiate the UI code
 		SwingUtilities.invokeLater(() -> {
 			// The UI needs to be started on the event threads
 			ui = new UIManager();
-                        ui.createHomeFrame();
+			ui.createHomeFrame();
 		});
 	}
 
@@ -41,7 +41,7 @@ public class App
 	{
 		return project;
 	}
-	
+
 	// TODO add event listeners
-	
+
 }
