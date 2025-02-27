@@ -13,6 +13,18 @@ import javax.swing.text.html.HTMLDocument;
 public class Label
 {
 
+	/**
+	 * The display contents of the label<br>
+	 * <br>
+	 * This is not the most efficient way to store the data for the label,
+	 * but it is the easiest way to synchronize the label contents with the UI.<br>
+	 * <br>
+	 * This current implementation has a number of issues. 
+	 * For example, we cannot change the type of label because the document we use is based on the type.
+	 * And because the document we give to the UI needs to stay consistent, we can't replace the document. 
+	 * This could be fixed by making the label itself a document that forwards all of the function calls to the internal document,
+	 * or by using a document wrapper class, but those wouldn't be as clean, and for now they are unnecessary.
+	 */
 	private Document content;
 
 	// TODO consider adding the ability to change the type. This could require making a new document
@@ -26,6 +38,10 @@ public class Label
 		this("");
 	}
 	
+	/**
+	 * Creates a plain text label.
+	 * @param text
+	 */
 	public Label(String text)
 	{
 		this(text, Type.plain);
@@ -38,7 +54,7 @@ public class Label
 		switch (type)
 		{
 			case plain:
-				
+				// TODO research whether we can use HTMLDocument for plain text as well
 				content = new PlainDocument();
 				
 				break;
@@ -54,18 +70,13 @@ public class Label
 	}
 	
 	/**
-	 * Creates a deep copy of another label.<br>
-	 * @param label The label to copy
+	 * Creates a new label with the contents of another label
+	 * @param label the label to clone
 	 */
-//	public Label(Label label)
-//	{
-//		this.add(label.parts);
-//	}
-//	
-//	public Label(List<LabelPart> parts)
-//	{
-//		this.add(parts);
-//	}
+	public Label(Label label)
+	{
+		this(label.asText(), label.getType());
+	}
 	
 	/**
 	 * Shorthand for creating a new label consisting of a single plaintext part, without any text inside.
@@ -101,10 +112,15 @@ public class Label
 		return label;
 	}
 	
+	/**
+	 * Sets the text content of the label
+	 * @param text
+	 */
 	public void setContent(String text)
 	{
 		try 
 		{
+			// NOTE, this may cause issues with undo and redo if we decide to implement that
 			content.remove(0, content.getLength());
 			content.insertString(0, text, null);
 		} 
@@ -139,6 +155,9 @@ public class Label
 		}
 	}
 	
+	/**
+	 * @return a Document synchronized with the contents of the label
+	 */
 	public Document getDocument()
 	{
 		return content;
@@ -153,6 +172,12 @@ public class Label
 	public Type getType()
 	{
 		return type;
+	}
+	
+	@Override
+	public Label clone()
+	{
+		return new Label(this);
 	}
 	
 	public static enum Type
