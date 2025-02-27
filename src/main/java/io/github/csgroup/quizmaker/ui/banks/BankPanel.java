@@ -1,7 +1,10 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.banks;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

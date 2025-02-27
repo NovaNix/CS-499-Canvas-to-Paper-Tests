@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;

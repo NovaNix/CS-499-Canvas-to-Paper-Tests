@@ -1,6 +1,8 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.banks;
 
 import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.ui.components.QuestionTable;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JComponent;

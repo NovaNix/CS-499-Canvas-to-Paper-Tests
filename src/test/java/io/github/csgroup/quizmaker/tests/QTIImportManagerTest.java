@@ -1,6 +1,5 @@
 package io.github.csgroup.quizmaker.tests;
 
-import io.github.csgroup.quizmaker.qti.QTIImportManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,8 @@ import java.util.zip.ZipException;
 import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.github.csgroup.quizmaker.qti.importing.QTIImportManager;
 
 /**
  * Test to verify that the QTI files are unzipped and extracted properly. <br>

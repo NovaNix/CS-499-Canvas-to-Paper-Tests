@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.components;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;

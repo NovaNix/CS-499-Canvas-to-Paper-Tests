@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.qti;
+package io.github.csgroup.quizmaker.qti.importing;
 
 import java.io.File;
 import java.io.IOException;
