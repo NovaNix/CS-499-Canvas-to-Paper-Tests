@@ -68,6 +68,15 @@ public class Label
 //	}
 	
 	/**
+	 * Shorthand for creating a new label consisting of a single plaintext part, without any text inside.
+	 * @return the generated label
+	 */
+	public static Label blank()
+	{
+		return Label.text("");
+	}
+	
+	/**
 	 * Shorthand for creating a new label consisting of a single plaintext part.
 	 * @param contents The text to be used in the label
 	 * @return The generated label

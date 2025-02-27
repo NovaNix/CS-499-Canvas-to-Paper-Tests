@@ -6,18 +6,15 @@ import java.util.List;
 import io.github.csgroup.quizmaker.data.events.QuestionListener;
 import io.github.csgroup.quizmaker.data.events.question.QuestionEvent;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
+import io.github.csgroup.quizmaker.data.utils.DataUtils;
 
 /**
- * A question to be used on a quiz.<br>
- * 
- * This is not currently fully implemented. Do not use yet
+ * A question to be used on a quiz.
  * 
  * @author Michael Nix
  */
-public class Question 
+public abstract class Question 
 {
-	// TODO finish implementation
-
 	private final String id;
 	private String title;
 	
@@ -25,112 +22,27 @@ public class Question
 	
 	private float points;
 	
-	private Type type;
+	public Question(String title, float points)
+	{
+		this.id = DataUtils.generateId();
+		
+		this.title = title;
+		this.label = Label.text(title);
+		
+		this.points = points;
+	}
 	
-	private List<Answer> answers = new ArrayList<Answer>();
-	private List<Integer> correctAnswers = new ArrayList<Integer>();
-	
-	public Question(String id, String title, Type type, float points)
+	public Question(String id, String title, float points)
 	{
 		this.id = id;
 		
 		this.title = title;
 		this.label = Label.text(title);
 		
-		this.type = type;
 		this.points = points;
 	}
 	
-	public void addAnswer(Answer answer, boolean correct)
-	{
-		answers.add(answer);
-		
-		if (correct)
-		{
-			correctAnswers.add(answer.getId());
-		}
-		
-		fireEvent(new QuestionUpdateEvent(this));
-	}
-	
-	public void removeAnswer(Answer answer)
-	{
-		boolean removed = answers.remove(answer);
-		
-		if (removed)
-		{
-			correctAnswers.remove(answer.getId());
-		}
-		
-		fireEvent(new QuestionUpdateEvent(this));
-	}
-	
-	public void clearAnswers()
-	{
-		this.answers.clear();
-		this.correctAnswers.clear();
-		
-		fireEvent(new QuestionUpdateEvent(this));
-	}
-	
-	public List<Answer> getAnswers()
-	{
-		return new ArrayList<Answer>(answers);
-	}
-	
-	public List<Answer> getCorrectAnswers()
-	{
-		ArrayList<Answer> correct = new ArrayList<Answer>();
-		
-		// TODO this could be optimized further. If we experience speed issues, address this
-		
-		for (var answer : answers)
-		{
-			if (correctAnswers.contains(answer.getId()))
-			{
-				correct.add(answer);
-			}
-		}
-		
-		return correct;
-	}
-	
-	public String getAnswerString()
-	{
-		List<Answer> correctAnswers = getCorrectAnswers();
-		List<Answer> incorrectAnswers = getAnswers();
-		incorrectAnswers.removeAll(correctAnswers);
-		
-		StringBuilder s = new StringBuilder("<html>");
-		
-		boolean added = false;
-		
-		for (var answer : correctAnswers)
-		{
-			if (added)
-			{
-				s.append(", ");
-			}
-			
-			s.append("<b>");
-			s.append(answer.asText());
-			s.append("</b>");
-		}
-		
-		for (var answer : incorrectAnswers)
-		{
-			if (added)
-			{
-				s.append(", ");
-			}
-			
-			s.append(answer.asText());
-		}
-		
-		s.append("</html>");
-		
-		return s.toString();
-	}
+	public abstract String getAnswerString();
 	
 	public String getTitle()
 	{
@@ -171,47 +83,6 @@ public class Question
 	public float getPoints()
 	{
 		return points;
-	}
-	
-	public void setType(Type type)
-	{
-		this.type = type;
-		
-		fireEvent(new QuestionUpdateEvent(this));
-	}
-	
-	public Type getType()
-	{
-		return type;
-	}
-	
-	public enum Type
-	{
-		MultipleChoice("Multiple Choice"),
-		TrueFalse("True or False"),
-		FillInTheBlank("Fill in the Blank"),
-		FillInMultipleBlanks("Fill in Multiple Blanks"),
-		MultipleAnswers("Multiple Answers"),
-		MultipleDropdowns("Multiple Dropdowns"),
-		Matching("Matching"),
-		NumericalAnswer("Numerical Answer"),
-		FormulaQuestion("Formula Question"),
-		EssayQuestion("Essay Question"),
-		// File Upload Question
-		// Text
-		;
-		
-		String displayName;
-		
-		private Type(String displayName)
-		{
-			this.displayName = displayName;
-		}
-		
-		public String getDisplayName()
-		{
-			return displayName;
-		}
 	}
 	
 	// Event Processing
