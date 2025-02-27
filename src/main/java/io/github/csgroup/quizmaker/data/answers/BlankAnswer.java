@@ -30,7 +30,7 @@ public class BlankAnswer extends Answer
 	{
 		super(id);
 		
-		this.correctAnswer = Label.blank();
+		this.correctAnswer = new Label();
 	}
 	
 	/**

@@ -30,7 +30,7 @@ public class WrittenResponseQuestion extends Question
 
 	public void setAnswer(String answer)
 	{
-		this.answer = Label.text(answer);
+		this.answer = new Label(answer);
 		
 		fireEvent(new QuestionUpdateEvent(this));
 	}

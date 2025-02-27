@@ -13,14 +13,14 @@ public class SimpleAnswer extends Answer
 	{
 		super(id);
 		
-		this.label = Label.blank();
+		this.label = new Label();
 	}
 	
 	public SimpleAnswer(int id, String text)
 	{
 		super(id);
 		
-		this.label = Label.text(text);
+		this.label = new Label(text);
 	}
 	
 	public SimpleAnswer(int id, Label label)
@@ -39,7 +39,7 @@ public class SimpleAnswer extends Answer
 	
 	public void setLabel(String contents)
 	{
-		setLabel(Label.text(contents));
+		setLabel(new Label(contents));
 	}
 	
 	public Label getLabel()
