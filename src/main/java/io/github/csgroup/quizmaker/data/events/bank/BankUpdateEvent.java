@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.data.events.bank;
 
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.events.ListUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
@@ -9,7 +10,7 @@ import io.github.csgroup.quizmaker.utils.ListUpdateType;
  * 
  * @author Michael Nix
  */
-public class BankUpdateEvent extends BankEvent
+public class BankUpdateEvent extends BankEvent implements ListUpdateEvent<Question>
 {
 
 	private final ListUpdateType action;
@@ -28,6 +29,7 @@ public class BankUpdateEvent extends BankEvent
 	/**
 	 * @return What action was performed on the QuestionBank
 	 */
+	@Override
 	public ListUpdateType getAction()
 	{
 		return action;
@@ -36,6 +38,7 @@ public class BankUpdateEvent extends BankEvent
 	/**
 	 * @return What item was added or removed from the QuestionBank
 	 */
+	@Override
 	public Question getModified()
 	{
 		return modified;
@@ -44,6 +47,7 @@ public class BankUpdateEvent extends BankEvent
 	/**
 	 * @return The index of the modified item
 	 */
+	@Override
 	public int getIndex()
 	{
 		return index;
