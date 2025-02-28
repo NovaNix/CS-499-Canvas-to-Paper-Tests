@@ -8,6 +8,8 @@ import io.github.csgroup.quizmaker.data.events.bank.BankEvent;
 import io.github.csgroup.quizmaker.data.events.bank.BankRenameEvent;
 import io.github.csgroup.quizmaker.data.events.bank.BankUpdateEvent;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
+import io.github.csgroup.quizmaker.data.utils.QuestionContainer;
+import io.github.csgroup.quizmaker.events.ListUpdateListener;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
@@ -15,7 +17,7 @@ import io.github.csgroup.quizmaker.utils.ListUpdateType;
  * 
  * @author Michael Nix
  */
-public class QuestionBank 
+public class QuestionBank implements QuestionContainer
 {
 
 	private final String id;
@@ -151,9 +153,35 @@ public class QuestionBank
 		}
 	}
 	
+	private List<ListUpdateListener<Question>> listListeners = new ArrayList<ListUpdateListener<Question>>();
+	
+	@Override
+	public void addListListener(ListUpdateListener<Question> listener) 
+	{
+		listListeners.add(listener);
+	}
+
+	@Override
+	public void removeListListener(ListUpdateListener<Question> listener) 
+	{
+		listListeners.remove(listener);
+	}
+	
 	@Override
 	public String toString()
 	{
 		return title;
+	}
+
+	@Override
+	public Question getQuestion(int index) 
+	{
+		return get(index);
+	}
+
+	@Override
+	public int getQuestionIndex(Question q) 
+	{
+		return indexOf(q);
 	}
 }
