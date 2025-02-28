@@ -23,6 +23,11 @@ public class WrittenResponseQuestion extends Question
 	 */
 	private ResponseLength length = ResponseLength.Paragraph;
 	
+	public WrittenResponseQuestion(String title, float points)
+	{
+		super(title, points);
+	}
+	
 	public WrittenResponseQuestion(String id, String title, float points) 
 	{
 		super(id, title, points);
