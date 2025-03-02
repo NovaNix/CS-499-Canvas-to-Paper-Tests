@@ -16,22 +16,12 @@ public class WordExporter
 {
 	public static final Logger logger = LoggerFactory.getLogger(WordExporter.class);
 
-	// TODO add template files, add function parameters
-	
-	private Path testTemplate;
-	private Path keyTemplate;
-	
 	public WordExporter()
 	{
 		
 	}
 	
-	public void exportTest(Quiz quiz, Path destination)
-	{
-		
-	}
-	
-	public void exportAnswerKey(Quiz quiz, Path destination)
+	public void exportTest(Quiz quiz, Path template, Path destination, boolean isKey)
 	{
 		
 	}
