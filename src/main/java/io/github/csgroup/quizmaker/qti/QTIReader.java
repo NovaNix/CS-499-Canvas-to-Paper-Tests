@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.qti;
 
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,12 +17,12 @@ public class QTIReader
 {
     
 	public static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
-        private final QTIImportManager importManager;
+        private final QTIZipManager importManager;
 	private final QTIManifestFileProcessor manifestProcessor;
 	
 	public QTIReader()
 	{
-                this.importManager = new QTIImportManager();
+                this.importManager = new QTIZipManager();
 		this.manifestProcessor = new QTIManifestFileProcessor();	
 	}
 	

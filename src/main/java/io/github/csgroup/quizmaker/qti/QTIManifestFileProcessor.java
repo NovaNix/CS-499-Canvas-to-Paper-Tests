@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.qti;
 
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,12 +22,12 @@ public class QTIManifestFileProcessor
     
         private static final Logger logger = LoggerFactory.getLogger(QTIManifestFileProcessor.class);
         private final QTIManifestFileParser manifestParser;
-        private final QTIImportManager importManager;
+        private final QTIZipManager importManager;
 
         public QTIManifestFileProcessor() 
         {
                 this.manifestParser = new QTIManifestFileParser();
-                this.importManager = new QTIImportManager();
+                this.importManager = new QTIZipManager();
         }
 
         /**
