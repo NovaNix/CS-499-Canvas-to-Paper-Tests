@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.data.events.project;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.events.ListUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
@@ -9,7 +10,7 @@ import io.github.csgroup.quizmaker.utils.ListUpdateType;
  * 
  * @author Michael Nix
  */
-public class ProjectQuizUpdateEvent extends ProjectEvent 
+public class ProjectQuizUpdateEvent extends ProjectEvent implements ListUpdateEvent<Quiz>
 {
 	private final ListUpdateType action;
 	private final Quiz modified;
@@ -27,6 +28,7 @@ public class ProjectQuizUpdateEvent extends ProjectEvent
 	/**
 	 * @return What action was performed on the Project
 	 */
+	@Override
 	public ListUpdateType getAction()
 	{
 		return action;
@@ -35,6 +37,7 @@ public class ProjectQuizUpdateEvent extends ProjectEvent
 	/**
 	 * @return What item was added or removed from the Project's Quiz list
 	 */
+	@Override
 	public Quiz getModified()
 	{
 		return modified;
@@ -43,6 +46,7 @@ public class ProjectQuizUpdateEvent extends ProjectEvent
 	/**
 	 * @return The index of the modified item
 	 */
+	@Override
 	public int getIndex()
 	{
 		return index;

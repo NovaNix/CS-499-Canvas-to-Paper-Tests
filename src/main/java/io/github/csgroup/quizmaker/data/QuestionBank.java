@@ -8,6 +8,8 @@ import io.github.csgroup.quizmaker.data.events.bank.BankEvent;
 import io.github.csgroup.quizmaker.data.events.bank.BankRenameEvent;
 import io.github.csgroup.quizmaker.data.events.bank.BankUpdateEvent;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
+import io.github.csgroup.quizmaker.data.utils.QuestionContainer;
+import io.github.csgroup.quizmaker.events.ListUpdateListener;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 
 /**
@@ -15,7 +17,7 @@ import io.github.csgroup.quizmaker.utils.ListUpdateType;
  * 
  * @author Michael Nix
  */
-public class QuestionBank 
+public class QuestionBank implements QuestionContainer
 {
 
 	private final String id;
@@ -45,8 +47,10 @@ public class QuestionBank
 		
 		if (added)
 		{
+			int index = questions.size() - 1;
+			
 			// If this question was added to the list, we need to send an addition event
-			fireEvent(new BankUpdateEvent(this, ListUpdateType.Addition, q));
+			fireEvent(new BankUpdateEvent(this, ListUpdateType.Addition, q, index));
 		}
 		
 		return added;
@@ -54,12 +58,13 @@ public class QuestionBank
 	
 	public boolean remove(Question q)
 	{
+		int index = questions.indexOf(q);
 		boolean included = questions.remove(q); 
 		
 		if (included)
 		{
 			// If this question was included in the list, we need to send a deletion event
-			fireEvent(new BankUpdateEvent(this, ListUpdateType.Deletion, q));
+			fireEvent(new BankUpdateEvent(this, ListUpdateType.Deletion, q, index));
 		}
 		
 		return included;
@@ -68,6 +73,11 @@ public class QuestionBank
 	public Question get(int index)
 	{
 		return questions.get(index);
+	}
+	
+	public int indexOf(Question q)
+	{
+		return questions.indexOf(q);
 	}
 	
 	public Question getFromId(String id)
@@ -143,9 +153,35 @@ public class QuestionBank
 		}
 	}
 	
+	private List<ListUpdateListener<Question>> listListeners = new ArrayList<ListUpdateListener<Question>>();
+	
+	@Override
+	public void addListListener(ListUpdateListener<Question> listener) 
+	{
+		listListeners.add(listener);
+	}
+
+	@Override
+	public void removeListListener(ListUpdateListener<Question> listener) 
+	{
+		listListeners.remove(listener);
+	}
+	
 	@Override
 	public String toString()
 	{
 		return title;
+	}
+
+	@Override
+	public Question getQuestion(int index) 
+	{
+		return get(index);
+	}
+
+	@Override
+	public int getQuestionIndex(Question q) 
+	{
+		return indexOf(q);
 	}
 }
