@@ -11,6 +11,7 @@ import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 import io.github.csgroup.quizmaker.data.models.ProjectBankListModel;
+import io.github.csgroup.quizmaker.data.models.ProjectQuizListModel;
 import io.github.csgroup.quizmaker.qti.QTIContents;
 
 /**
@@ -274,6 +275,7 @@ public class Project
 	// List Model Functions
 	
 	private ListModel<QuestionBank> bankModel = new ProjectBankListModel(this);
+	private ListModel<Quiz> quizModel = new ProjectQuizListModel(this);
 	
 	public ListModel<QuestionBank> getBankModel()
 	{
@@ -282,7 +284,7 @@ public class Project
 	
 	public ListModel<Quiz> getQuizModel()
 	{
-		return null;
+		return quizModel;
 	}
 	
 }
