@@ -13,4 +13,6 @@ public class GeneratedQuiz
 	
 	private List<Question> questions = new ArrayList<Question>();
 	
+	private float pointTotal;
+	
 }
