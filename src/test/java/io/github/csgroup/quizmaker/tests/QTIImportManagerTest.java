@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class QTIImportManagerTest {
     
     // path to the test QTI ZIP file
-    private static final String TestZipPATH = "/group-3-project-quiz-export.zip"; 
+    private static final String TestZipPATH = "/qti_zip_file_test.zip"; 
     
     // stores the path to the temporary directory
     private Path extractedTestFilePath;

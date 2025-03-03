@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
 /**
- * This class parses the manifest file (imsmanifest.xml).
- * Returns a parsed Document object that can be further processed 
- * to extract the file paths of the quiz assessment and quiz info.
+ * This class parses the manifest file (imsmanifest.xml) and returns a structured Document object.
  * 
  * @author Sarah Singhirunnusorn
  */
@@ -24,25 +22,21 @@ public class QTIManifestFileParser
         *
         * @param manifestFile The manifest file.
         * @return A Document object that represents the XML structure.
-        * @throws RuntimeException if the XML file cannot be read or parsed correctly.
+        * @throws Exception if the imsmanifest.xml file cannot be read or parsed properly.
         */
-        public Document parseManifestFile(File manifestFile) 
+        public Document parseManifestFile(File manifestFile) throws Exception
         {
-                try 
-                {
-                        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                        DocumentBuilder builder = factory.newDocumentBuilder();
-                        Document doc = builder.parse(manifestFile);
-
-                        // Normalize the document to prevent formatting inconsistencies
-                        doc.getDocumentElement().normalize();
-
-                        return doc;   
-                } 
-                catch (Exception e) 
-                {
-                        throw new RuntimeException("ERROR!! Failed to parse imsmanifest.xml: " + manifestFile.getAbsolutePath(), e);
-                }
+	    logger.info("Parsing manifest file: {}", manifestFile.getAbsolutePath());
+	    
+	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder builder = factory.newDocumentBuilder();
+	    Document doc = builder.parse(manifestFile);
+	    
+	    // Normalize the Document to ensure a consistent, formatted structure   
+            doc.getDocumentElement().normalize();
+	    
+	    logger.info("Successfully parsed manifest file: {}", manifestFile.getAbsolutePath());
+	    return doc;
         }
 }
 
