@@ -1,11 +1,11 @@
-package io.github.csgroup.quizmaker.utils.stores;
+package io.github.csgroup.quizmaker.utils.stores.writable;
 
-public class DefaultStore<T> extends AbstractStore<T>
+public class DefaultWritableStore<T> extends AbstractWritableStore<T>
 {
 
 	private T value;
 	
-	public DefaultStore(T defaultValue)
+	public DefaultWritableStore(T defaultValue)
 	{
 		this.value = defaultValue;
 	}
