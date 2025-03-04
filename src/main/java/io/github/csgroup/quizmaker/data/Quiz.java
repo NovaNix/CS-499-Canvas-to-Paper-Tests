@@ -71,6 +71,21 @@ public class Quiz implements QuestionContainer
 		return new ArrayList<BankSelection>(banks);
 	}
 	
+	public void addQuestion(Question q)
+	{
+		internalQuestions.add(q);
+	}
+	
+	public void removeQuestion(Question q)
+	{
+		internalQuestions.remove(q);
+	}
+	
+	public QuestionBank getInternalQuestions()
+	{
+		return internalQuestions;
+	}
+	
 	public void setTitle(String title)
 	{
 		String oldName = this.title;
