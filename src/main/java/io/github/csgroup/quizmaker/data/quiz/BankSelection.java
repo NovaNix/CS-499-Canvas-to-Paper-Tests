@@ -32,6 +32,12 @@ public class BankSelection
 		this.bank = bank;
 	}
 	
+	/**
+	 * Sets the number of questions that should be pulled from the QuestionBank.<br>
+	 * <br>
+	 * If the question count is outside the bounds of the bank, it will be automatically limited. 
+	 * @param count the number of questions to select, between 0 and the number of questions in the bank
+	 */
 	public void setQuestionCount(int count)
 	{
 		// Limit the question count

@@ -15,8 +15,6 @@ import io.github.csgroup.quizmaker.events.ListUpdateListener;
 /**
  * A dynamically generated quiz that pulls {@link Question Questions} from {@link QuestionBank QuestionBanks}.<br>
  * 
- * This is not completely implemented. Do not use yet. 
- * 
  * @author Michael Nix
  */
 public class Quiz implements QuestionContainer
@@ -35,18 +33,22 @@ public class Quiz implements QuestionContainer
 
 	public Quiz(String title)
 	{
-		this.id = DataUtils.generateId();
-		this.title = title;
-
-		this.internalQuestions = new QuestionBank(title + "-Questions");
+		this(DataUtils.generateId(), title);
 	}
-
+	
 	public Quiz(String id, String title)
+	{
+		this(id, title, new Label("", Label.Type.html));
+	}
+	
+	public Quiz(String id, String title, Label desc)
 	{
 		this.id = id;
 		this.title = title;
 
 		this.internalQuestions = new QuestionBank(title + "-Questions");
+		
+		this.description = desc;
 	}
 
 	public GeneratedQuiz generate()
