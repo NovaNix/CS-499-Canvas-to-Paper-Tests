@@ -26,6 +26,16 @@ public class MultipleChoiceQuestion extends Question
 	private List<SimpleAnswer> answers = new ArrayList<SimpleAnswer>();
 	private List<Integer> correctAnswers = new ArrayList<Integer>();
 	
+	public MultipleChoiceQuestion(String title)
+	{
+		super(title);
+	}
+	
+	public MultipleChoiceQuestion(String title, float points)
+	{
+		super(title, points);
+	}
+	
 	public MultipleChoiceQuestion(String id, String title, float points) 
 	{
 		super(id, title, points);
