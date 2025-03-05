@@ -45,6 +45,13 @@ public class BlankAnswer extends Answer
 		this.correctAnswer = answer;
 	}
 	
+	public BlankAnswer(int id, String answer)
+	{
+		super(id);
+		
+		this.correctAnswer = new Label(answer);
+	}
+	
 	/**
 	 * Sets the correct answer's label
 	 * @param label
