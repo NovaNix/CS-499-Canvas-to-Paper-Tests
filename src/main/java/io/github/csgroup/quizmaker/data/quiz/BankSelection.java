@@ -17,9 +17,9 @@ public class BankSelection
 	private int questionCount;
 	
 	/** The number of points each question should be */
-	private int pointsPerQuestion;
+	private float pointsPerQuestion;
 	
-	public BankSelection(QuestionBank bank, int questionCount, int pointsPerQuestion)
+	public BankSelection(QuestionBank bank, int questionCount, float pointsPerQuestion)
 	{
 		this.bank = bank;
 		
@@ -49,13 +49,13 @@ public class BankSelection
 		this.questionCount = count;
 	}
 	
-	public void setPointsPerQuestion(int points)
+	public void setPointsPerQuestion(float points)
 	{
 		// Require points to be at least 0
 		if (points < 0)
 			points = 0;
 		
-		this.pointsPerQuestion = 0;
+		this.pointsPerQuestion = points;
 	}
 	
 	public QuestionBank getBank()
@@ -68,7 +68,7 @@ public class BankSelection
 		return questionCount;
 	}
 	
-	public int getPointsPerQuestion()
+	public float getPointsPerQuestion()
 	{
 		return pointsPerQuestion;
 	}
