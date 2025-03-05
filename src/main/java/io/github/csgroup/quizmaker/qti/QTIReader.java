@@ -49,13 +49,13 @@ public class QTIReader
 		
 		QuestionBank bank1 = new QuestionBank("Test Bank 1");
 		
-		var writtenResponse = new WrittenResponseQuestion("Written Test", 0);
+		var writtenResponse = new WrittenResponseQuestion("Written Test");
 		writtenResponse.setLabel(new Label("This is a written response"));
 		writtenResponse.setAnswer("And this should be the answer!");
 		
 		bank1.add(writtenResponse);
 		
-		var fitbQuestion = new FillInTheBlankQuestion("FITB Question", 0);
+		var fitbQuestion = new FillInTheBlankQuestion("FITB Question");
 		fitbQuestion.setLabel(new Label("Fill in the [b] question! Do your [2]!"));
 		fitbQuestion.setAnswer("b", new BlankAnswer(0, "blank"));
 		fitbQuestion.setAnswer("2", new BlankAnswer(1, "best"));
@@ -64,7 +64,7 @@ public class QTIReader
 		
 		QuestionBank bank2 = new QuestionBank("Test Bank 2");
 		
-		var multipleChoice = new MultipleChoiceQuestion("Multichoice", 0);
+		var multipleChoice = new MultipleChoiceQuestion("Multichoice");
 		multipleChoice.setLabel(new Label("What is rotten?"));
 		multipleChoice.addAnswer(new SimpleAnswer(0, "Egg"), true);
 		multipleChoice.addAnswer(new SimpleAnswer(1, "Potato"), false);
