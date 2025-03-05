@@ -39,6 +39,10 @@ public class QTIReader
 		return getTempTestContents();
 	}
 	
+	/**
+	 * This will return example data for testing purposes. Once QTI importing is fully implemented, this can be removed.
+	 * @return
+	 */
 	private QTIContents getTempTestContents()
 	{
 		// Temporary QTI contents return
