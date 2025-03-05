@@ -24,12 +24,7 @@ public abstract class Question
 	
 	public Question(String title, float points)
 	{
-		this.id = DataUtils.generateId();
-		
-		this.title = title;
-		this.label = new Label(title);
-		
-		this.points = points;
+		this(DataUtils.generateId(), title, points);
 	}
 	
 	public Question(String id, String title, float points)
