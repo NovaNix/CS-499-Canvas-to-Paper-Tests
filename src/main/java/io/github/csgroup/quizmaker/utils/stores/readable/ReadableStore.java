@@ -30,4 +30,8 @@ public interface ReadableStore<T>
 	 */
 	public void removeListener(StoreListener<T> listener);
 	
+	/**
+	 * @return the number of listeners actively listening to the store
+	 */
+	public int getListenerCount();
 }

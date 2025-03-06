@@ -28,6 +28,11 @@ public class DerivedStore<T> extends AbstractReadableStore<T>
 	
 	private T value;
 	
+	public DerivedStore(ReadableStore<?> store, DerivedStoreCalculator<T> calculator)
+	{
+		this(List.of(store), calculator);
+	}
+	
 	/**
 	 * 
 	 * @param stores the stores that when updated cause this to recalculate 

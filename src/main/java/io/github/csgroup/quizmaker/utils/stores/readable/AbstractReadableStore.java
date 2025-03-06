@@ -32,13 +32,24 @@ public abstract class AbstractReadableStore<T> implements ReadableStore<T>
 		this.listeners.remove(listener);
 	}
 	
+	@Override
+	public int getListenerCount()
+	{
+		return this.listeners.size();
+	}
+	
 	/**
 	 * Updates all of the listeners for this store with a new value.
 	 * @param value the new value of the store
 	 */
-	protected void fireChange(T value)
+	protected synchronized void fireChange(T value)
 	{
-		for (var listener : listeners)
+		// We make a copy of the list to allow for listeners to unsubscribe during the event call
+		// This is kinda inefficient, it could be made more efficient by putting unsubscribe requests to a buffer
+		// and then removing them from the buffer once we're done looping through, but this might cause threading issues
+		// For now this shouldn't be much of a performance hit, but it's something we should look into if we run into problems
+		// TODO consider optimizing
+		for (var listener : new ArrayList<StoreListener<T>>(listeners))
 		{
 			listener.onStoreChange(this, value);
 		}
