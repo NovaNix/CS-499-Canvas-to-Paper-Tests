@@ -88,5 +88,18 @@ public class WrittenResponseQuestion extends Question
 			return this.toString();
 		}
 	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new WrittenResponseQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		
+		c.setResponseLength(length);
+		c.setAnswer(getLabel().clone());
+		
+		return c;
+	}
 	
 }
