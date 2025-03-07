@@ -7,6 +7,12 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
+/**
+ * A Queue of objects that randomly selects the order of objects
+ * 
+ * @param <T> the type stored inside of the bag
+ * @author Michael Nix
+ */
 public class RandomBag<T> 
 {
 	
@@ -25,11 +31,17 @@ public class RandomBag<T>
 		bag = new ArrayDeque<T>(shuffled);
 	}
 	
+	/**
+	 * @return the next object in the bag. This object will be removed from the queue
+	 */
 	public T next()
 	{
 		return bag.poll();
 	}
 	
+	/**
+	 * @return the next object in the bag, without removing it from the bag
+	 */
 	public T peek()
 	{
 		return bag.peek();
