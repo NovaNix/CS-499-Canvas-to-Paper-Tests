@@ -52,5 +52,11 @@ public class SimpleAnswer extends Answer
 	{
 		return label.asText();
 	}
+
+	@Override
+	public Answer clone() 
+	{
+		return new SimpleAnswer(getId(), label.clone());
+	}
 	
 }
