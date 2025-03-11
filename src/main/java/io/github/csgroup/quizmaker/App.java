@@ -4,9 +4,11 @@ import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.nio.file.*;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.ui.UIManager;
+import io.github.csgroup.quizmaker.word.WordExporter;
 
 /**
  * The central management point of the application. <br>
@@ -21,10 +23,15 @@ public class App
 	private static UIManager ui;
 
 	private static Project project;
+	
 
 	public static void main(String[] args)
 	{
 		logger.info("Starting Application");
+		
+		//Word test, keep commented for now unless testing the word exporting or until correctly implemented in the UI
+		//WordExporter wordExportTest = new WordExporter();
+		//wordExportTest.exportTest(true);
 
 		// Create a new blank project
 		project = new Project();
