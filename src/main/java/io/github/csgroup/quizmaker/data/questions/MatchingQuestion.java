@@ -23,6 +23,11 @@ public class MatchingQuestion extends Question
 	
 	private List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
 	
+	public MatchingQuestion(String title)
+	{
+		super(title);
+	}
+	
 	/**
 	 * Creates a new MatchingQuestion with a generated Id 
 	 * @param title

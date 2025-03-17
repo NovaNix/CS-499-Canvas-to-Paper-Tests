@@ -22,6 +22,11 @@ public abstract class Question
 	
 	private float points;
 	
+	public Question(String title)
+	{
+		this(title, 0f);
+	}
+	
 	public Question(String title, float points)
 	{
 		this(DataUtils.generateId(), title, points);
