@@ -69,5 +69,11 @@ public class MatchingAnswer extends Answer
 	{
 		return left.asText() + MATCHING_ARROW + right.asText();
 	}
+
+	@Override
+	public Answer clone() 
+	{
+		return new MatchingAnswer(getId(), left.clone(), right.clone());
+	}
 	
 }

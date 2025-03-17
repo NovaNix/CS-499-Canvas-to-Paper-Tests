@@ -100,5 +100,20 @@ public class MatchingQuestion extends Question
 		return a.toString();
 	}
 
+	@Override
+	public Question clone()
+	{
+		var c = new MatchingQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		
+		for (var answer : answers)
+		{
+			c.addAnswer((MatchingAnswer) answer.clone());
+		}
+		
+		return c;
+	}
+
 	
 }

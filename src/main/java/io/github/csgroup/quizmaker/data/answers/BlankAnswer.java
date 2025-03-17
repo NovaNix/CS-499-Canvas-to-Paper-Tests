@@ -74,6 +74,22 @@ public class BlankAnswer extends Answer
 		fireEvent(new AnswerUpdateEvent(this));
 	}
 	
+	public void addDistractors(Label... labels)
+	{
+		for (Label label : labels)
+		{
+			addDistractor(label);
+		}
+	}
+	
+	public void addDistractors(List<Label> labels)
+	{
+		for (Label label : labels)
+		{
+			addDistractor(label);
+		}
+	}
+	
 	/**
 	 * Removes a distractor from this answer
 	 * @param label The distractor to remove
@@ -126,5 +142,20 @@ public class BlankAnswer extends Answer
 	public String asText() 
 	{
 		return correctAnswer.asText();
+	}
+	
+	@Override
+	public Answer clone()
+	{
+		BlankAnswer answer = new BlankAnswer(this.getId());
+		answer.setAnswer(correctAnswer.clone());
+		
+		List<Label> distractors = this.distractors.stream()
+				.map((label) -> label.clone()) // Make copies of all of the labels
+				.toList();
+		
+		answer.addDistractors(distractors);
+		
+		return answer;
 	}
 }

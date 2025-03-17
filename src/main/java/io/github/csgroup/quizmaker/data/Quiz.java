@@ -81,6 +81,14 @@ public class Quiz implements QuestionContainer
 		internalQuestions.remove(q);
 	}
 	
+	/**
+	 * @return the questions stored internally on this quiz. this does not include questions pulled from question banks
+	 */
+	public List<Question> getQuestions()
+	{
+		return internalQuestions.getQuestions();
+	}
+	
 	public QuestionBank getInternalQuestions()
 	{
 		return internalQuestions;
