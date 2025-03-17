@@ -96,6 +96,11 @@ public class QuestionBank implements QuestionContainer
 		return questions.size();
 	}
 	
+	public List<Question> getQuestions()
+	{
+		return new ArrayList<Question>(questions);
+	}
+	
 	public String getTitle()
 	{
 		return title;

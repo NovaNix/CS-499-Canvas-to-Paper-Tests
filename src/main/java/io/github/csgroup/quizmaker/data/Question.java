@@ -39,6 +39,9 @@ public abstract class Question
 	
 	public abstract String getAnswerString();
 	
+	@Override
+	public abstract Question clone();
+	
 	public String getTitle()
 	{
 		return title;

@@ -76,13 +76,22 @@ public class MultipleChoiceQuestion extends Question
 		
 		for (var answer : answers)
 		{
-			if (correctAnswers.contains(answer.getId()))
+			if (isCorrect(answer))
 			{
 				correct.add(answer);
 			}
 		}
 		
 		return correct;
+	}
+	
+	/**
+	 * @param answer the answer to check the correctness of
+	 * @return whether the answer is correct or not
+	 */
+	public boolean isCorrect(SimpleAnswer answer)
+	{
+		return correctAnswers.contains(answer.getId());
 	}
 
 	@Override
@@ -121,6 +130,21 @@ public class MultipleChoiceQuestion extends Question
 		s.append("</html>");
 		
 		return s.toString();
+	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new MultipleChoiceQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		
+		for (var answer : answers)
+		{
+			c.addAnswer((SimpleAnswer) answer.clone(), isCorrect(answer));
+		}
+		
+		return c;
 	}
 	
 }

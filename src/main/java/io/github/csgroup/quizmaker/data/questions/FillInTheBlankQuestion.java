@@ -134,5 +134,21 @@ public class FillInTheBlankQuestion extends Question
 	{
 		return showAnswers;
 	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new FillInTheBlankQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		c.setShowAnswers(showAnswers);
+		
+		for (String key : answers.keySet())
+		{
+			c.setAnswer(key, (BlankAnswer) answers.get(key).clone());
+		}
+		
+		return c;
+	}
 	
 }
