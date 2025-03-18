@@ -1,5 +1,7 @@
 package io.github.csgroup.quizmaker.qti;
 
+import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
+import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
 import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class QTIReader 
 {
     
-	public static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
         private final QTIZipManager importManager;
 	private final QTIManifestFileProcessor manifestProcessor;
 	
@@ -30,10 +32,10 @@ public class QTIReader
 	* Reads the QTI files, extracts the data files, and retrieves the file mappings of the quiz assessment and metadata files
 	* 
 	* @param qtiZipPath The path to the QTI ZIP file.
-	* @return A list of QTIDataFileMapping objects that represents the extracted file paths.
+	* @return A {@link QTIContents} object containing parsed quiz data.
 	* @throws IOException if the QTI file cannot be properly extracted.
 	*/
-	public List<QTIDataFileMapping> readFile(String qtiZipPath) throws IOException, Exception
+	public QTIContents readFile(String qtiZipPath) throws IOException, Exception
 	{
 		logger.info("Reading QTI file from path: {}", qtiZipPath);
 		
@@ -42,18 +44,38 @@ public class QTIReader
 		if (extractedQTIPackage == null)
 		{
 			logger.error("Failed to extract QTI file.");
-			return null;
+			return new QTIContents();
 		}
+		logger.info("---- QTI File Extraction Complete ----");
+		logger.info("Extracted QTI files to: {}", extractedQTIPackage.toAbsolutePath());
 		
-		// Process the manifest file
-		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toString());
+		// Process the manifest file to locate the quiz data files
+		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toAbsolutePath());
+		
+		// Ensure that it always returns a valid QTIContents object
+		QTIContents qtiContents = new QTIContents();
+		
 		if (mappings == null || mappings.isEmpty())
 		{
 			logger.warn("No quizzes found in the QTI file.");
-			return null;
+			return qtiContents;
 		}
+		logger.info("---- Processing Quiz Data Files ----");
 		
-		// Return extracted file paths
-		return mappings;
+		// Iterate through the file mappings to process the quiz assessment and metadata files
+		for (QTIDataFileMapping mapping : mappings)
+		{
+			logger.info("Processing Assessment File: {}", mapping.getQuizAssessmentFile());
+			
+			if (mapping.hasMetadataFile())
+			{
+				logger.info("Located metadata file for assessment file: {} → {}", mapping.getQuizAssessmentFile(), mapping.getQuizMetadataFile());
+			}
+			
+			// TODO Parse assessmement file
+			// TODO Parse metadata file
+		}
+	
+		return qtiContents;
 	}	
 }
