@@ -1,7 +1,7 @@
 package io.github.csgroup.quizmaker.tests;
 
-import io.github.csgroup.quizmaker.qti.QTIDataFileMapping;
-import io.github.csgroup.quizmaker.qti.QTIManifestFileProcessor;
+import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
+import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,10 +59,12 @@ public class QTIManifestFileProcessorTest
                 assertTrue(testQtiZipFile.exists(), "Test QTI ZIP file should exist.");
 
                 // Processes the QTI ZIP file
-                List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(testQtiZipFile.getAbsolutePath());
+                List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(testQtiZipFile.toPath());
 		
+		// Check for file mappings
 		assertNotNull(mappings, "Returned mappings should NOT be null.");
-		// Checks the expected number of extracted mappings
+		
+		// Verify the expected number of extracted mappings
 		assertEquals(3, mappings.size(), "Should extract 3 quiz assessments.");
 		
 		logger.info("The Extracted QTI Data File Mappings:");

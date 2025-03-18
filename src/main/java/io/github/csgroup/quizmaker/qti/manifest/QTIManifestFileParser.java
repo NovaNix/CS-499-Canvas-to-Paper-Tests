@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.qti;
+package io.github.csgroup.quizmaker.qti.manifest;
 
 import java.io.File;
 import javax.xml.parsers.DocumentBuilder;

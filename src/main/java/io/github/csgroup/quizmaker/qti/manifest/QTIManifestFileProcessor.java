@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.qti;
+package io.github.csgroup.quizmaker.qti.manifest;
 
 import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import java.io.File;
@@ -33,26 +33,37 @@ public class QTIManifestFileProcessor
         /**
         * Unzips the QTI file and processes the manifest (imsmanifest.xml) file.
         *
-        * @param qtiZipPath The path to the QTI ZIP file.
+        * @param extractedQTIPackage The path to the QTI ZIP file.
         * @return A list of QTIDataFileMapping objects that represent the quiz assessment and metadata file paths.
         * @throws Exception if the QTI file cannot be extracted or processed.
         * @throws RuntimeException if the manifest file is missing.
         */
-        public List<QTIDataFileMapping> processQTIFile(String qtiZipPath) throws Exception 
+        public List<QTIDataFileMapping> processQTIFile(Path extractedQTIPackage) throws Exception 
         {
                 // Unzip and extract the QTI file
-                Path extractedQTIPackage = importManager.extractQTIFile(qtiZipPath);
+		if(extractedQTIPackage == null)
+		{
+			logger.error("Extraction failed. No valid directoy found.");
+			return new ArrayList<>();
+		}
+		logger.info("Extracted QTI files to: {}", extractedQTIPackage.toAbsolutePath());
 
                 // Locate the manifest file
                 File manifestFile = new File(extractedQTIPackage.toFile(), "imsmanifest.xml");
-
                 if (!manifestFile.exists()) 
                 {
                         throw new RuntimeException("ERROR!! imsmanifest.xml not found in the temporary directory: " + extractedQTIPackage);
                 }
-
                 logger.info("Processing imsmanifest.xml from the temporary directory: {}", extractedQTIPackage);
-                Document doc = manifestParser.parseManifestFile(manifestFile);
+                
+		// Check for null manifest parsing
+		Document doc = manifestParser.parseManifestFile(manifestFile);
+		if (doc == null)
+		{
+			logger.error("Manifest file parsing failed. Document is null.");
+			return new ArrayList<>();
+		}
+		
                 return extractFileMappings(doc);
         }
 

@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.qti;
+package io.github.csgroup.quizmaker.qti.manifest;
 
 /**
  * This class pairs the assessment file with its corresponding metadata file for each quiz data file in the QTI file. <br>
@@ -51,6 +51,5 @@ public class QTIDataFileMapping
 	{
 		return String.format("QTIDataFileMapping{quizAssessmentFile='%s', quizMetadataFile='%s'}", quizAssessmentFile, quizMetadataFile);
 	}
-    
-       
+	
 }
