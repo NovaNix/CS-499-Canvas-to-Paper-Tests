@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.dialogs;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;

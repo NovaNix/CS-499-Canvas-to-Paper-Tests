@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.word.WordExporter;
 import javax.swing.JFrame;

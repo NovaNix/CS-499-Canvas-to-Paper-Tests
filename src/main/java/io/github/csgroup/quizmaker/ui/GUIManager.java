@@ -1,5 +1,9 @@
 package io.github.csgroup.quizmaker.ui;
 
+import io.github.csgroup.quizmaker.ui.banks.BankHostPanel;
+import io.github.csgroup.quizmaker.ui.dialogs.ImportQTIDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.ExportQTIDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
 import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Project;
 import java.awt.event.ActionEvent;

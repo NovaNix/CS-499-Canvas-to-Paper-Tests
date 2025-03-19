@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.ui;
 
 import javax.swing.JComponent;
 import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.ui.dialogs.BankToQuizDialog;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
 import java.awt.Color;

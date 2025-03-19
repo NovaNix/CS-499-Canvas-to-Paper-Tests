@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.ui;
+package io.github.csgroup.quizmaker.ui.dialogs;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;

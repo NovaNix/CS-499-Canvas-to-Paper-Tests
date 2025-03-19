@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
+import java.awt.Insets;
 
 /**
  * Creates a frame that ensures the user is deleting the correct quiz bank
@@ -18,91 +19,109 @@ import io.github.csgroup.quizmaker.data.Project;
  */
 public class RemoveBankDialog 
 { 
-	private JFrame removeFrame;
-
-	public RemoveBankDialog(QuestionBank bankName, Project currentProject)
-	{
-		createRemoveBankFrame(bankName, currentProject);
-	}
-
-	/**
-	 * Creates a frame that contains asks if the user is deleting the correct
-	 * quiz bank. If they confirm that they are deleting the correct quiz bank, 
-	 * it gets deleted.
-	 * 
-	 * @param name the name of the quiz bank to be removed
-	 * @param bankProject used to remove the new question bank to the QuestionBank list
-	 */
-	private void createRemoveBankFrame(QuestionBank name, Project bankProject)
-	{            
-		removeFrame = new JFrame();
-		removeFrame.setSize(400, 290);
-
-		JLabel questionLabel = new JLabel("Are you sure you want to remove quiz bank: " + name + "?");
-
-		JButton yesButton = new JButton("Yes");
-		JButton noButton = new JButton("No");
-
-		// contains yesButton and noButton
-		JPanel buttonPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints yesButtonConstraint = new GridBagConstraints();
-		GridBagConstraints noButtonConstraint = new GridBagConstraints();
-
-		// places yesButton on the left side buttonPanel
-		yesButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
-		yesButtonConstraint.gridx = 0;
-		yesButtonConstraint.gridy = 0;
-		buttonPanel.add(yesButton, yesButtonConstraint);
-
-		// places noButton on the right side of buttonPanel
-		noButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
-		noButtonConstraint.gridx = 1;
-		noButtonConstraint.gridy = 0;
-		buttonPanel.add(noButton, noButtonConstraint);
-
-		// contains questionLabel and buttonPanel
-		JPanel removeBankPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints questionConstraint = new GridBagConstraints();
-		GridBagConstraints buttonConstraint = new GridBagConstraints();
-
-		// places questionLabel at the top of removeBankPanel
-		questionConstraint.fill = GridBagConstraints.HORIZONTAL;
-		questionConstraint.gridx = 0;
-		questionConstraint.gridy = 0;
-		removeBankPanel.add(questionLabel, questionConstraint);
-
-		// places buttonPanel at the bottom of removeBankPanel
-		buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
-		buttonConstraint.gridx = 0;
-		buttonConstraint.gridy = 1;
-		removeBankPanel.add(buttonPanel, buttonConstraint);    
-
-		removeFrame.add(removeBankPanel);
-
-		// listens for when yesButton is clicked
-		yesButton.addActionListener((ActionEvent e) -> {
-			// remove the bank from the list
-			bankProject.removeBank(name);
-			// close removeFrame
-			removeFrame.dispose();
-		});
-
-		// listens for when noButton is clicked
-		noButton.addActionListener((ActionEvent e) -> {
-			// close removeFrame
-			removeFrame.dispose();
-		});
-	}
-
-	/**
-	 * Controls when and where the frame appears
-	 * 
-	 */
-	public void show()
-	{
-		// makes the JFrame appear in the center of the screen
-		removeFrame.setLocationRelativeTo(null);
-		// make the JFrame visible
-		removeFrame.setVisible(true);            
-	}
+    private JFrame removeFrame;
+    private final Project removeProject;
+    
+    public RemoveBankDialog(QuestionBank bankName, Project currentProject)
+    {
+        removeProject = currentProject;
+        createRemoveBankFrame(bankName);
+    }
+            
+    /**
+     * Creates a frame that contains asks if the user is deleting the correct
+     * quiz bank. If they confirm that they are deleting the correct quiz bank, 
+     * it gets deleted.
+     * 
+     * @param name the name of the quiz bank to be removed
+     * @param bankProject used to remove the new question bank to the QuestionBank list
+     */
+    private void createRemoveBankFrame(QuestionBank name)
+    {            
+        removeFrame = new JFrame();
+        removeFrame.setSize(380, 270);
+        
+        JLabel questionLabel = new JLabel("Are you sure you want to remove quiz bank: " + name + "?");
+            
+                
+        // contains questionLabel and buttonPanel
+        JPanel removeBankPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints questionConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints();
+                
+        // places questionLabel at the top of removeBankPanel
+        questionConstraint.fill = GridBagConstraints.HORIZONTAL;
+        questionConstraint.gridx = 0;
+        questionConstraint.gridy = 0;
+        questionConstraint.insets = new Insets(0, 0, 5, 0);
+        removeBankPanel.add(questionLabel, questionConstraint);
+        
+        // places buttonPanel at the bottom of removeBankPanel
+        JPanel buttonPanel = removeButtonPanel(name);
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 1;
+        removeBankPanel.add(buttonPanel, buttonConstraint);    
+                
+        removeFrame.add(removeBankPanel);                
+    }
+    
+    /**
+     * Creates button panel that allows to user to confirm or deny to delete 
+     * the bank
+     * 
+     * @param questionBankName name of the question bank
+     * @return the button panel
+     */
+    private JPanel removeButtonPanel(QuestionBank questionBankName)
+    {
+        JButton yesButton = new JButton("Yes");
+        JButton noButton = new JButton("No");
+        
+        // contains yesButton and noButton
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints yesButtonConstraint = new GridBagConstraints();
+        GridBagConstraints noButtonConstraint = new GridBagConstraints();
+            
+        // places yesButton on the left side buttonPanel
+        yesButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        yesButtonConstraint.gridx = 0;
+        yesButtonConstraint.gridy = 0;
+        yesButtonConstraint.insets = new Insets(0, 0, 0, 5);
+        buttonPanel.add(yesButton, yesButtonConstraint);
+        
+        // places noButton on the right side of buttonPanel
+        noButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        noButtonConstraint.gridx = 1;
+        noButtonConstraint.gridy = 0;
+        buttonPanel.add(noButton, noButtonConstraint);
+        
+        // listens for when yesButton is clicked
+        yesButton.addActionListener((ActionEvent e) -> {
+            // remove the bank from the list
+            removeProject.removeBank(questionBankName);
+            // close removeFrame
+            removeFrame.dispose();
+        });
+                
+        // listens for when noButton is clicked
+        noButton.addActionListener((ActionEvent e) -> {
+            // close removeFrame
+            removeFrame.dispose();
+        });
+        
+        return buttonPanel;
+    }
+         
+    /**
+     * Controls when and where the frame appears
+     * 
+     */
+    public void show()
+    {
+        // makes the JFrame appear in the center of the screen
+        removeFrame.setLocationRelativeTo(null);
+        // make the JFrame visible
+        removeFrame.setVisible(true);            
+    }
 }
