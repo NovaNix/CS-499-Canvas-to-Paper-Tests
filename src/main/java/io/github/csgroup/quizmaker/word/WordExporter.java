@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 
 /**
  * Responsible for taking a {@link Quiz} and turning it into a .docx file
@@ -16,22 +17,12 @@ public class WordExporter
 {
 	public static final Logger logger = LoggerFactory.getLogger(WordExporter.class);
 
-	// TODO add template files, add function parameters
-	
-	private Path testTemplate;
-	private Path keyTemplate;
-	
 	public WordExporter()
 	{
 		
 	}
 	
-	public void exportTest(Quiz quiz, Path destination)
-	{
-		
-	}
-	
-	public void exportAnswerKey(Quiz quiz, Path destination)
+	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, boolean isKey)
 	{
 		
 	}
