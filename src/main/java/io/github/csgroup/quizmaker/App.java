@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.ui.UIManager;
+import io.github.csgroup.quizmaker.ui.GUIManager;
 
 /**
  * The central management point of the application. <br>
@@ -18,8 +18,8 @@ public class App
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	@SuppressWarnings("unused")
-	private static UIManager ui;
-
+	private static GUIManager ui;
+	
 	private static Project project;
 
 	public static void main(String[] args)
@@ -32,8 +32,8 @@ public class App
 		// Initiate the UI code
 		SwingUtilities.invokeLater(() -> {
 			// The UI needs to be started on the event threads
-			ui = new UIManager();
-			ui.createHomeFrame();
+			ui = new GUIManager();
+                        ui.createHomeFrame();
 		});
 	}
 
