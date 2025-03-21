@@ -30,6 +30,7 @@ public class App
 		logger.info("Starting Application");
 		
 		//Word test, keep commented for now unless testing the word exporting or until correctly implemented in the UI
+		//logger.info("Testing word exporting!");
 		//WordExporter wordExportTest = new WordExporter();
 		//wordExportTest.exportTest(true);
 
