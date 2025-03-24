@@ -1,5 +1,7 @@
 package io.github.csgroup.quizmaker.word;
 
+import java.io.IOException;
+
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,33 +23,32 @@ public class QuestionWriter
 	
 	private final XWPFDocument document;
 	
+	private final boolean isKey;
+	
 	/**
 	 * Constructs a QuestionWriter for the given document.
 	 * @param document The XWPFDocument to which questions will be written.
+	 * @param isKey whether or not an answer key is being written
 	 */
-	public QuestionWriter(XWPFDocument document) 
+	public QuestionWriter(XWPFDocument document, boolean isKey) 
 	{
 		this.document = document;
+		this.isKey = isKey;
 	}
 	
 	/**
 	 * Writes a question to the docx file
-	 * @param q the question to write
-	 * @param isKey whether or not an answer key is being written (will be changed to constructor later)
+	 * @param q the written response question to write
+	 * @throws IOException if LabelWriter is null 
 	 */
-	public void write(Question q, boolean isKey)
+	public void writeWrittenResponse(WrittenResponseQuestion q) throws IOException
 	{
-		XWPFParagraph questionParagraph = document.createParagraph();
-		XWPFRun questionRun = questionParagraph.createRun();
-		//questionRun.setBold(true); //Used this to signify questions, will adhere to a template later
-		questionRun.setText(q.getLabel().asText());
+		LabelWriter labelWriter = new LabelWriter(document);
+		labelWriter.write(q.getLabel());
 
-		if (isKey && q instanceof WrittenResponseQuestion wrq) 
+		if (isKey) 
 		{
-			XWPFParagraph answerParagraph = document.createParagraph();
-			XWPFRun answerRun = answerParagraph.createRun();
-			answerRun.setItalic(true); //Currently just using this to signify answers, will adhere to a template later
-			answerRun.setText(wrq.getAnswer().asText());
+			labelWriter.write(q.getAnswer());
 		}
 	}
 	

@@ -4,6 +4,8 @@ import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.nio.file.*;
 
 import io.github.csgroup.quizmaker.data.Project;
@@ -30,9 +32,14 @@ public class App
 		logger.info("Starting Application");
 		
 		//Word test, keep commented for now unless testing the word exporting or until correctly implemented in the UI
-		//logger.info("Testing word exporting!");
-		//WordExporter wordExportTest = new WordExporter();
-		//wordExportTest.exportTest(true);
+		/*logger.info("Testing word exporting!");
+		WordExporter wordExportTest = new WordExporter();
+		try {
+			wordExportTest.exportTest(true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 
 		// Create a new blank project
 		project = new Project();
