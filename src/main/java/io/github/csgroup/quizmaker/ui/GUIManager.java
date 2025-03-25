@@ -1,11 +1,11 @@
 package io.github.csgroup.quizmaker.ui;
 
-import io.github.csgroup.quizmaker.ui.banks.BankHostPanel;
+import io.github.csgroup.quizmaker.ui.banks.BankPanel;
 import io.github.csgroup.quizmaker.ui.dialogs.ImportQTIDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.ExportQTIDialog;
-import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
 import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Project;
+
 import java.awt.event.ActionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
  * @author Emily Palmer
  */
 public class GUIManager 
-{
+{    
 	public static final Logger logger = LoggerFactory.getLogger(GUIManager.class);
 	
 	public GUIManager()
@@ -42,7 +42,8 @@ public class GUIManager
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
                
         //size of the JFrame (width, height)
-        homeFrame.setSize(690, 525);
+        //705, 530
+        homeFrame.setSize(705, 560);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();
@@ -50,12 +51,10 @@ public class GUIManager
         JMenu fileMenu = new JMenu("File");
         // items for the user to select in the "File" menu
         JMenuItem importFileItem = new JMenuItem("Import QTI Files");
-        JMenuItem exportFileItem = new JMenuItem("Export QTI Files");
-        JMenuItem exportDocumentItem = new JMenuItem("Export Word Document");            
+        JMenuItem exportFileItem = new JMenuItem("Export QTI Files");           
         // add items to the JMenu fileMenu
         fileMenu.add(importFileItem);
-        fileMenu.add(exportFileItem);
-        fileMenu.add(exportDocumentItem);       
+        fileMenu.add(exportFileItem);       
         // add JMenu "File" to the JMenuBar menuBar
         menuBar.add(fileMenu);
             
@@ -70,12 +69,12 @@ public class GUIManager
         // panel that will hold the quiz bank list and quiz bank questions 
         // and answers     
         Project quizBankProject = App.getCurrentProject();
-        BankHostPanel selectPanel = new BankHostPanel(quizBankProject);
+        BankPanel selectPanel = new BankPanel(quizBankProject);
         QuizPanel quizzes = new QuizPanel(quizBankProject);
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Quiz Banks", selectPanel);
+        tabs.addTab("Question Banks", selectPanel);
         tabs.addTab("Quizzes", quizzes);
         // setting the looks and feel of the tabs
         tabs.setBackgroundAt(0, new Color(237, 237, 237));
@@ -89,7 +88,7 @@ public class GUIManager
         // listens for when the user selects importFileItems
         importFileItem.addActionListener((ActionEvent e) -> {
             // display the frame that lets the user attach their QTI files
-            ImportQTIDialog importFrame = new ImportQTIDialog();
+            ImportQTIDialog importFrame = new ImportQTIDialog(quizBankProject);
             importFrame.show();
         });
         
@@ -98,13 +97,6 @@ public class GUIManager
             ExportQTIDialog exportQTIFrame = new ExportQTIDialog();
             // display the frame that lets the user export their QTI files
             exportQTIFrame.show();            
-        });
-                
-        // listens for when the user selects exportFileItems
-        exportDocumentItem.addActionListener((ActionEvent e) -> {
-            // display the frame that lets the user export their files
-            ExportWordDialog exportWordFrame = new ExportWordDialog();
-            exportWordFrame.show();
         });
                                                                                                   
         // if the JFrame is closed terminate the running program

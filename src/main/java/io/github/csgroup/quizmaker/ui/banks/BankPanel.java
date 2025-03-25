@@ -2,12 +2,14 @@ package io.github.csgroup.quizmaker.ui.banks;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -17,6 +19,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.ListModel;
 import javax.swing.JComponent;
+import javax.swing.event.ListDataListener;
+import javax.swing.event.ListDataEvent;
 
 /**
  * Creates the JPanel that contains the JList of quiz bank names 
@@ -26,11 +30,33 @@ import javax.swing.JComponent;
 public class BankPanel extends JComponent
 {  
     private final Project bankProject;
+    private ListModel<QuestionBank> quizBankNameList;
+    private QuestionTable questionAnswerTable;
     
     public BankPanel(Project currentProject)
     {
         bankProject = currentProject;
-        createBankPanel();
+        bankPanel();
+    }
+    
+    private void bankPanel()
+    {
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints listConstraint = new GridBagConstraints();
+        GridBagConstraints tableConstraint = new GridBagConstraints();
+        
+        JPanel bankListPanel = listPanel();
+        listConstraint.fill = GridBagConstraints.HORIZONTAL;
+        listConstraint.gridx = 0;
+        listConstraint.gridy = 0;
+        listConstraint.insets = new Insets(4, 0, 0, 0);
+        this.add(bankListPanel, listConstraint);
+        
+        JPanel tablePanel = bankTable();
+        tableConstraint.fill = GridBagConstraints.HORIZONTAL;
+        tableConstraint.gridx = 1;
+        tableConstraint.gridy = 0;
+        this.add(tablePanel, tableConstraint);                
     }
     
     /**
@@ -42,22 +68,23 @@ public class BankPanel extends JComponent
      * @return the panel that holds the list of quiz bank names
      * and add and remove buttons
      */
-    private void createBankPanel()
+    private JPanel listPanel()
     {            
         // label for the quiz question banks
         JLabel quizBankLabel = new JLabel("Banks");
                 
         // list of the quiz bank names to be displayed on the JList
-        ListModel<QuestionBank> quizBankNameList = bankProject.getBankModel();
+        quizBankNameList = bankProject.getBankModel();
         JList quizBankList = new JList(quizBankNameList);  
         //JScrollPane for the JList quizBankList
         JScrollPane bankScrollPane = new JScrollPane(quizBankList);
-        bankScrollPane.setPreferredSize(new Dimension(190, 380));
+        bankScrollPane.setPreferredSize(new Dimension(200, 410));
                 
         // contains quizBankLabel and bankScrollPane 
         JPanel bankPanel = new JPanel(new GridBagLayout());
         GridBagConstraints bankLabelConstraint = new GridBagConstraints();
         GridBagConstraints bankScrollPaneConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints();
                 
         // places quiBankLabel at the top of the panel
         bankLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
@@ -73,23 +100,12 @@ public class BankPanel extends JComponent
                 
         // add and remove button panel
         JPanel buttonPanel = bankButtonPanel(quizBankList);
-               
-        // contains bankPanel and buttonPanel
-        this.setLayout(new GridBagLayout());
-        GridBagConstraints quizPanelConstraint = new GridBagConstraints();
-        GridBagConstraints buttonPanelConstraint = new GridBagConstraints();
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 2;
+        bankPanel.add(buttonPanel, buttonConstraint);  
         
-        // places bankPanel at the top of BankPanel
-        quizPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
-        quizPanelConstraint.gridx = 0;
-        quizPanelConstraint.gridy = 0;
-        this.add(bankPanel, quizPanelConstraint);
-        
-        // places buttonPanel at the bottom of BankPanel
-        buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
-        buttonPanelConstraint.gridx = 0;
-        buttonPanelConstraint.gridy = 1;
-        this.add(buttonPanel, buttonPanelConstraint);                         
+        return bankPanel;
     }  
         
     /**
@@ -119,14 +135,14 @@ public class BankPanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 0;
-        addButtonConstraint.ipadx = 55;
+        addButtonConstraint.ipadx = 60;
         buttonPanel.add(addBankButton, addButtonConstraint);
         
         // places removeBankButton on the right side of buttonPanel
         removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeButtonConstraint.gridx = 1;
         removeButtonConstraint.gridy = 0;
-        removeButtonConstraint.ipadx = 55;
+        removeButtonConstraint.ipadx = 60;
         buttonPanel.add(removeBankButton, removeButtonConstraint); 
                 
         // listens for when addBankButton is clicked 
@@ -154,4 +170,36 @@ public class BankPanel extends JComponent
                                                                 
         return buttonPanel;            
     }
+    
+    private JPanel bankTable()
+    {        
+        String[] bankTableHeaders = {"Questions", "Answers"};
+        int numRows = 27;
+        questionAnswerTable = new QuestionTable(bankTableHeaders, numRows);
+        questionAnswerTable.setTableSize(478, 455);
+        questionAnswerTable.setTableRowHeight(16);
+        questionAnswerTable.setVisible(false);
+              
+        JPanel bankTablePanel = new JPanel();
+        bankTablePanel.add(questionAnswerTable);  
+        bankTablePanel.setPreferredSize(new Dimension(485, 465));
+        
+        quizBankNameList.addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {
+                questionAnswerTable.setVisible(true);                
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {}
+
+            @Override
+            public void contentsChanged(ListDataEvent e) {}                                             
+        });
+        
+        
+        
+               
+        return bankTablePanel;
+    }  
 }

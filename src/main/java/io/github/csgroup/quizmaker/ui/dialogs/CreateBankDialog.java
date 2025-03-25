@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JButton;
@@ -11,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
+import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.InputMap;
 import javax.swing.ActionMap;
@@ -46,7 +48,7 @@ public class CreateBankDialog
         newBankFrame = new JFrame();
         newBankFrame.setSize(400, 260);
                 
-        JLabel instructionLabel = new JLabel("Enter quiz bank name: ");
+        JLabel instructionLabel = new JLabel("Enter question bank name: ");
         JTextField bankTextField = new JTextField();
         bankTextField.setPreferredSize(new Dimension(250, 22));
         JPanel namePanel = new JPanel();
@@ -62,6 +64,7 @@ public class CreateBankDialog
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
+        labelConstraint.insets = new Insets(0, 5, 0, 0);
         newBankPanel.add(instructionLabel, labelConstraint);
         
         // places bankTextField in the middel of the panel
@@ -94,7 +97,7 @@ public class CreateBankDialog
             // get the question bank name from bankTextField
             String name = bankField.getText();
             addBank(name);        
-            newBankFrame.dispose();
+            newBankFrame.dispose();            
         });     
         
         bindEnterKey(addButton, bankField);
@@ -134,11 +137,11 @@ public class CreateBankDialog
      * @param bankNameField gets the name of the bank
      */
     private void addBank(String bankName)
-    {
+    {       
         // create a QuestionBank object for bankName
         QuestionBank newBank = new QuestionBank(bankName);
         // add the QuesionBank object to the QuestionBank list                    
-        newBankProject.addBank(newBank);             
+        newBankProject.addBank(newBank);    
     }
         
     /**

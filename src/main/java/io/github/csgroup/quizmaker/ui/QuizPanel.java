@@ -1,13 +1,16 @@
 package io.github.csgroup.quizmaker.ui;
 
-import javax.swing.JComponent;
-import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.BankToQuizDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.ui.dialogs.QuizQuestionsDialog;
+
+import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Dimension;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -21,12 +24,14 @@ import javax.swing.UIManager;
 import java.awt.Insets;
 import javax.swing.JButton;
 import java.awt.event.ActionEvent;
-import java.util.List;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.JTable;
-import javax.swing.ListModel;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.JList;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Creates the panel that allows the user to create quizzes
@@ -37,7 +42,13 @@ public class QuizPanel extends JComponent
 {
     private final Project quizProject;
     private DefaultTableModel model;
+    private JTable bankTable;
+    private QuestionTable quizTableComponent;
+    private JPanel quizDescPanel;
     private JPanel tablePanel;
+    private JPanel tableButtonPanel;
+    private JPanel quizButtonPanel;
+    private JPanel quizActionButtonPanel;
     
     public QuizPanel(Project currentQuizProject)
     {
@@ -50,9 +61,9 @@ public class QuizPanel extends JComponent
      * "Quizzes" tab
      */
     private void quizzesPanel()
-    {                
+    {             
         JPanel listPanel = quizListPanel();
-        JTabbedPane quizTabs = createTabs();        
+        JTabbedPane quizTabs = createTabs(); 
             
         // contains listPanel and quizTabs
         this.setLayout(new GridBagLayout());
@@ -110,12 +121,13 @@ public class QuizPanel extends JComponent
         // ListModel<Quiz> quizNameList = quizProject.getQuizModel();
         JList quizList = new JList(quizNameList);  
         JScrollPane quizScrollPane = new JScrollPane(quizList);
-        quizScrollPane.setPreferredSize(new Dimension(190, 415));
+        quizScrollPane.setPreferredSize(new Dimension(190, 418));
             
         // contains quizLabel and quizScrollPane
         JPanel listPanel = new JPanel(new GridBagLayout());
         GridBagConstraints quizLabelConstraint = new GridBagConstraints();
         GridBagConstraints quizListConstraint = new GridBagConstraints();
+        GridBagConstraints buttonsConstraint = new GridBagConstraints();
               
         // places quizLabel at the top of listPanel
         quizLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
@@ -128,8 +140,59 @@ public class QuizPanel extends JComponent
         quizListConstraint.gridx = 0;
         quizListConstraint.gridy = 1;
         listPanel.add(quizScrollPane, quizListConstraint); 
+        
+        // places quizScrollPane below quizScrollPane
+        JPanel quizButtons = quizButtonPanel();
+        buttonsConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonsConstraint.gridx = 0;
+        buttonsConstraint.gridy = 2;
+        listPanel.add(quizButtons, buttonsConstraint);
                 
         return listPanel;
+    }
+    
+    /**
+     * Creates the button panel that allows the user to add or remove a quiz
+     * 
+     * @return the button panel
+     */
+    private JPanel quizButtonPanel()
+    {
+        JButton addQuizButton = new JButton("+");
+        JButton removeQuizButton = new JButton("-");
+                
+        // contains addQuizbutton and removeQuizButton
+        quizButtonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints addButtonConstraint = new GridBagConstraints();
+        GridBagConstraints removeButtonConstraint = new GridBagConstraints();
+        
+        // places addQuizButton on the left side of bankButtonPanel
+        addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        addButtonConstraint.gridx = 0;
+        addButtonConstraint.gridy = 0;
+        addButtonConstraint.ipadx = 55;
+        addButtonConstraint.ipady = 2;
+        quizButtonPanel.add(addQuizButton, addButtonConstraint); 
+        
+        // places removeQuizButton on the right side of bankButtonPanel
+        removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        removeButtonConstraint.gridx = 1;
+        removeButtonConstraint.gridy = 0;
+        removeButtonConstraint.ipadx = 55;
+        removeButtonConstraint.ipady = 2;
+        quizButtonPanel.add(removeQuizButton, removeButtonConstraint); 
+        
+        // listens for when addQuizButton has been selected
+        addQuizButton.addActionListener((ActionEvent e) -> {
+            // make these components visible
+            quizTableComponent.setVisible(true);
+            tablePanel.setVisible(true);
+            quizDescPanel.setVisible(true);
+            tableButtonPanel.setVisible(true);
+            quizActionButtonPanel.setVisible(true);
+        });
+                
+        return quizButtonPanel;
     }
     
     /**
@@ -140,7 +203,7 @@ public class QuizPanel extends JComponent
      */
     private JPanel descriptionPanel()
     {
-        JTextField quizNameField = new JTextField("Unamed Quiz");  
+        JTextField quizNameField = new JTextField("Unnamed Quiz");  
         quizNameField.setPreferredSize(new Dimension(200, 25));
         JPanel nameFieldPanel = new JPanel();
         nameFieldPanel.add(quizNameField);
@@ -150,10 +213,10 @@ public class QuizPanel extends JComponent
         descriptionTextArea.setLineWrap(true);
         descriptionTextArea.setWrapStyleWord(true);
         JScrollPane textScrollPane = new JScrollPane(descriptionTextArea);
-        textScrollPane.setPreferredSize(new Dimension(350, 150));
+        textScrollPane.setPreferredSize(new Dimension(360, 150));
               
         // contains nameFieldPanel, descriptionLabel, and textScrollPane
-        JPanel quizDescPanel = new JPanel(new GridBagLayout());
+        quizDescPanel = new JPanel(new GridBagLayout());
         GridBagConstraints nameFieldConstraint = new GridBagConstraints();
         GridBagConstraints descLabelConstraint = new GridBagConstraints();
         GridBagConstraints textAreaConstraint = new GridBagConstraints();
@@ -169,7 +232,7 @@ public class QuizPanel extends JComponent
         descLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         descLabelConstraint.gridx = 0;
         descLabelConstraint.gridy = 1;
-        descLabelConstraint.insets = new Insets(0, 5, 3, 0);
+        descLabelConstraint.insets = new Insets(0, 5, 0, 0);
         quizDescPanel.add(descriptionLabel, descLabelConstraint);
         
         // places textScrollPane below descriptionLabel
@@ -178,6 +241,8 @@ public class QuizPanel extends JComponent
         textAreaConstraint.gridy = 2;
         textAreaConstraint.insets = new Insets(0, 5, 0, 0);
         quizDescPanel.add(textScrollPane, textAreaConstraint); 
+        
+        quizDescPanel.setVisible(false);
         
         return quizDescPanel;                
     }
@@ -188,57 +253,59 @@ public class QuizPanel extends JComponent
      * 
      * @return quiz bank table panel
      */
-    public JPanel tablePanel()
-    {
+    private JPanel tablePanel()
+    {   
+        JLabel banksLabel = new JLabel("Banks");
+       
         String [] columnHeaders = {"Name", "Points", "Questions", "Questions Excluded"};        
         model = new DefaultTableModel(columnHeaders, 8);
-        JTable bankTable = new JTable(model);
+        bankTable = new JTable(model);
         TableColumnModel columnModel = bankTable.getColumnModel();
         // the preferred width of each column in the JTable
         columnModel.getColumn(0).setPreferredWidth(100);
         columnModel.getColumn(1).setPreferredWidth(30);
         columnModel.getColumn(2).setPreferredWidth(30);
-                
+                        
         // JScrollPane for the JTable dataTable
         JScrollPane tableScrollPane = new JScrollPane(bankTable);
-        tableScrollPane.setPreferredSize(new Dimension(450, 140));
-        tablePanel = new JPanel();
-        tablePanel.add(tableScrollPane);
-                
-        return tablePanel;     
-                
-    }
-    
-    public void populateBankTable(String bank)
-    {
-        //System.out.println("made it here");
+        tableScrollPane.setPreferredSize(new Dimension(450, 142));
         
-        List<QuestionBank> quizBankNameList = quizProject.getQuestionBanks();
-        //ListModel<QuestionBank> quizBankNameList = quizProject.getBankModel();
+        // contains banksLabel and tableScrollPane
+        tablePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints labelConstraint = new GridBagConstraints();
+        GridBagConstraints tableConstraint = new GridBagConstraints();
         
-        // use a for each loop here 
-        int nameColumn = 0;
-        int row = 1;
-
-            model.setValueAt(bank, row, nameColumn);
-            //System.out.println("loop");
-            //System.out.println("name column: " + nameColumn);
-            //System.out.println("row number: " + row)
+        // places addButton on the left side of tableButtonPanel
+        labelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        labelConstraint.gridx = 0;
+        labelConstraint.gridy = 0;
+        tablePanel.add(banksLabel, labelConstraint);
+        
+        // places addButton on the left side of tableButtonPanel
+        tableConstraint.fill = GridBagConstraints.HORIZONTAL;
+        tableConstraint.gridx = 0;
+        tableConstraint.gridy = 1;
+        tableConstraint.insets = new Insets(0, 0, 2, 0);
+        tablePanel.add(tableScrollPane, tableConstraint);
+                        
+        tablePanel.setVisible(false);
+                                       
+        return tablePanel;                     
     }
-    
+                    
     /**
      * Creates the button panel that allows the user to add or remove question banks
      * from a quiz 
      * 
      * @return button panel 
      */
-    private JPanel buttonPanel()
+    private JPanel tableButtonPanel()
     {
         JButton addButton = new JButton("+");
         JButton removeButton = new JButton("-");
         
         // contains addButton and removeButton
-        JPanel tableButtonPanel = new JPanel(new GridBagLayout());
+        tableButtonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints addButtonConstraint = new GridBagConstraints();
         GridBagConstraints removeButtonConstraint = new GridBagConstraints();
         
@@ -254,9 +321,13 @@ public class QuizPanel extends JComponent
         removeButtonConstraint.gridy = 0;
         tableButtonPanel.add(removeButton, removeButtonConstraint);
         
+        tableButtonPanel.setVisible(false);
+        
         // listens for when addButton is selected
         addButton.addActionListener((ActionEvent e) -> {
-            BankToQuizDialog addBankDialog = new BankToQuizDialog(quizProject);
+            // show the dialog that allows the user to add a question bank to a 
+            // quiz
+            BankToQuizDialog addBankDialog = new BankToQuizDialog(quizProject, model);
             addBankDialog.show();
         });
                 
@@ -264,20 +335,18 @@ public class QuizPanel extends JComponent
     }
           
     /**
-     * Creates the panel that contains the description panel, labels, table, and
-     * button panel
+     * Creates the panel that contains the description panel, panel labels, table, and
+     * button panels
      * 
      * @return the panel
      */
     private JPanel detailsPanel()
     {
-        JLabel banksLabel = new JLabel("Banks");
-            
         JPanel detailsPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints bankLabelConstraint = new GridBagConstraints();
         GridBagConstraints descriptionConstraint = new GridBagConstraints();
         GridBagConstraints tableConstraint = new GridBagConstraints();
-        GridBagConstraints buttonConstraint = new GridBagConstraints();
+        GridBagConstraints bankButtonConstraint = new GridBagConstraints();
+        GridBagConstraints exportGenConstraint = new GridBagConstraints();
            
         // places the descPanel at the top of detailsPanel
         JPanel descPanel = descriptionPanel();
@@ -286,39 +355,109 @@ public class QuizPanel extends JComponent
         descriptionConstraint.gridy = 0;
         descriptionConstraint.insets = new Insets(0, 0, 7, 70);
         detailsPanel.add(descPanel, descriptionConstraint);
-              
-        // places banksLabel below descPanel
-        bankLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
-        bankLabelConstraint.gridx = 0;
-        bankLabelConstraint.gridy = 1;
-        bankLabelConstraint.insets = new Insets(0, 5, 0, 0);
-        detailsPanel.add(banksLabel, bankLabelConstraint); 
         
         // places bankTable below banksLabel
-        JPanel bankTable = tablePanel();
+        JPanel table = tablePanel();
         tableConstraint.fill = GridBagConstraints.HORIZONTAL;
         tableConstraint.gridx = 0;
-        tableConstraint.gridy = 2;
-        detailsPanel.add(bankTable, tableConstraint);
+        tableConstraint.gridy = 1;
+        detailsPanel.add(table, tableConstraint);
         
-        // places buttonPanel below bankTable
-        JPanel buttonPanel = buttonPanel();
-        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
-        buttonConstraint.gridx = 0;
-        buttonConstraint.gridy = 3;
-        buttonConstraint.insets = new Insets(0, 335, 0, 0);
-        detailsPanel.add(buttonPanel, buttonConstraint);
-             
-        detailsPanel.setPreferredSize(new Dimension(476, 409));
-                
+        // places addDelQuizButtons below bankTable
+        JPanel addDelQuizButtons = tableButtonPanel(); 
+        bankButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        bankButtonConstraint.gridx = 0;
+        bankButtonConstraint.gridy = 2;
+        bankButtonConstraint.insets = new Insets(0, 335, 10, 0);
+        detailsPanel.add(addDelQuizButtons, bankButtonConstraint);
+        
+        // places expportGenButtons below addDelQuizButtons
+        JPanel exportGenButtons = quizActionButtonPanel();
+        exportGenConstraint.fill = GridBagConstraints.HORIZONTAL;
+        exportGenConstraint.gridx = 0;
+        exportGenConstraint.gridy = 3;
+        detailsPanel.add(exportGenButtons, exportGenConstraint);
+
+        detailsPanel.setPreferredSize(new Dimension(486, 440));
+                       
         return detailsPanel;
     }
-               
-    private JPanel questionsPanel()
+    
+    /**
+     * Creates the button panel that contains the button to export a quiz and 
+     * generate a quiz
+     * 
+     * @return the button panel
+     */
+    private JPanel quizActionButtonPanel()
     {
-        JPanel questionPanel = new JPanel();
-        questionPanel.setPreferredSize(new Dimension(476, 409));
-                                                
-        return questionPanel;
+        JButton exportButton = new JButton("Export");
+        JButton generateButton = new JButton("Generate");
+        
+        // contains exportButton and generateButton
+        quizActionButtonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints exportConstraint = new GridBagConstraints();
+        GridBagConstraints generateConstraint = new GridBagConstraints();
+        
+        // places generateButton on the left side of quizActionButtonPanel
+        exportConstraint.fill = GridBagConstraints.HORIZONTAL;
+        exportConstraint.gridx = 0;
+        exportConstraint.gridy = 0;
+        exportConstraint.insets = new Insets(0, 0, 0, 1);
+        quizActionButtonPanel.add(generateButton, exportConstraint);
+        
+        // places exportButton on the right side of quizActionButtonPanel
+        generateConstraint.fill = GridBagConstraints.HORIZONTAL;
+        generateConstraint.gridx = 1;
+        generateConstraint.gridy = 0;
+        generateConstraint.insets = new Insets(0, 1, 0, 0);
+        quizActionButtonPanel.add(exportButton, generateConstraint);   
+        
+        quizActionButtonPanel.setVisible(false);
+        
+        // listens for when exportButton is clicked
+        exportButton.addActionListener((ActionEvent e) -> {
+            // show the export to word document dialog 
+            ExportWordDialog exportDoc = new ExportWordDialog();
+            exportDoc.show();
+        });
+                
+        return quizActionButtonPanel;
+    }
+        
+    /** 
+     * Creates the table that displays the quiz questions and answers
+     * 
+     * @return the table panel
+     */
+    private JPanel questionsPanel()
+    {        
+        String[] quizTableHeaders = {"Questions", "Answers"};
+        int numRows = 24;
+
+        quizTableComponent = new QuestionTable(quizTableHeaders, numRows);
+        quizTableComponent.setTableSize(485, 431);      
+        quizTableComponent.setTableRowHeight(17);
+        quizTableComponent.setVisible(false);
+        
+        JPanel quizTablePanel = new JPanel();
+        quizTablePanel.add(quizTableComponent);
+        quizTablePanel.setPreferredSize(new Dimension(486, 440));
+        
+        JTable quizTable = quizTableComponent.getTable();     
+        quizTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {                
+                if (e.getClickCount() == 2)
+                {
+                    QuizQuestionsDialog questionDialog = new QuizQuestionsDialog();
+                    questionDialog.show();
+                    System.out.println("clicked");
+                }        
+            }        
+        });
+
+        return quizTablePanel;
     }   
 }

@@ -1,5 +1,9 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.qti.QTIContents;
+import io.github.csgroup.quizmaker.qti.QTIReader;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -11,6 +15,8 @@ import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
@@ -23,9 +29,11 @@ public class ImportQTIDialog
 { 
     private JFrame importFrame;
     private String filePath;
+    private final Project importFileProject;
     
-    public ImportQTIDialog()
+    public ImportQTIDialog(Project importProject)
     {
+        importFileProject = importProject;
         importFileFrame();
     }
         
@@ -177,18 +185,12 @@ public class ImportQTIDialog
      * 
      * @param qtiFilePath file path of the QTI file
      */
-    private void importFile(String qtiFilePath)
+    private void importFile(String qtiStringPath)
     {
-        /*QTIImportManager importQTIFile = new QTIImportManager();
-        try 
-        {
-            // import the file
-            importQTIFile.extractQTIFile(qtiFilePath);
-        } 
-        catch (IOException ex) 
-        {
-            Logger.getLogger(ImportQTIDialog.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
+        Path qtiFilePath = Paths.get(qtiStringPath);
+        QTIReader importQTIFile = new QTIReader();
+        QTIContents test = importQTIFile.readFile(qtiFilePath);
+        importFileProject.addQTI(test);
     }
             
     /**

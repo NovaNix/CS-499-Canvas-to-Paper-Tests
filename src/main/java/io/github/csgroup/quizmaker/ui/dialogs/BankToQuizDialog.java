@@ -1,5 +1,9 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.ui.QuizPanel;
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.data.QuestionBank;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
@@ -10,12 +14,12 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import javax.swing.JButton;
 import javax.swing.table.TableColumnModel;
-import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.data.QuestionBank;
 import java.util.List;
+import java.awt.event.ActionEvent;
+import javax.swing.table.DefaultTableModel;
 
 /**
  * Creates a frame that allows the user to select what bank questions to add/remove 
@@ -27,13 +31,16 @@ public class BankToQuizDialog
 {
     private JFrame bankFrame;
     private final Project bankToQuizProject;
+    private JComboBox bankList;
+    private final DefaultTableModel bankTableModel;
     
-    public BankToQuizDialog(Project quizBankProject)
+    public BankToQuizDialog(Project quizBankProject, DefaultTableModel tableModel)
     {
         bankToQuizProject = quizBankProject;
+        bankTableModel = tableModel;
         createBankToQuizDialog();
     }
-    
+        
     /**
      * Creates frame that contains the list of bank names, the amount of points, 
      * and a table of selected questions
@@ -42,19 +49,20 @@ public class BankToQuizDialog
     private void createBankToQuizDialog()
     {
         bankFrame = new JFrame("Add Bank to Quiz");
-        bankFrame.setSize(350, 340);
+        bankFrame.setSize(370, 370);
         
         // contains bankInfoPanel and questionPanel
         JPanel addBankPanel = new JPanel(new GridBagLayout());
         GridBagConstraints bankInfoConstraint = new GridBagConstraints();
         GridBagConstraints questionsConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints();
         
         // places bankInfoPanel at the top of addBankPanel
         JPanel bankInfoPanel = bankInfoPanel();
         bankInfoConstraint.fill = GridBagConstraints.HORIZONTAL;
         bankInfoConstraint.gridx = 0;
         bankInfoConstraint.gridy = 0;
-        bankInfoConstraint.insets = new Insets(0, 0, 10, 90);
+        bankInfoConstraint.insets = new Insets(10, 0, 10, 95);
         addBankPanel.add(bankInfoPanel, bankInfoConstraint);
         
         // places questionPanel below bankInfoPanel
@@ -62,8 +70,16 @@ public class BankToQuizDialog
         questionsConstraint.fill = GridBagConstraints.HORIZONTAL;
         questionsConstraint.gridx = 0;
         questionsConstraint.gridy = 1;
-        questionsConstraint.insets = new Insets(0, 0, 0, 45);
+        //questionsConstraint.insets = new Insets(0, 0, 0, 15);
         addBankPanel.add(questionPanel, questionsConstraint);
+        
+        // places addButtonPanel below bankInfoPanel
+        JPanel addButtonPanel = buttonPanel();
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 2;
+        //buttonConstraint.insets = new Insets(0, 0, 10, 0);
+        addBankPanel.add(addButtonPanel, buttonConstraint);
         
         bankFrame.add(addBankPanel);        
     }
@@ -78,7 +94,7 @@ public class BankToQuizDialog
     {
         JLabel bankLabel = new JLabel("Bank:");
         List<QuestionBank> quizBankNameList = bankToQuizProject.getQuestionBanks();
-        JComboBox bankList = new JComboBox(quizBankNameList.toArray());
+        bankList = new JComboBox(quizBankNameList.toArray());
         bankList.setPreferredSize(new Dimension(180, 20));
         
         JLabel pointsLabel = new JLabel ("Points:");
@@ -119,7 +135,7 @@ public class BankToQuizDialog
         textFieldConstraint.gridy = 1;
         textFieldConstraint.insets = new Insets(0, 0, 0, 123); 
         bankInfoPanel.add(textFieldPanel, textFieldConstraint);
-        
+                      
         return bankInfoPanel;
     }
     
@@ -142,10 +158,10 @@ public class BankToQuizDialog
                 
         // JScrollPane for the JTable table
         JScrollPane tableScrollPane = new JScrollPane(questionsTable);
-        tableScrollPane.setPreferredSize(new Dimension(270, 200));
+        tableScrollPane.setPreferredSize(new Dimension(320, 200));
         JPanel tablePanel = new JPanel();
         tablePanel.add(tableScrollPane);
-       
+                      
         return tablePanel;
     }
     
@@ -167,6 +183,7 @@ public class BankToQuizDialog
         excludedConstraint.fill = GridBagConstraints.HORIZONTAL;
         excludedConstraint.gridx = 0;
         excludedConstraint.gridy = 0;
+        excludedConstraint.insets = new Insets(0, 5, 0, 0);
         excludedPanel.add(excludedLabel, excludedConstraint);
         
         // places table below excludedLabel
@@ -177,6 +194,58 @@ public class BankToQuizDialog
         excludedPanel.add(table, tableConstraint);
         
         return excludedPanel;            
+    }
+    
+    private JPanel buttonPanel()
+    {
+        JButton addButton = new JButton("Add");        
+        JPanel buttonPanel = new JPanel();                        
+        buttonPanel.add(addButton);
+        
+        // listens for when removeBankButton is clicked
+        addButton.addActionListener((ActionEvent e) -> { 
+            int row = 0;          
+            if (bankTableModel.getValueAt(7, 0) == null)
+            {
+                while ((bankTableModel.getValueAt(row, 0)) != null)
+                {
+                    row++;
+                }
+                if (alreadyAdded() == false)
+                {
+                    bankTableModel.setValueAt(bankList.getSelectedItem(), row, 0);
+                    bankFrame.dispose();
+                }  
+            }
+            else
+            {
+                if (alreadyAdded() == false)
+                {
+                    int newRow = bankTableModel.getRowCount();
+                    bankTableModel.addRow(new Object[]{null, null, null, null});
+                    bankTableModel.setValueAt(bankList.getSelectedItem(), newRow, 0);
+                    bankFrame.dispose();
+                }
+            }
+        });
+        
+        return buttonPanel;
+    }
+    
+    private boolean alreadyAdded()
+    {
+        boolean result = false;      
+        int rowCount = bankTableModel.getRowCount();
+        
+        for (int i = 0; i < rowCount; i++)
+        {
+            if (bankTableModel.getValueAt(i, 0) == bankList.getSelectedItem())
+            {
+                result = true;
+            }
+        }
+              
+        return result;
     }
     
     /**

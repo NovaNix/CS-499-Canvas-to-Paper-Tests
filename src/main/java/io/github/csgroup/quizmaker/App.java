@@ -27,13 +27,13 @@ public class App
 		logger.info("Starting Application");
 
 		// Create a new blank project
-		project = new Project();
+		project = new Project();        
 
 		// Initiate the UI code
 		SwingUtilities.invokeLater(() -> {
-			// The UI needs to be started on the event threads
-			ui = new GUIManager();
-                        ui.createHomeFrame();
+            // The UI needs to be started on the event threads
+            ui = new GUIManager();
+            ui.createHomeFrame();
 		});
 	}
 

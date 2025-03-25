@@ -4,10 +4,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JComponent;
+import java.awt.Dimension;
 
 /**
  * Creates a JPanel that contains a table of the quiz bank questions
@@ -17,9 +17,21 @@ import javax.swing.JComponent;
  */
 public class QuestionTable extends JComponent
 {    
-    public QuestionTable()
+    private final String[] columnNames;
+    private final int defaultRowNumbers;
+    private JTable dataTable;
+    private JScrollPane tableScrollPane;
+    
+    public QuestionTable(String[] columnHeaders, int rows)
     {
+        columnNames = columnHeaders;
+        defaultRowNumbers = rows;
         createTablePanel();
+    }
+    
+    public JTable getTable()
+    {
+        return dataTable;
     }
     
     /**
@@ -31,19 +43,11 @@ public class QuestionTable extends JComponent
     private void createTablePanel()
     {
         // column headers for dataTable
-        String[] columnHeaders = {"Questions", "Answers"};
-        // the default number of columns that will be displayed on the panel
-        DefaultTableModel model = new DefaultTableModel(columnHeaders, 25);
-        JTable dataTable = new JTable(model);
-        TableColumnModel columnModel = dataTable.getColumnModel();
-        // the preferred width of each column in the JTable
-        columnModel.getColumn(0).setPreferredWidth(250);
-        columnModel.getColumn(1).setPreferredWidth(250);
+        DefaultTableModel model = new DefaultTableModel(columnNames, defaultRowNumbers);
+        dataTable = new JTable(model);
         
         // JScrollPane for the JTable dataTable
-        JScrollPane tableScrollPane = new JScrollPane(dataTable);
-        JPanel tablePanel = new JPanel();
-        tablePanel.add(tableScrollPane);
+        tableScrollPane = new JScrollPane(dataTable);
                 
         this.setLayout(new GridBagLayout());
         GridBagConstraints tableConstraint = new GridBagConstraints();
@@ -52,6 +56,22 @@ public class QuestionTable extends JComponent
         tableConstraint.fill = GridBagConstraints.HORIZONTAL;
         tableConstraint.gridx = 0;
         tableConstraint.gridy = 0;
-        this.add(tablePanel, tableConstraint);
-    }   
+        this.add(tableScrollPane, tableConstraint);
+    } 
+    
+    public void setTableRowHeight(int rowHeight)
+    {
+        dataTable.setRowHeight(rowHeight);
+    }
+    
+    public void setColumnWidth(int column, int columnWidth)
+    {
+        TableColumnModel columnModel = dataTable.getColumnModel();
+        columnModel.getColumn(column).setPreferredWidth(columnWidth);
+    }
+    
+    public void setTableSize(int width, int height)
+    {
+        tableScrollPane.setPreferredSize(new Dimension(width, height));        
+    } 
 }
