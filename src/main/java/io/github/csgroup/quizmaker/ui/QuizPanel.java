@@ -32,6 +32,7 @@ import javax.swing.JList;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.event.ListSelectionEvent;
 
 /**
  * Creates the panel that allows the user to create quizzes
@@ -49,6 +50,8 @@ public class QuizPanel extends JComponent
     private JPanel tableButtonPanel;
     private JPanel quizButtonPanel;
     private JPanel quizActionButtonPanel;
+    private DefaultListModel<String> quizNameList;
+    private JTextField quizNameField;
     
     public QuizPanel(Project currentQuizProject)
     {
@@ -117,7 +120,7 @@ public class QuizPanel extends JComponent
         JLabel quizLabel = new JLabel("Quizzes");
             
         // temporary list until the quiz functionality is implemented
-        DefaultListModel<String> quizNameList = new DefaultListModel();
+        quizNameList = new DefaultListModel();
         // ListModel<Quiz> quizNameList = quizProject.getQuizModel();
         JList quizList = new JList(quizNameList);  
         JScrollPane quizScrollPane = new JScrollPane(quizList);
@@ -142,7 +145,7 @@ public class QuizPanel extends JComponent
         listPanel.add(quizScrollPane, quizListConstraint); 
         
         // places quizScrollPane below quizScrollPane
-        JPanel quizButtons = quizButtonPanel();
+        JPanel quizButtons = quizButtonPanel(quizList);
         buttonsConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonsConstraint.gridx = 0;
         buttonsConstraint.gridy = 2;
@@ -156,10 +159,11 @@ public class QuizPanel extends JComponent
      * 
      * @return the button panel
      */
-    private JPanel quizButtonPanel()
+    private JPanel quizButtonPanel(JList quizList)
     {
         JButton addQuizButton = new JButton("+");
         JButton removeQuizButton = new JButton("-");
+        removeQuizButton.setEnabled(false);
                 
         // contains addQuizbutton and removeQuizButton
         quizButtonPanel = new JPanel(new GridBagLayout());
@@ -191,6 +195,12 @@ public class QuizPanel extends JComponent
             tableButtonPanel.setVisible(true);
             quizActionButtonPanel.setVisible(true);
         });
+        
+        // listens for when a quiz bank is selected
+        quizList.addListSelectionListener((ListSelectionEvent e) -> {
+            // once a quiz bank has been selected enable removaBankButton
+            removeQuizButton.setEnabled(true);
+        });
                 
         return quizButtonPanel;
     }
@@ -203,7 +213,7 @@ public class QuizPanel extends JComponent
      */
     private JPanel descriptionPanel()
     {
-        JTextField quizNameField = new JTextField("Unnamed Quiz");  
+        quizNameField = new JTextField("Unnamed Quiz");  
         quizNameField.setPreferredSize(new Dimension(200, 25));
         JPanel nameFieldPanel = new JPanel();
         nameFieldPanel.add(quizNameField);
@@ -417,9 +427,21 @@ public class QuizPanel extends JComponent
         
         // listens for when exportButton is clicked
         exportButton.addActionListener((ActionEvent e) -> {
-            // show the export to word document dialog 
-            ExportWordDialog exportDoc = new ExportWordDialog();
-            exportDoc.show();
+            ExportWordDialog exportDialog = new ExportWordDialog();
+            exportDialog.show();
+        });
+        
+        
+        // listens for when exportButton is clicked
+        generateButton.addActionListener((ActionEvent e) -> {
+            String quizName = quizNameField.getText();
+            quizTableComponent.setVisible(false);
+            tablePanel.setVisible(false);
+            quizNameList.addElement(quizName);  
+            quizDescPanel.setVisible(false);
+            tableButtonPanel.setVisible(false);
+            quizActionButtonPanel.setVisible(false);
+            
         });
                 
         return quizActionButtonPanel;
@@ -448,13 +470,14 @@ public class QuizPanel extends JComponent
         quizTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e)
-            {                
-                if (e.getClickCount() == 2)
-                {
+            { 
+                //System.out.println("clicked");
+                //if (e.getClickCount() == 2)
+               // {
                     QuizQuestionsDialog questionDialog = new QuizQuestionsDialog();
                     questionDialog.show();
-                    System.out.println("clicked");
-                }        
+                 //   System.out.println("clicked");
+                //}        
             }        
         });
 
