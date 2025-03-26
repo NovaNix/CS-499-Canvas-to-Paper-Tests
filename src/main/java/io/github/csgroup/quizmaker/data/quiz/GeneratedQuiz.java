@@ -18,9 +18,9 @@ public class GeneratedQuiz
 {
 	// This class is designed to be immutable on the outside
 
-	private Quiz quiz;
+	private final Quiz quiz;
 	
-	private List<Question> questions = new ArrayList<Question>();
+	private final List<Question> questions = new ArrayList<Question>();
 	
 	private float pointTotal = 0f;
 	

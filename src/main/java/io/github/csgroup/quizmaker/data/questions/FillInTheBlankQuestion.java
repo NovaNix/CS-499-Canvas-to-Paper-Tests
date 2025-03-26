@@ -29,7 +29,7 @@ public class FillInTheBlankQuestion extends Question
 
 	private static final Pattern TAG_REGEX = Pattern.compile("\\[(.+?)\\]"); 
 	
-	private Map<String, BlankAnswer> answers = new HashMap<String, BlankAnswer>();
+	private final Map<String, BlankAnswer> answers = new HashMap<String, BlankAnswer>();
 	
 	/**
 	 * Whether the possible answers for each blank will be shown underneath the question
