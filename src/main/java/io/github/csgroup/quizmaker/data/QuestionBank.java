@@ -11,6 +11,8 @@ import io.github.csgroup.quizmaker.data.utils.DataUtils;
 import io.github.csgroup.quizmaker.data.utils.QuestionContainer;
 import io.github.csgroup.quizmaker.events.ListUpdateListener;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
+import io.github.csgroup.quizmaker.utils.stores.writable.DefaultWritableStore;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
 
 /**
  * A collection of {@link Question Questions} that can be used when generating quizzes 
@@ -21,7 +23,7 @@ public class QuestionBank implements QuestionContainer
 {
 
 	private final String id;
-	private String title;
+	private WritableStore<String> title;
 	
 	
 	private List<Question> questions = new ArrayList<Question>();
@@ -29,14 +31,13 @@ public class QuestionBank implements QuestionContainer
 	
 	public QuestionBank(String title)
 	{
-		this.id = DataUtils.generateId();
-		this.title = title;
+		this(DataUtils.generateId(), title);
 	}
 	
 	public QuestionBank(String id, String title)
 	{
 		this.id = id;
-		this.title = title;
+		this.title = new DefaultWritableStore<String>(title);
 	}
 	
 	// TODO add helper methods for generating quizzes
@@ -103,14 +104,14 @@ public class QuestionBank implements QuestionContainer
 	
 	public String getTitle()
 	{
-		return title;
+		return title.get();
 	}
 	
 	public void setTitle(String title)
 	{
-		String oldName = this.title;
+		String oldName = this.title.get();
 		
-		this.title = title;
+		this.title.set(title);
 		
 		fireEvent(new BankRenameEvent(this, oldName, title));
 	}
@@ -175,7 +176,7 @@ public class QuestionBank implements QuestionContainer
 	@Override
 	public String toString()
 	{
-		return title;
+		return getTitle();
 	}
 
 	@Override
