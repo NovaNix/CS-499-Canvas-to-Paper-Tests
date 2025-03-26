@@ -12,6 +12,11 @@ public class DefaultWritableStore<T> extends AbstractWritableStore<T>
 
 	private T value;
 	
+	public DefaultWritableStore()
+	{
+		this.value = null;
+	}
+	
 	public DefaultWritableStore(T defaultValue)
 	{
 		this.value = defaultValue;
