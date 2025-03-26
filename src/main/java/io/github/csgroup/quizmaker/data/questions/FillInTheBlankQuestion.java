@@ -36,6 +36,11 @@ public class FillInTheBlankQuestion extends Question
 	 */
 	private boolean showAnswers = false;
 	
+	public FillInTheBlankQuestion(String title)
+	{
+		super(title);
+	}
+	
 	public FillInTheBlankQuestion(String title, float points)
 	{
 		super(title, points);
@@ -133,6 +138,22 @@ public class FillInTheBlankQuestion extends Question
 	public boolean shouldShowAnswers()
 	{
 		return showAnswers;
+	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new FillInTheBlankQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		c.setShowAnswers(showAnswers);
+		
+		for (String key : answers.keySet())
+		{
+			c.setAnswer(key, (BlankAnswer) answers.get(key).clone());
+		}
+		
+		return c;
 	}
 	
 }

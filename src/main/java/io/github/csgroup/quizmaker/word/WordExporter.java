@@ -14,6 +14,7 @@ import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 
 /**
  * Responsible for taking a {@link Quiz} and turning it into a .docx file <br>
