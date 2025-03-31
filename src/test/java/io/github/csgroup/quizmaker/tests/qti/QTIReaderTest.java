@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.tests;
+package io.github.csgroup.quizmaker.tests.qti;
 
 import io.github.csgroup.quizmaker.qti.QTIContents;
 import io.github.csgroup.quizmaker.qti.QTIReader;

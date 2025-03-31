@@ -1,5 +1,6 @@
-package io.github.csgroup.quizmaker.tests;
+package io.github.csgroup.quizmaker.tests.qti;
 
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
 import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,8 @@ public class QTIManifestFileProcessorTest
                 assertTrue(testQtiZipFile.exists(), "Test QTI ZIP file should exist.");
 
                 // Processes the QTI ZIP file
+		QTIZipManager zipManager = new QTIZipManager();
+		Path extractedPath = zipManager.extractQTIFile(testQtiZipFile.getAbsolutePath());
                 List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(testQtiZipFile.toPath());
 		
 		// Check for file mappings

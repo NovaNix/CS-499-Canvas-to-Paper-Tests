@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.tests;
+package io.github.csgroup.quizmaker.tests.qti;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
