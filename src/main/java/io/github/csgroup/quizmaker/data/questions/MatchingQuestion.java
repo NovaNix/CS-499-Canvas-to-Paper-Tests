@@ -23,6 +23,11 @@ public class MatchingQuestion extends Question
 	
 	private List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
 	
+	public MatchingQuestion(String title)
+	{
+		super(title);
+	}
+	
 	/**
 	 * Creates a new MatchingQuestion with a generated Id 
 	 * @param title
@@ -93,6 +98,21 @@ public class MatchingQuestion extends Question
 		}
 		
 		return a.toString();
+	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new MatchingQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		
+		for (var answer : answers)
+		{
+			c.addAnswer((MatchingAnswer) answer.clone());
+		}
+		
+		return c;
 	}
 
 	

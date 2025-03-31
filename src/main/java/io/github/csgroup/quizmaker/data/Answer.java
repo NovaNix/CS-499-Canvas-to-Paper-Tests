@@ -24,6 +24,9 @@ public abstract class Answer
 	
 	public abstract String asText();
 	
+	@Override
+	public abstract Answer clone();
+	
 	public int getId()
 	{
 		return id;
