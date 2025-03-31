@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.tests;
 
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
 import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
 import static org.junit.jupiter.api.Assertions.*;
@@ -7,8 +8,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +26,12 @@ import org.slf4j.LoggerFactory;
  */
 public class QTIManifestFileProcessorTest 
 {
+	
 	private static final Logger logger = LoggerFactory.getLogger(QTIManifestFileProcessorTest.class);
         
+	private QTIZipManager zipManager;
 	private QTIManifestFileProcessor manifestProcessor;
-        private File testQtiZipFile;
+        private Path extractedDir;
 	
         /**
         * <b>Setup Method:</b> <br> 
@@ -36,15 +41,18 @@ public class QTIManifestFileProcessorTest
 	* @throws IOException if the test file cannot be created.
         */
         @BeforeEach
-        public void setUp() throws IOException 
+        public void setUp() throws IOException, URISyntaxException 
         {
+		zipManager = new QTIZipManager();
                 manifestProcessor = new QTIManifestFileProcessor();
 
-                InputStream inputStream = getClass().getClassLoader().getResourceAsStream("qti_zip_file_test.zip");
-                assertNotNull(inputStream, "QTI ZIP file is missing");
+                URL resourceUrl = getClass().getClassLoader().getResource("qti_zip_file_test.zip");
+                assertNotNull(resourceUrl, "QTI ZIP file is missing");
+		File zipFile = new File(resourceUrl.toURI());
 
-                testQtiZipFile = File.createTempFile("sample_qti", ".zip");
-                Files.copy(inputStream, testQtiZipFile.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                extractedDir = zipManager.extractQTIFile(zipFile.getAbsolutePath());
+		assertTrue(Files.exists(extractedDir), "Extracted directory does not exist.");
+		logger.info("Extracted test QTI package to: {}", extractedDir.toAbsolutePath());
         }
 
         /**
@@ -56,10 +64,9 @@ public class QTIManifestFileProcessorTest
         @Test
         public void testParseManifestFile() throws IOException, Exception
         {
-                assertTrue(testQtiZipFile.exists(), "Test QTI ZIP file should exist.");
-
-                // Processes the QTI ZIP file
-                List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(testQtiZipFile.toPath());
+                
+		// Processes the QTI ZIP file
+                List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedDir);
 		
 		// Check for file mappings
 		assertNotNull(mappings, "Returned mappings should NOT be null.");
