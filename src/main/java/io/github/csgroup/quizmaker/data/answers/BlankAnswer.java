@@ -45,6 +45,13 @@ public class BlankAnswer extends Answer
 		this.correctAnswer = answer;
 	}
 	
+	public BlankAnswer(int id, String answer)
+	{
+		super(id);
+		
+		this.correctAnswer = new Label(answer);
+	}
+	
 	/**
 	 * Sets the correct answer's label
 	 * @param label
@@ -65,6 +72,22 @@ public class BlankAnswer extends Answer
 		distractors.add(label);
 		
 		fireEvent(new AnswerUpdateEvent(this));
+	}
+	
+	public void addDistractors(Label... labels)
+	{
+		for (Label label : labels)
+		{
+			addDistractor(label);
+		}
+	}
+	
+	public void addDistractors(List<Label> labels)
+	{
+		for (Label label : labels)
+		{
+			addDistractor(label);
+		}
 	}
 	
 	/**
@@ -119,5 +142,20 @@ public class BlankAnswer extends Answer
 	public String asText() 
 	{
 		return correctAnswer.asText();
+	}
+	
+	@Override
+	public Answer clone()
+	{
+		BlankAnswer answer = new BlankAnswer(this.getId());
+		answer.setAnswer(correctAnswer.clone());
+		
+		List<Label> distractors = this.distractors.stream()
+				.map((label) -> label.clone()) // Make copies of all of the labels
+				.toList();
+		
+		answer.addDistractors(distractors);
+		
+		return answer;
 	}
 }

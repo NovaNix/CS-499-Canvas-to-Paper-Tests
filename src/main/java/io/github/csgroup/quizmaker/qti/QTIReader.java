@@ -10,6 +10,18 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
+import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
+import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
+import io.github.csgroup.quizmaker.data.questions.FillInTheBlankQuestion;
+import io.github.csgroup.quizmaker.data.questions.MatchingQuestion;
+import io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion;
+import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
+import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+
 /**
  * An object responsible for reading QTI files and extracting the information contained inside
  * 

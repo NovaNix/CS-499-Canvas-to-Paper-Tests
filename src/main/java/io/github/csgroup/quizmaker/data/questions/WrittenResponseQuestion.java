@@ -23,6 +23,11 @@ public class WrittenResponseQuestion extends Question
 	 */
 	private ResponseLength length = ResponseLength.Paragraph;
 	
+	public WrittenResponseQuestion(String title)
+	{
+		super(title);
+	}
+	
 	public WrittenResponseQuestion(String title, float points)
 	{
 		super(title, points);
@@ -87,6 +92,19 @@ public class WrittenResponseQuestion extends Question
 			// TODO replace this with something more manual, should we add ResponseLengths that are more than one word
 			return this.toString();
 		}
+	}
+
+	@Override
+	public Question clone()
+	{
+		var c = new WrittenResponseQuestion(getId(), getTitle(), getPoints());
+		
+		c.setLabel(getLabel().clone());
+		
+		c.setResponseLength(length);
+		c.setAnswer(getLabel().clone());
+		
+		return c;
 	}
 	
 }

@@ -27,6 +27,11 @@ public class MatchingAnswer extends Answer
 		this.right = right;
 	}
 	
+	public MatchingAnswer(int id, String left, String right)
+	{
+		this(id, new Label(left), new Label(right));
+	}
+	
 	public void setLeft(Label left)
 	{
 		this.left = left;
@@ -63,6 +68,12 @@ public class MatchingAnswer extends Answer
 	public String asText()
 	{
 		return left.asText() + MATCHING_ARROW + right.asText();
+	}
+
+	@Override
+	public Answer clone() 
+	{
+		return new MatchingAnswer(getId(), left.clone(), right.clone());
 	}
 	
 }
