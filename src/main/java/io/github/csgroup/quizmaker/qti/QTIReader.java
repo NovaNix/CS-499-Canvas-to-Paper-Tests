@@ -1,6 +1,11 @@
 package io.github.csgroup.quizmaker.qti;
 
+import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
+import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,81 +29,65 @@ import io.github.csgroup.quizmaker.data.quiz.BankSelection;
  */
 public class QTIReader 
 {
-
-	public static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
+    
+	private static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
+        private final QTIZipManager importManager;
+	private final QTIManifestFileProcessor manifestProcessor;
 	
 	public QTIReader()
 	{
-		
-	}
-	
-	public QTIContents readFile(Path path)
-	{
-		
-		// TODO implement
-		return getTempTestContents();
+                this.importManager = new QTIZipManager();
+		this.manifestProcessor = new QTIManifestFileProcessor();	
 	}
 	
 	/**
-	 * This will return example data for testing purposes. Once QTI importing is fully implemented, this can be removed.
-	 * @return
-	 */
-	private QTIContents getTempTestContents()
+	* Reads the QTI files, extracts the data files, and retrieves the file mappings of the quiz assessment and metadata files
+	* 
+	* @param qtiZipPath The path to the QTI ZIP file.
+	* @return A {@link QTIContents} object containing parsed quiz data.
+	* @throws IOException if the QTI file cannot be properly extracted.
+	*/
+	public QTIContents readFile(String qtiZipPath) throws IOException, Exception
 	{
-		// Temporary QTI contents return
+		logger.info("Reading QTI file from path: {}", qtiZipPath);
 		
-		QTIContents contents = new QTIContents();
+		// Extract the files from the QTI Zip file
+		Path extractedQTIPackage = importManager.extractQTIFile(qtiZipPath);
+		if (extractedQTIPackage == null)
+		{
+			logger.error("Failed to extract QTI file.");
+			return new QTIContents();
+		}
+		logger.info("---- QTI File Extraction Complete ----");
+		logger.info("Extracted QTI files to: {}", extractedQTIPackage.toAbsolutePath());
 		
-		// Test Banks
+		// Process the manifest file to locate the quiz data files
+		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toAbsolutePath());
 		
-		QuestionBank bank1 = new QuestionBank("Test Bank 1");
+		// Ensure that it always returns a valid QTIContents object
+		QTIContents qtiContents = new QTIContents();
 		
-		var writtenResponse = new WrittenResponseQuestion("Written Test");
-		writtenResponse.setLabel(new Label("This is a written response"));
-		writtenResponse.setAnswer("And this should be the answer!");
+		if (mappings == null || mappings.isEmpty())
+		{
+			logger.warn("No quizzes found in the QTI file.");
+			return qtiContents;
+		}
+		logger.info("---- Processing Quiz Data Files ----");
 		
-		bank1.add(writtenResponse);
-		
-		var fitbQuestion = new FillInTheBlankQuestion("FITB Question");
-		fitbQuestion.setLabel(new Label("Fill in the [b] question! Do your [2]!"));
-		fitbQuestion.setAnswer("b", new BlankAnswer(0, "blank"));
-		fitbQuestion.setAnswer("2", new BlankAnswer(1, "best"));
-		
-		bank1.add(fitbQuestion);
-		
-		QuestionBank bank2 = new QuestionBank("Test Bank 2");
-		
-		var multipleChoice = new MultipleChoiceQuestion("Multichoice");
-		multipleChoice.setLabel(new Label("What is rotten?"));
-		multipleChoice.addAnswer(new SimpleAnswer(0, "Egg"), true);
-		multipleChoice.addAnswer(new SimpleAnswer(1, "Potato"), false);
-		multipleChoice.addAnswer(new SimpleAnswer(2, "Cookie Dough"), false);
-		multipleChoice.addAnswer(new SimpleAnswer(3, "Snow"), false);
-		
-		bank2.add(multipleChoice);
-		
-		contents.banks.add(bank1);
-		contents.banks.add(bank2);
-		
-		// Test Quizzes
-		
-		Quiz testQuiz = new Quiz("Test Quiz 1");
-		
-		var matching = new MatchingQuestion("Matching Test", 2.0f);
-		matching.setLabel(new Label("Match the following parts:"));
-		matching.addAnswer(new MatchingAnswer(0, "Banana", "Potassium"));
-		matching.addAnswer(new MatchingAnswer(1, "Potato", "Potato"));
-		matching.addAnswer(new MatchingAnswer(2, "Cat", "Meow"));
-		
-		testQuiz.addQuestion(matching);
-		
-		// Add a bank to the quiz
-		
-		testQuiz.addBank(new BankSelection(bank1, 2, 2.0f));
-		
-		contents.quizzes.add(testQuiz);
-		
-		return contents;
-	}
+		// Iterate through the file mappings to process the quiz assessment and metadata files
+		for (QTIDataFileMapping mapping : mappings)
+		{
+			logger.info("Processing Assessment File: {}", mapping.getQuizAssessmentFile());
+			
+			if (mapping.hasMetadataFile())
+			{
+				logger.info("Located metadata file for assessment file: {} → {}", mapping.getQuizAssessmentFile(), mapping.getQuizMetadataFile());
+			}
+			
+			// TODO Parse assessmement file
+			// TODO Parse metadata file
+		}
 	
+		return qtiContents;
+	}	
 }
