@@ -1,6 +1,5 @@
 package io.github.csgroup.quizmaker.qti.manifest;
 
-import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,16 +21,14 @@ public class QTIManifestFileProcessor
     
         private static final Logger logger = LoggerFactory.getLogger(QTIManifestFileProcessor.class);
         private final QTIManifestFileParser manifestParser;
-        private final QTIZipManager importManager;
 
         public QTIManifestFileProcessor() 
         {
                 this.manifestParser = new QTIManifestFileParser();
-                this.importManager = new QTIZipManager();
         }
 
         /**
-        * Unzips the QTI file and processes the manifest (imsmanifest.xml) file.
+        * Processes the manifest <code>imsmanifest.xml</code> file.
         *
         * @param extractedQTIPackage The path to the QTI ZIP file.
         * @return A list of QTIDataFileMapping objects that represent the quiz assessment and metadata file paths.
