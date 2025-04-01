@@ -27,7 +27,7 @@ import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 public class FillInTheBlankQuestion extends Question
 {
 
-	private static final Pattern TAG_REGEX = Pattern.compile("\\[(.+?)\\]"); 
+	public static final Pattern TAG_REGEX = Pattern.compile("\\[(.+?)\\]"); 
 	
 	private Map<String, BlankAnswer> answers = new HashMap<String, BlankAnswer>();
 	
