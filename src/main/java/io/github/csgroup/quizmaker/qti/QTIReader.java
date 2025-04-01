@@ -21,6 +21,10 @@ import io.github.csgroup.quizmaker.data.questions.MatchingQuestion;
 import io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+import io.github.csgroup.quizmaker.qti.mapping.AssessmentMetadataMapper;
+import io.github.csgroup.quizmaker.qti.model.AssessmentMetadata;
+import io.github.csgroup.quizmaker.qti.parsing.AssessmentMetadataParser;
+import java.io.File;
 
 /**
  * An object responsible for reading QTI files and extracting the information contained inside
@@ -31,13 +35,15 @@ public class QTIReader
 {
 
 	private static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
-	private final QTIZipManager importManager;
+    private final QTIZipManager importManager;
 	private final QTIManifestFileProcessor manifestProcessor;
-
+	private final AssessmentMetadataParser metadataParser;
+	
 	public QTIReader()
 	{
-		this.importManager = new QTIZipManager();
-		this.manifestProcessor = new QTIManifestFileProcessor();	
+        this.importManager = new QTIZipManager();
+		this.manifestProcessor = new QTIManifestFileProcessor();
+		this.metadataParser = new AssessmentMetadataParser();
 	}
 
 	/**
@@ -64,7 +70,7 @@ public class QTIReader
 		// Process the manifest file to locate the quiz data files
 		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toAbsolutePath());
 
-		// Ensure that it always returns a valid QTIContents object
+		// Initialize QTI contents container 
 		QTIContents qtiContents = new QTIContents();
 
 		if (mappings == null || mappings.isEmpty())
@@ -81,11 +87,32 @@ public class QTIReader
 
 			if (mapping.hasMetadataFile())
 			{
-				logger.info("Located metadata file for assessment file: {} → {}", mapping.getQuizAssessmentFile(), mapping.getQuizMetadataFile());
+				File metadataFile = new File(extractedQTIPackage.toFile(), mapping.getQuizMetadataFile());
+				if (metadataFile.exists())
+				{
+					// Parse Quiz metadata
+					AssessmentMetadata metadata = metadataParser.parse(metadataFile);;
+					logger.info("Parsed metadata: {}", metadata);
+					
+					// Map data to Quiz
+					Quiz quiz = AssessmentMetadataMapper.mapToQuiz(metadata);
+					if (quiz != null)
+					{
+						qtiContents.quizzes.add(quiz);
+						logger.info("Quiz added to QTIContents → ID: '{}', Title: '{}'", quiz.getId(), quiz.getTitle());
+					}
+					else 
+					{
+						logger.warn("Mapping returned null. Quiz not added for metadata file: {}", metadataFile.getName());
+					}
+				}
+				else
+				{
+					logger.warn("Metadata file does not exist for this quiz: {}", metadataFile.getAbsolutePath());
+				}
 			}
-
-			// TODO Parse assessmement file
-			// TODO Parse metadata file
+			
+			// TODO Parse assessment content file
 		}
 
 		return qtiContents;
