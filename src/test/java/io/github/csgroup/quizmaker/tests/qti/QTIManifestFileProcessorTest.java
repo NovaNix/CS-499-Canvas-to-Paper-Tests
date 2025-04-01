@@ -1,8 +1,8 @@
 package io.github.csgroup.quizmaker.tests.qti;
 
 import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
-import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
 import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
+import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,45 +31,41 @@ public class QTIManifestFileProcessorTest
         
 	private QTIZipManager zipManager;
 	private QTIManifestFileProcessor manifestProcessor;
-        private Path extractedDir;
+    private Path extractedDir;
 	
-        /**
-        * <b>Setup Method:</b> <br> 
-        * - Loads the QTI ZIP file <br>
-        * - Copies the ZIP file to a temporary location for processing
+    /**
+    * <b>Setup Method:</b> <br> 
+    * - Loads the QTI ZIP file <br>
+    * - Copies the ZIP file to a temporary location for processing
 	* 
 	* @throws IOException if the test file cannot be created.
-        */
-        @BeforeEach
-        public void setUp() throws IOException, URISyntaxException 
-        {
+    */
+    @BeforeEach
+    public void setUp() throws IOException, URISyntaxException 
+    {
 		zipManager = new QTIZipManager();
-                manifestProcessor = new QTIManifestFileProcessor();
+        manifestProcessor = new QTIManifestFileProcessor();
 
-                URL resourceUrl = getClass().getClassLoader().getResource("qti_zip_file_test.zip");
-                assertNotNull(resourceUrl, "QTI ZIP file is missing");
+        URL resourceUrl = getClass().getClassLoader().getResource("qti_zip_file_test.zip");
+        assertNotNull(resourceUrl, "QTI ZIP file is missing");
 		File zipFile = new File(resourceUrl.toURI());
 
-                extractedDir = zipManager.extractQTIFile(zipFile.getAbsolutePath());
+        extractedDir = zipManager.extractQTIFile(zipFile.getAbsolutePath());
 		assertTrue(Files.exists(extractedDir), "Extracted directory does not exist.");
 		logger.info("Extracted test QTI package to: {}", extractedDir.toAbsolutePath());
-        }
+    }
 
-        /**
-        * <b>Test Method:</b> <br>
-        * - Extracts the quiz assessment and quiz metadata file paths <br>
-        * - Matches the number of extracted file paths with the expected value <br>
+    /**
+    * <b>Test Method:</b> <br>
+    * - Extracts the quiz assessment and quiz metadata file paths <br>
+    * - Matches the number of extracted file paths with the expected value <br>
 	* - Ensures that the metadata files are properly identified
-        */
-        @Test
-        public void testParseManifestFile() throws IOException, Exception
-        {
-                assertTrue(testQtiZipFile.exists(), "Test QTI ZIP file should exist.");
+    */
+    @Test
+    public void testParseManifestFile() throws IOException, Exception
+    {
 
-                // Processes the QTI ZIP file
-		QTIZipManager zipManager = new QTIZipManager();
-		Path extractedPath = zipManager.extractQTIFile(testQtiZipFile.getAbsolutePath());
-                List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(testQtiZipFile.toPath());
+        List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedDir);
 		
 		// Check for file mappings
 		assertNotNull(mappings, "Returned mappings should NOT be null.");
@@ -92,6 +88,6 @@ public class QTIManifestFileProcessorTest
 				assertNull(mapping.getQuizMetadataFile(), "Metadata file should be null if 'hasMetadataFile() is false.");
 			}	
 		}
-        }
+    }
 }
 
