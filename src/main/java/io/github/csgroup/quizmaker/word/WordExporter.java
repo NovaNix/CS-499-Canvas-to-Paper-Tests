@@ -2,8 +2,6 @@ package io.github.csgroup.quizmaker.word;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.poi.xwpf.usermodel.*;
@@ -11,9 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Label;
-import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
-import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
+import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
+import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
+import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
+import io.github.csgroup.quizmaker.data.questions.*;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 
 /**
@@ -81,15 +81,35 @@ public class WordExporter
     		
 			// Here are some example questions to test the code with
 			// These should be removed or moved to a test file eventually
-    		
+			
+			// Written Response Question
 			var writtenResponse = new WrittenResponseQuestion("Written Test", 0);
 			writtenResponse.setLabel(new Label("This is a written response"));
 			writtenResponse.setAnswer("And this should be the answer!");
-    		
-			// TODO add the rest of the question types
-    		
 			questionWriter.writeWrittenResponse(writtenResponse);
-            
+			
+			// Fill in the Blank Question
+	        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].");
+	        fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
+	        questionWriter.writeFillBlank(fitb);
+	        
+	        // Matching Question
+	        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4f);
+	        match.setLabel(new Label("Match the programming concepts to their definitions:"));
+	        match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
+	        match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
+	        match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
+	        questionWriter.writeMatching(match);
+	        
+	        // Multiple Choice Question
+	        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4f);
+	        mc.setLabel(new Label("Which of the following are part of the Java Collections Framework?"));
+	        mc.addAnswer(new SimpleAnswer(1, "HashMap"), true);
+	        mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
+	        mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
+	        mc.addAnswer(new SimpleAnswer(4, "File"), false);
+	        questionWriter.writeMultipleChoice(mc);
+	        
 			try (FileOutputStream out = new FileOutputStream(Paths.get(System.getProperty("user.dir"), "output.docx").toFile())) {
 				document.write(out);
 			}
