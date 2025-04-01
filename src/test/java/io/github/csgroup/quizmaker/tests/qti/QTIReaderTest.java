@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.tests.qti;
 
+import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.qti.QTIContents;
 import io.github.csgroup.quizmaker.qti.QTIReader;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ public class QTIReaderTest
 		qtiReader = new QTIReader();
 
 		// Load test QTI ZIP file
-		URL resourceUrl = getClass().getClassLoader().getResource("qti_zip_file_test.zip");
+		URL resourceUrl = getClass().getClassLoader().getResource("group-3-project-quiz-export.zip");
 		assertNotNull(resourceUrl, "ERROR!! QTI ZIP file is missing.");
 
 		testQtiZipFile = new File(resourceUrl.getPath());
@@ -63,18 +64,21 @@ public class QTIReaderTest
 	@Test
 	public void testReadQTIFile() throws Exception 
 	{
-		logger.info("Testing QTIReader: Processing QTI File");
+		logger.info("Running QTIReader Test: Reading and Parsing QTI File");
 
-		// Process QTI ZIP file
 		QTIContents qtiContents = qtiReader.readFile(testQtiZipFile.getAbsolutePath());
-
-		// Ensure QTIContents is not null
 		assertNotNull(qtiContents, "ERROR!! QTIContents should not be null.");
-		logger.info("QTIContents successfully created.");
+		assertTrue(qtiContents.quizzes.size() > 0, "ERROR!! No quizzes were extracted from the QTI file.");
 
-		// Ensure that QTIReader did not return an empty object
-		assertTrue(qtiContents instanceof QTIContents, "ERROR!! QTIContents object not created properly.");
-		logger.info("QTIReader successfully processed the QTI file.");
+		logger.info("QTIContents successfully created with " + qtiContents.quizzes.size() + " quiz(zes).");
+
+		for (Quiz quiz : qtiContents.quizzes)
+		{
+			logger.info("Parsed Quiz:");
+			logger.info(" - ID: ", quiz.getId());
+			logger.info(" - Title: ", quiz.getTitle());
+			logger.info(" - Description: ", quiz.getDescription().asText());
+		}
 	}
 
 	/**
