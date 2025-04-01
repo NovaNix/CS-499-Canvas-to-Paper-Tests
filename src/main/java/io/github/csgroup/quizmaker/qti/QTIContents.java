@@ -5,6 +5,7 @@ import java.util.List;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.qti.model.AssessmentMetadata;
 
 /**
  * A container for the contents extracted from a QTI file
@@ -15,7 +16,7 @@ public class QTIContents
 {
 	public final List<QuestionBank> banks = new ArrayList<QuestionBank>();
 	public final List<Quiz> quizzes = new ArrayList<Quiz>();
-        
+	
 	// TODO add additional information extracted from the file if necessary
 	
 	// TODO consider adding statistics or debugging info (number of questions loaded, number of sections, etc)
