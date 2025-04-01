@@ -13,6 +13,7 @@ import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
 import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
 import io.github.csgroup.quizmaker.data.questions.*;
+import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion.ResponseLength;
 
 /**
  * Responsible for writing {@link Question Questions} to a .docx file <br>
@@ -47,30 +48,60 @@ public class QuestionWriter
 	public void writeWrittenResponse(WrittenResponseQuestion q) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
+		if(q.getResponseLength() == ResponseLength.Essay)
+		{
+			XWPFParagraph paragraph = document.createParagraph();
+			paragraph.setPageBreak(true);
+		}
 		labelWriter.write(q.getLabel());
 
 		if (isKey) 
 		{
 			labelWriter.write(q.getAnswer());
 		}
-		
-		// TODO: Accommodate for different size written response questions
+		else if (!isKey && q.getResponseLength() == ResponseLength.Line)
+		{
+			XWPFParagraph paragraph = document.createParagraph();
+			XWPFRun run = paragraph.createRun();
+			run.addBreak();
+			run.addBreak();
+		}
+		else if (!isKey && q.getResponseLength() == ResponseLength.Paragraph)
+		{
+			XWPFParagraph paragraph = document.createParagraph();
+			XWPFRun run = paragraph.createRun();
+			run.addBreak();
+			run.addBreak();
+			run.addBreak();
+			run.addBreak();
+			run.addBreak();
+			run.addBreak();
+			run.addBreak();
+		}
+		if(q.getResponseLength() == ResponseLength.Essay)
+		{
+			XWPFParagraph paragraph = document.createParagraph();
+			paragraph.setPageBreak(true);
+		}
 	}
 	
 	public void writeFillBlank(FillInTheBlankQuestion q) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(q.getLabel()); //Need to translate tags to blanks
+		String tagBlank = q.getLabel().asText();
+		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
+		
+		labelWriter.write(new Label(tagBlank, q.getLabel().getType()));
 		
 		if(isKey)
 		{
-			int index = 0;
+			int index = 1;
 			for(String tag : q.getTags())
 			{
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex = "[" + index + "] ";
+					String addIndex =  index + ": ";
 					if(answer.getAnswer().getType() == Label.Type.html)
 					{
 						labelWriter.write(new Label(addIndex + answer.asText(), Label.Type.html));

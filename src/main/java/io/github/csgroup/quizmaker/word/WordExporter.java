@@ -14,6 +14,7 @@ import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
 import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
 import io.github.csgroup.quizmaker.data.questions.*;
+import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion.ResponseLength;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 
 /**
@@ -86,6 +87,7 @@ public class WordExporter
 			var writtenResponse = new WrittenResponseQuestion("Written Test", 0);
 			writtenResponse.setLabel(new Label("This is a written response"));
 			writtenResponse.setAnswer("And this should be the answer!");
+			writtenResponse.setResponseLength(ResponseLength.Essay);
 			questionWriter.writeWrittenResponse(writtenResponse);
 			
 			// Fill in the Blank Question

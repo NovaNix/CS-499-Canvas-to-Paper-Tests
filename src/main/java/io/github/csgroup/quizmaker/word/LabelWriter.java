@@ -50,12 +50,11 @@ public class LabelWriter
 	 */
 	public void write(Label label) throws IOException
 	{
-		XWPFParagraph paragraph = document.createParagraph();
 		if (label.getType() == Label.Type.html) {
 			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
-			processElements(doc.body().childNodes(), paragraph, false, false, false);
+			processElements(doc.body().childNodes(), null, false, false, false);
 		} else {
-			paragraph.createRun().addBreak(); //Needed for consistent spacing with HTML runs
+			XWPFParagraph paragraph = document.createParagraph();
 			processPlainText(label.asText(), paragraph);
 		}
 	}
@@ -104,6 +103,9 @@ public class LabelWriter
 	 * @param underline Whether the text should be underlined.
 	 */
 	private void processHtmlText(String text, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) {
+		if (paragraph == null) {
+			paragraph = document.createParagraph();
+		}
 		XWPFRun run = paragraph.createRun();
 		run.setText(text);
 		run.setBold(bold);
@@ -121,6 +123,9 @@ public class LabelWriter
 	 * @throws IOException If an error occurs while processing the element.
 	 */
 	private void processHtmlElement(Element element, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) throws IOException {
+		if (paragraph == null) {
+			paragraph = document.createParagraph(); // This may not be necessary here
+		}
 		switch (element.tagName()) {
 				case "b", "strong" -> processElements(element.childNodes(), paragraph, true, italic, underline);
 				case "i", "em" -> processElements(element.childNodes(), paragraph, bold, true, underline);
