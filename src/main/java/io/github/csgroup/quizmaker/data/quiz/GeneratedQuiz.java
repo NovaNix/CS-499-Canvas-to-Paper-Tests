@@ -102,6 +102,11 @@ public class GeneratedQuiz
 		pointTotal += q.getPoints();
 	}
 	
+	public List<Question> getQuestions()
+	{
+		return new ArrayList<Question>(questions);
+	}
+	
 	public float getTotalPoints()
 	{
 		return pointTotal;

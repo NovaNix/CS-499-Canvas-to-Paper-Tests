@@ -1,6 +1,11 @@
 package io.github.csgroup.quizmaker.qti;
 
+import io.github.csgroup.quizmaker.qti.manifest.QTIDataFileMapping;
+import io.github.csgroup.quizmaker.qti.manifest.QTIManifestFileProcessor;
+import io.github.csgroup.quizmaker.qti.importing.QTIZipManager;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +21,10 @@ import io.github.csgroup.quizmaker.data.questions.MatchingQuestion;
 import io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+import io.github.csgroup.quizmaker.qti.mapping.AssessmentMetadataMapper;
+import io.github.csgroup.quizmaker.qti.model.AssessmentMetadata;
+import io.github.csgroup.quizmaker.qti.parsing.AssessmentMetadataParser;
+import java.io.File;
 
 /**
  * An object responsible for reading QTI files and extracting the information contained inside
@@ -25,80 +34,87 @@ import io.github.csgroup.quizmaker.data.quiz.BankSelection;
 public class QTIReader 
 {
 
-	public static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
+    private final QTIZipManager importManager;
+	private final QTIManifestFileProcessor manifestProcessor;
+	private final AssessmentMetadataParser metadataParser;
 	
 	public QTIReader()
 	{
-		
+        this.importManager = new QTIZipManager();
+		this.manifestProcessor = new QTIManifestFileProcessor();
+		this.metadataParser = new AssessmentMetadataParser();
 	}
-	
-	public QTIContents readFile(Path path)
-	{
-		
-		// TODO implement
-		return getTempTestContents();
-	}
-	
+
 	/**
-	 * This will return example data for testing purposes. Once QTI importing is fully implemented, this can be removed.
-	 * @return
+	 * Reads the QTI files, extracts the data files, and retrieves the file mappings of the quiz assessment and metadata files
+	 * 
+	 * @param qtiZipPath The path to the QTI ZIP file.
+	 * @return A {@link QTIContents} object containing parsed quiz data.
+	 * @throws IOException if the QTI file cannot be properly extracted.
 	 */
-	private QTIContents getTempTestContents()
+	public QTIContents readFile(String qtiZipPath) throws IOException, Exception
 	{
-		// Temporary QTI contents return
-		
-		QTIContents contents = new QTIContents();
-		
-		// Test Banks
-		
-		QuestionBank bank1 = new QuestionBank("Test Bank 1");
-		
-		var writtenResponse = new WrittenResponseQuestion("Written Test");
-		writtenResponse.setLabel(new Label("This is a written response"));
-		writtenResponse.setAnswer("And this should be the answer!");
-		
-		bank1.add(writtenResponse);
-		
-		var fitbQuestion = new FillInTheBlankQuestion("FITB Question");
-		fitbQuestion.setLabel(new Label("Fill in the [b] question! Do your [2]!"));
-		fitbQuestion.setAnswer("b", new BlankAnswer(0, "blank"));
-		fitbQuestion.setAnswer("2", new BlankAnswer(1, "best"));
-		
-		bank1.add(fitbQuestion);
-		
-		QuestionBank bank2 = new QuestionBank("Test Bank 2");
-		
-		var multipleChoice = new MultipleChoiceQuestion("Multichoice");
-		multipleChoice.setLabel(new Label("What is rotten?"));
-		multipleChoice.addAnswer(new SimpleAnswer(0, "Egg"), true);
-		multipleChoice.addAnswer(new SimpleAnswer(1, "Potato"), false);
-		multipleChoice.addAnswer(new SimpleAnswer(2, "Cookie Dough"), false);
-		multipleChoice.addAnswer(new SimpleAnswer(3, "Snow"), false);
-		
-		bank2.add(multipleChoice);
-		
-		contents.banks.add(bank1);
-		contents.banks.add(bank2);
-		
-		// Test Quizzes
-		
-		Quiz testQuiz = new Quiz("Test Quiz 1");
-		
-		var matching = new MatchingQuestion("Matching Test", 2.0f);
-		matching.setLabel(new Label("Match the following parts:"));
-		matching.addAnswer(new MatchingAnswer(0, "Banana", "Potassium"));
-		matching.addAnswer(new MatchingAnswer(1, "Potato", "Potato"));
-		matching.addAnswer(new MatchingAnswer(2, "Cat", "Meow"));
-		
-		testQuiz.addQuestion(matching);
-		
-		// Add a bank to the quiz
-		
-		testQuiz.addBank(new BankSelection(bank1, 2, 2.0f));
-		
-		contents.quizzes.add(testQuiz);
-		
-		return contents;
-	}
-	
+		logger.info("Reading QTI file from path: {}", qtiZipPath);
+
+		// Extract the files from the QTI Zip file
+		Path extractedQTIPackage = importManager.extractQTIFile(qtiZipPath);
+		if (extractedQTIPackage == null)
+		{
+			logger.error("Failed to extract QTI file.");
+			return new QTIContents();
+		}
+		logger.info("---- QTI File Extraction Complete ----");
+		logger.info("Extracted QTI files to: {}", extractedQTIPackage.toAbsolutePath());
+
+		// Process the manifest file to locate the quiz data files
+		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toAbsolutePath());
+
+		// Initialize QTI contents container 
+		QTIContents qtiContents = new QTIContents();
+
+		if (mappings == null || mappings.isEmpty())
+		{
+			logger.warn("No quizzes found in the QTI file.");
+			return qtiContents;
+		}
+		logger.info("---- Processing Quiz Data Files ----");
+
+		// Iterate through the file mappings to process the quiz assessment and metadata files
+		for (QTIDataFileMapping mapping : mappings)
+		{
+			logger.info("Processing Assessment File: {}", mapping.getQuizAssessmentFile());
+
+			if (mapping.hasMetadataFile())
+			{
+				File metadataFile = new File(extractedQTIPackage.toFile(), mapping.getQuizMetadataFile());
+				if (metadataFile.exists())
+				{
+					// Parse Quiz metadata
+					AssessmentMetadata metadata = metadataParser.parse(metadataFile);;
+					logger.info("Parsed metadata: {}", metadata);
+					
+					// Map data to Quiz
+					Quiz quiz = AssessmentMetadataMapper.mapToQuiz(metadata);
+					if (quiz != null)
+					{
+						qtiContents.quizzes.add(quiz);
+						logger.info("Quiz added to QTIContents → ID: '{}', Title: '{}'", quiz.getId(), quiz.getTitle());
+					}
+					else 
+					{
+						logger.warn("Mapping returned null. Quiz not added for metadata file: {}", metadataFile.getName());
+					}
+				}
+				else
+				{
+					logger.warn("Metadata file does not exist for this quiz: {}", metadataFile.getAbsolutePath());
+				}
+			}
+			
+			// TODO Parse assessment content file
+		}
+
+		return qtiContents;
+	}	
 }
