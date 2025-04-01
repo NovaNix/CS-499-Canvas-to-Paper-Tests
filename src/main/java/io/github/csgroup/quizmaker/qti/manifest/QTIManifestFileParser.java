@@ -14,30 +14,30 @@ import org.w3c.dom.Document;
  */
 public class QTIManifestFileParser 
 {
-    
-        private static final Logger logger = LoggerFactory.getLogger(QTIManifestFileParser.class);
 
-        /**
-        * Parses the manifest file and returns it as a structured Document object.
-        *
-        * @param manifestFile The manifest file.
-        * @return A Document object that represents the XML structure.
-        * @throws Exception if the imsmanifest.xml file cannot be read or parsed properly.
-        */
-        public Document parseManifestFile(File manifestFile) throws Exception
-        {
-	    logger.info("Parsing manifest file: {}", manifestFile.getAbsolutePath());
-	    
-	    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    Document doc = builder.parse(manifestFile);
-	    
-	    // Normalize the Document to ensure a consistent, formatted structure   
-            doc.getDocumentElement().normalize();
-	    
-	    logger.info("Successfully parsed manifest file: {}", manifestFile.getAbsolutePath());
-	    return doc;
-        }
+	private static final Logger logger = LoggerFactory.getLogger(QTIManifestFileParser.class);
+
+	/**
+	 * Parses the manifest file and returns it as a structured Document object.
+	 *
+	 * @param manifestFile The manifest file.
+	 * @return A Document object that represents the XML structure.
+	 * @throws Exception if the imsmanifest.xml file cannot be read or parsed properly.
+	 */
+	public Document parseManifestFile(File manifestFile) throws Exception
+	{
+		logger.info("Parsing manifest file: {}", manifestFile.getAbsolutePath());
+
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		Document doc = builder.parse(manifestFile);
+
+		// Normalize the Document to ensure a consistent, formatted structure   
+		doc.getDocumentElement().normalize();
+
+		logger.info("Successfully parsed manifest file: {}", manifestFile.getAbsolutePath());
+		return doc;
+	}
 }
 
 

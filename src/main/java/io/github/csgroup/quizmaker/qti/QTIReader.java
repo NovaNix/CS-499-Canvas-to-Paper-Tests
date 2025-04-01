@@ -29,28 +29,28 @@ import io.github.csgroup.quizmaker.data.quiz.BankSelection;
  */
 public class QTIReader 
 {
-    
+
 	private static final Logger logger = LoggerFactory.getLogger(QTIReader.class);
-        private final QTIZipManager importManager;
+	private final QTIZipManager importManager;
 	private final QTIManifestFileProcessor manifestProcessor;
-	
+
 	public QTIReader()
 	{
-                this.importManager = new QTIZipManager();
+		this.importManager = new QTIZipManager();
 		this.manifestProcessor = new QTIManifestFileProcessor();	
 	}
-	
+
 	/**
-	* Reads the QTI files, extracts the data files, and retrieves the file mappings of the quiz assessment and metadata files
-	* 
-	* @param qtiZipPath The path to the QTI ZIP file.
-	* @return A {@link QTIContents} object containing parsed quiz data.
-	* @throws IOException if the QTI file cannot be properly extracted.
-	*/
+	 * Reads the QTI files, extracts the data files, and retrieves the file mappings of the quiz assessment and metadata files
+	 * 
+	 * @param qtiZipPath The path to the QTI ZIP file.
+	 * @return A {@link QTIContents} object containing parsed quiz data.
+	 * @throws IOException if the QTI file cannot be properly extracted.
+	 */
 	public QTIContents readFile(String qtiZipPath) throws IOException, Exception
 	{
 		logger.info("Reading QTI file from path: {}", qtiZipPath);
-		
+
 		// Extract the files from the QTI Zip file
 		Path extractedQTIPackage = importManager.extractQTIFile(qtiZipPath);
 		if (extractedQTIPackage == null)
@@ -60,34 +60,34 @@ public class QTIReader
 		}
 		logger.info("---- QTI File Extraction Complete ----");
 		logger.info("Extracted QTI files to: {}", extractedQTIPackage.toAbsolutePath());
-		
+
 		// Process the manifest file to locate the quiz data files
 		List<QTIDataFileMapping> mappings = manifestProcessor.processQTIFile(extractedQTIPackage.toAbsolutePath());
-		
+
 		// Ensure that it always returns a valid QTIContents object
 		QTIContents qtiContents = new QTIContents();
-		
+
 		if (mappings == null || mappings.isEmpty())
 		{
 			logger.warn("No quizzes found in the QTI file.");
 			return qtiContents;
 		}
 		logger.info("---- Processing Quiz Data Files ----");
-		
+
 		// Iterate through the file mappings to process the quiz assessment and metadata files
 		for (QTIDataFileMapping mapping : mappings)
 		{
 			logger.info("Processing Assessment File: {}", mapping.getQuizAssessmentFile());
-			
+
 			if (mapping.hasMetadataFile())
 			{
 				logger.info("Located metadata file for assessment file: {} → {}", mapping.getQuizAssessmentFile(), mapping.getQuizMetadataFile());
 			}
-			
+
 			// TODO Parse assessmement file
 			// TODO Parse metadata file
 		}
-	
+
 		return qtiContents;
 	}	
 }
