@@ -1,6 +1,5 @@
 package io.github.csgroup.quizmaker.utils;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -27,7 +26,7 @@ public final class HTMLUtils
 	// Prevent instantiation of the class
 	private HTMLUtils() {};
 	
-	static 
+	static
 	{
 		// Initialize the HTML entities
 		
@@ -39,12 +38,12 @@ public final class HTMLUtils
 			entities = JSONUtils.mapper.readValue(entityFile, HTMLEntities.class);
 		} 
 		
-		catch (IOException e) 
+		catch (Exception e) 
 		{
 			logger.error("Fatal Error: Failed to load HTML Entity file!");
 			e.printStackTrace();
-			
-			System.exit(1); // We shouldn't risk trying to run the program if this file is missing. 
+			 
+			throw new RuntimeException(e);
 		}
 	}
 	

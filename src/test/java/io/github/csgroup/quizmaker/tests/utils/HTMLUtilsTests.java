@@ -37,6 +37,7 @@ public class HTMLUtilsTests
 		HTMLEntities entities = HTMLUtils.entities;
 		
 		assertNotNull(entities);
+		assertEquals(2125, entities.getNamedEntityCount(), "There should be 2125 named entities");
 		
 		logger.info("Found " + entities.getNamedEntityCount() + " named entities");
 	}
