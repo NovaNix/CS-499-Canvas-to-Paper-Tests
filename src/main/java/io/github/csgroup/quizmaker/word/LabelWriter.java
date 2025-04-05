@@ -60,6 +60,34 @@ public class LabelWriter
 	}
 
 	/**
+	 * Writes a {@link Label} into an existing {@link XWPFParagraph}, preserving formatting. <p>
+	 * This is an inline variant of the standard {@link #write(Label)} method that does not
+	 * create a new paragraph in the document, allowing for multiple labels to be written on the same line.
+	 * 
+	 * @param label The label to write into the given paragraph.
+	 * @param paragraph The existing paragraph where the label will be written.
+	 * @throws IOException If an error occurs while processing or writing the label
+	 */
+	public void writeInline(Label label, XWPFParagraph paragraph) throws IOException 
+	{
+		if(label.getType() == Label.Type.html)
+		{
+			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
+			processElements(doc.body().childNodes(), paragraph, false, false, false);
+		}
+		else
+		{
+			String[] lines = label.asText().split("\n", -1);
+			for(int i = 0; i < lines.length; i++)
+			{
+				XWPFRun run = paragraph.createRun();
+				run.setText(lines[i]);
+				if (i < lines.length - 1) run.addBreak();
+			}
+		}
+	}
+	
+	/**
 	 * Recursively processes HTML elements, applying styles to each processed element
 	 * @param nodes The list of HTML nodes to process.
 	 * @param paragraph The paragraph where the text will be added.

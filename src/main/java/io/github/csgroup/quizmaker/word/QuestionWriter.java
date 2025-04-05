@@ -1,13 +1,20 @@
 package io.github.csgroup.quizmaker.word;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblGrid;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STBorder;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblWidth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Label;
-import io.github.csgroup.quizmaker.word.LabelWriter;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
@@ -41,7 +48,7 @@ public class QuestionWriter
 	}
 	
 	/**
-	 * Writes a question to the docx file
+	 * Writes a written response question to the docx file
 	 * @param q the written response question to write
 	 * @throws IOException if LabelWriter is null 
 	 */
@@ -144,29 +151,98 @@ public class QuestionWriter
 		
 	}
 	
+	/**
+	 * Writes a {@link MatchingQuestion} to the Word document, using a 3-column table layout.
+	 * Actual rendering of this table is from {@link #writeMatchingTable(MatchingQuestion, LabelWriter).
+	 * 
+	 * @param q The matching question to write
+	 * @throws IOException If an error occurs during writing
+	 */
 	public void writeMatching(MatchingQuestion q) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		// Before writing the non-key matching, I need to know how the answers are randomized, or if I need to do that myself
-		if(isKey)
-		{
-			for(MatchingAnswer answer : q.getAnswers())
-			{
-				String matchText = answer.getLeft().asText() + " → " + answer.getRight().asText();
-				if(answer.getLeft().getType() == Label.Type.html || answer.getRight().getType() == Label.Type.html)
-				{
-					labelWriter.write(new Label(matchText, Label.Type.html));
-				}
-				else
-				{
-					labelWriter.write(new Label(matchText));
-				}
-			}
-		}
+		writeMatchingTable(q, labelWriter);
 		
 	}
-	
+	/**
+	 * Writes a matching question to the Word document using a 3-column borderless table layout,
+	 * with column 1 being the left label, column 2 being a spacer symbol, and column 3 being the right label.<p>
+	 * If {@code isKey} is false, the right-side is shuffled to randomize the question.
+	 * 
+	 * @param q The {@link MatchingQuestion} to write.
+	 * @param labelWriter The {@link LabelWriter} used to render question text and labels.
+	 * @throws IOException If label rendering fails due to I/O or formatting issues.
+	 */
+	private void writeMatchingTable(MatchingQuestion q, LabelWriter labelWriter) throws IOException
 	{
-		//TODO: Make each question type work with its respective question
+		labelWriter.write(q.getLabel());
+		
+		List<MatchingAnswer> answers = q.getAnswers();
+		List<Label> leftLabels = new ArrayList<>();
+		List<Label> rightLabels = new ArrayList<>();
+		
+		for (MatchingAnswer answer : answers)
+		{
+			leftLabels.add(answer.getLeft());
+			rightLabels.add(answer.getRight());
+		}
+		
+		if(!isKey)
+		{
+			//This can be changed to another randomizer method
+			Collections.shuffle(rightLabels);
+		}
+		
+		XWPFTable table = document.createTable(answers.size(), 3);
+		removeTableBorders(table);
+		
+		CTTblGrid grid = table.getCTTbl().addNewTblGrid();
+		grid.addNewGridCol().setW(BigInteger.valueOf(2000));
+		grid.addNewGridCol().setW(BigInteger.valueOf(4000));
+		grid.addNewGridCol().setW(BigInteger.valueOf(3000));
+		
+		for(int i = 0; i < answers.size(); i++)
+		{
+			XWPFTableRow row = table.getRow(i);
+			
+			XWPFTableCell leftCell = row.getCell(0);
+			leftCell.setWidth("2000");
+			XWPFParagraph leftPara = leftCell.getParagraphs().get(0);
+			new LabelWriter(document).writeInline(leftLabels.get(i), leftPara);
+			
+			XWPFTableCell spacerCell = row.getCell(1);
+			spacerCell.setWidth("4000");
+			spacerCell.getCTTc().addNewTcPr().addNewTcW().setW(BigInteger.valueOf(4000));
+			spacerCell.getCTTc().getTcPr().getTcW().setType(STTblWidth.DXA);
+			XWPFParagraph spacerPara = spacerCell.getParagraphs().get(0);
+			spacerPara.setAlignment(ParagraphAlignment.CENTER);
+			
+			//This can be changed to being a label write if needed
+			XWPFRun run = spacerPara.createRun();
+			String spacerSymbol = isKey ? "→" : "";
+			run.setText(spacerSymbol);
+
+			XWPFTableCell rightCell = row.getCell(2);
+			rightCell.setWidth("3000");
+			XWPFParagraph rightPara = rightCell.getParagraphs().get(0);
+			new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
+		}
+		document.createParagraph().createRun().addBreak();
+	}
+	
+	/**
+	 * Removes all visible borders from the specified Apache POI table.
+	 * @param table The {@link XWPFTable} from which borders should be removed.
+	 */
+	private void removeTableBorders(XWPFTable table)
+	{
+		CTTblBorders borders = table.getCTTbl().getTblPr().addNewTblBorders();
+		
+		borders.addNewTop().setVal(STBorder.NONE);
+		borders.addNewBottom().setVal(STBorder.NONE);
+		borders.addNewLeft().setVal(STBorder.NONE);
+		borders.addNewRight().setVal(STBorder.NONE);
+		borders.addNewInsideH().setVal(STBorder.NONE);
+		borders.addNewInsideV().setVal(STBorder.NONE);
 	}
 }
