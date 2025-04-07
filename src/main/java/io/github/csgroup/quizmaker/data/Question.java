@@ -7,6 +7,8 @@ import io.github.csgroup.quizmaker.data.events.QuestionListener;
 import io.github.csgroup.quizmaker.data.events.question.QuestionEvent;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
+import io.github.csgroup.quizmaker.utils.stores.writable.DefaultWritableStore;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
 
 /**
  * A question to be used on a quiz.
@@ -16,11 +18,11 @@ import io.github.csgroup.quizmaker.data.utils.DataUtils;
 public abstract class Question 
 {
 	private final String id;
-	private String title;
+	private WritableStore<String> title;
 	
 	private Label label;
 	
-	private float points;
+	private WritableStore<Float> points;
 	
 	public Question(String title)
 	{
@@ -36,10 +38,10 @@ public abstract class Question
 	{
 		this.id = id;
 		
-		this.title = title;
+		this.title = new DefaultWritableStore<String>(title);
 		this.label = new Label(title);
 		
-		this.points = points;
+		this.points = new DefaultWritableStore<Float>(points);
 	}
 	
 	public abstract String getAnswerString();
@@ -49,14 +51,26 @@ public abstract class Question
 	
 	public String getTitle()
 	{
-		return title;
+		return title.get();
 	}
 	
 	public void setTitle(String title)
 	{
-		this.title = title;
+		this.title.set(title);
 		
 		fireEvent(new QuestionUpdateEvent(this));
+	}
+	
+	// TODO consider shortening these names
+	
+	public WritableStore<String> getTitleStore()
+	{
+		return title;
+	}
+	
+	public WritableStore<Float> getPointStore()
+	{
+		return points;
 	}
 	
 	public String getId()
@@ -78,14 +92,14 @@ public abstract class Question
 	
 	public void setPoints(float points)
 	{
-		this.points = points;
+		this.points.set(points);
 		
 		fireEvent(new QuestionUpdateEvent(this));
 	}
 	
 	public float getPoints()
 	{
-		return points;
+		return points.get();
 	}
 	
 	// Event Processing
