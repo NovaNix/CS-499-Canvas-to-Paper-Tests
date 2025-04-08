@@ -56,24 +56,14 @@ public class QuestionWriter
 	 * @param questionNumber Number of the question to write
 	 * @throws IOException If an error occurs during writing the label
 	 */
-	public void pickQuestionType(Question q, int questionNumber) throws IOException 
+	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
-		if(q instanceof WrittenResponseQuestion wrq)
-		{
-			writeWrittenResponse(wrq, questionNumber);
-		} else if(q instanceof FillInTheBlankQuestion filb)
-		{
-			writeFillBlank(filb, questionNumber);
-		} else if(q instanceof MultipleChoiceQuestion mc)
-		{
-			writeMultipleChoice(mc, questionNumber);
-		} else if(q instanceof MatchingQuestion match)
-		{
-			writeMatching(match, questionNumber);
-		}
-		else
-		{
-			logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
+		switch (q){
+		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
+		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
+		case MatchingQuestion match -> writeMatching(match, questionNumber);
+		case MultipleChoiceQuestion mc -> writeMultipleChoice(mc, questionNumber);
+		default -> logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
 		}
 	}
 	
