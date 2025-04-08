@@ -11,9 +11,13 @@ import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
 import io.github.csgroup.quizmaker.data.utils.QuestionContainer;
 import io.github.csgroup.quizmaker.events.ListUpdateListener;
+import io.github.csgroup.quizmaker.utils.stores.writable.DefaultWritableStore;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
 
 /**
  * A dynamically generated quiz that pulls {@link Question Questions} from {@link QuestionBank QuestionBanks}.<br>
+ * <br>
+ * A Quiz is only the information needed to generate a quiz. 
  * 
  * @author Michael Nix
  */
@@ -21,16 +25,19 @@ public class Quiz implements QuestionContainer
 {
 
 	private final String id;
-	private String title;
+	private WritableStore<String> title;
 
 	private Label description;
 
-	private boolean shuffleAnswers = true;
+	private WritableStore<Boolean> shuffleAnswers;
 
 	private final QuestionBank internalQuestions;
 
 	private List<BankSelection> banks = new ArrayList<BankSelection>();
 
+	// Generated Quiz Cache
+	private GeneratedQuiz generated;
+	
 	public Quiz(String title)
 	{
 		this(DataUtils.generateId(), title);
@@ -44,18 +51,47 @@ public class Quiz implements QuestionContainer
 	public Quiz(String id, String title, Label desc)
 	{
 		this.id = id;
-		this.title = title;
+		this.title = new DefaultWritableStore<String>(title);
 
 		this.internalQuestions = new QuestionBank(title + "-Questions");
 		
 		this.description = desc;
+		
+		shuffleAnswers = new DefaultWritableStore<Boolean>(true);
 	}
 
-	public GeneratedQuiz generate()
+	/**
+	 * Takes the information stored within this Quiz and created a new GeneratedQuiz based on it
+	 * @return the generated quiz
+	 */
+	public GeneratedQuiz regenerate()
 	{
-		return null;
+		this.generated = new GeneratedQuiz(this);
+		
+		return generated;
 	}
 
+	/**
+	 * @return the generated version of this quiz. May be null if the quiz has not been generated before.
+	 */
+	public GeneratedQuiz getGenerated()
+	{
+		return generated;
+	}
+	
+	/**
+	 * @return whether this quiz has been generated
+	 */
+	public boolean isGenerated()
+	{
+		return generated != null;
+	}
+	
+//	public boolean isGeneratedOutdated()
+//	{
+//		return isGeneratedDirty;
+//	}
+	
 	public void addBank(BankSelection selection)
 	{
 		banks.add(selection);
@@ -96,9 +132,9 @@ public class Quiz implements QuestionContainer
 	
 	public void setTitle(String title)
 	{
-		String oldName = this.title;
+		String oldName = getTitle();
 		
-		this.title = title;
+		this.title.set(title);
 
 		this.internalQuestions.setTitle(title + "-Questions");
 		
@@ -107,9 +143,14 @@ public class Quiz implements QuestionContainer
 
 	public String getTitle()
 	{
-		return title;
+		return title.get();
 	}
 
+	public WritableStore<String> getTitleStore()
+	{
+		return title;
+	}
+	
 	public String getId()
 	{
 		return id;
@@ -127,10 +168,15 @@ public class Quiz implements QuestionContainer
 	
 	public void setShuffleAnswers(boolean shouldShuffle)
 	{
-		this.shuffleAnswers = shouldShuffle;
+		this.shuffleAnswers.set(shouldShuffle);
 	}
 	
 	public boolean shouldShuffleAnswers()
+	{
+		return shuffleAnswers.get();
+	}
+	
+	public WritableStore<Boolean> getShouldShuffleStore()
 	{
 		return shuffleAnswers;
 	}
@@ -138,7 +184,7 @@ public class Quiz implements QuestionContainer
 	@Override
 	public String toString()
 	{
-		return title;
+		return getTitle();
 	}
 
 	// Event Processing
