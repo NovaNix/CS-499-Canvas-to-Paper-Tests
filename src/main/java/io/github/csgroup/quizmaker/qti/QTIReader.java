@@ -91,7 +91,7 @@ public class QTIReader
 				if (metadataFile.exists())
 				{
 					// Parse Quiz metadata
-					AssessmentMetadata metadata = metadataParser.parse(metadataFile);;
+					AssessmentMetadata metadata = metadataParser.parse(metadataFile);
 					logger.info("Parsed metadata: {}", metadata);
 					
 					// Map data to Quiz
