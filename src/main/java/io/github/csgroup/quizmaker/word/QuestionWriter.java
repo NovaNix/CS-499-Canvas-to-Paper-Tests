@@ -48,9 +48,11 @@ public class QuestionWriter
 	}
 	
 	/**
-	 * Writes a written response question to the docx file
-	 * @param q the written response question to write
-	 * @throws IOException if LabelWriter is null 
+	 * Writes a {@link WrittenResponseQuestion} to the Word Document. Depending on the {@link ResponseLength},
+	 * the amount of page available to answer will change.
+	 * 
+	 * @param q The written response question to write
+	 * @throws IOException If an error occurs during label writing
 	 */
 	public void writeWrittenResponse(WrittenResponseQuestion q) throws IOException
 	{
@@ -61,37 +63,61 @@ public class QuestionWriter
 			paragraph.setPageBreak(true);
 		}
 		labelWriter.write(q.getLabel());
-
-		if (isKey) 
-		{
-			labelWriter.write(q.getAnswer());
-		}
-		else if (!isKey && q.getResponseLength() == ResponseLength.Line)
-		{
-			XWPFParagraph paragraph = document.createParagraph();
-			XWPFRun run = paragraph.createRun();
-			run.addBreak();
-			run.addBreak();
-		}
-		else if (!isKey && q.getResponseLength() == ResponseLength.Paragraph)
-		{
-			XWPFParagraph paragraph = document.createParagraph();
-			XWPFRun run = paragraph.createRun();
-			run.addBreak();
-			run.addBreak();
-			run.addBreak();
-			run.addBreak();
-			run.addBreak();
-			run.addBreak();
-			run.addBreak();
-		}
-		if(q.getResponseLength() == ResponseLength.Essay)
-		{
-			XWPFParagraph paragraph = document.createParagraph();
-			paragraph.setPageBreak(true);
+		switch (q.getResponseLength()) {
+			case Line -> {
+				if(isKey)
+				{
+					labelWriter.write(q.getAnswer());
+				}
+				else
+				{
+					addBlankLines(2);
+				}
+			}
+			case Paragraph -> {
+				if(isKey)
+				{
+					labelWriter.write(q.getAnswer());
+					addBlankLines(4); //May not be necessary, would require a lot of code to dynamically allocate lines
+					//Can come back here if needed
+				}
+				else
+				{
+					addBlankLines(8);
+				}
+			}
+			case Essay -> {
+				if(isKey)
+				{
+					labelWriter.write(q.getAnswer());
+				}
+				document.createParagraph().setPageBreak(true);
+			}
 		}
 	}
 	
+	/**
+	 * Creates blank lines to render onto a Word Document.
+	 * 
+	 * @param count Amount of blank lines to print
+	 */
+	private void addBlankLines(int count)
+	{
+		for(int i = 0; i < count; i++)
+		{
+			XWPFParagraph paragraph = document.createParagraph();
+			XWPFRun run = paragraph.createRun();
+			run.setText(" "); //Can be changed to a label write if needed
+		}
+	}
+	
+	/**
+	 * Writes a {@link FillInTheBlankQuestion} to the Word Document. This changes the tags to blanks,
+	 * and if {@code isKey} is true, will print out the answers in order of blanks.
+	 * 
+	 * @param q The fill in the blank question to write
+	 * @throws IOException If an error occurs during label writing
+	 */
 	public void writeFillBlank(FillInTheBlankQuestion q) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
@@ -123,6 +149,13 @@ public class QuestionWriter
 		}
 	}
 	
+	/**
+	 * Writes a {@link MultipleChoiceQuestion} to the Word document. If {@code isKey} is true,
+	 * [Correct] will be printed next to the right answers.
+	 * 
+	 * @param q The multiple choice question to be written
+	 * @throws IOException If an error occurs during label writing
+	 */
 	public void writeMultipleChoice(MultipleChoiceQuestion q) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
@@ -227,7 +260,6 @@ public class QuestionWriter
 			XWPFParagraph rightPara = rightCell.getParagraphs().get(0);
 			new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
 		}
-		document.createParagraph().createRun().addBreak();
 	}
 	
 	/**

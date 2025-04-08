@@ -43,7 +43,7 @@ public class WordExporter
 		try (XWPFDocument document = new XWPFDocument()) 
 		{
 			LabelWriter labelWriter = new LabelWriter(document);
-			QuestionWriter questionWriter = new QuestionWriter(document, true);
+			QuestionWriter questionWriter = new QuestionWriter(document, false);
 
 			//for (Question q : GeneratedQuiz().quizArray) { Code that will be used once the Generated Quiz function is available
 				//labelWriter.write(q.getLabel());
@@ -87,7 +87,7 @@ public class WordExporter
 			var writtenResponse = new WrittenResponseQuestion("Written Test", 0);
 			writtenResponse.setLabel(new Label("This is a written response"));
 			writtenResponse.setAnswer("And this should be the answer!");
-			writtenResponse.setResponseLength(ResponseLength.Essay);
+			writtenResponse.setResponseLength(ResponseLength.Line);
 			questionWriter.writeWrittenResponse(writtenResponse);
 			
 			// Fill in the Blank Question
