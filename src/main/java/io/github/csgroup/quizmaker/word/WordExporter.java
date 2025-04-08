@@ -88,12 +88,12 @@ public class WordExporter
 			writtenResponse.setLabel(new Label("This is a written response"));
 			writtenResponse.setAnswer("And this should be the answer!");
 			writtenResponse.setResponseLength(ResponseLength.Line);
-			questionWriter.writeWrittenResponse(writtenResponse, 1);
+			questionWriter.pickQuestionType(writtenResponse, 1);
 			
 			// Fill in the Blank Question
 	        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].", 5);
 	        fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
-	        questionWriter.writeFillBlank(fitb, 2);
+	        questionWriter.pickQuestionType(fitb, 2);
 	        
 	        // Matching Question
 	        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4);
@@ -101,7 +101,7 @@ public class WordExporter
 	        match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
 	        match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
 	        match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
-	        questionWriter.writeMatching(match, 3);
+	        questionWriter.pickQuestionType(match, 3);
 	        
 	        // Multiple Choice Question
 	        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4);
@@ -110,7 +110,7 @@ public class WordExporter
 	        mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
 	        mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
 	        mc.addAnswer(new SimpleAnswer(4, "File"), false);
-	        questionWriter.writeMultipleChoice(mc, 4);
+	        questionWriter.pickQuestionType(mc, 4);
 	        
 			try (FileOutputStream out = new FileOutputStream(Paths.get(System.getProperty("user.dir"), "output.docx").toFile())) {
 				document.write(out);

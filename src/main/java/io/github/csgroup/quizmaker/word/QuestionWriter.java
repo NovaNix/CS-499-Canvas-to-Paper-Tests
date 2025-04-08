@@ -50,6 +50,34 @@ public class QuestionWriter
 	}
 	
 	/**
+	 * Determines the type of question to be written to the quiz and calls the appropriate writer
+	 * 
+	 * @param q The question to be written
+	 * @param questionNumber Number of the question to write
+	 * @throws IOException If an error occurs during writing the label
+	 */
+	public void pickQuestionType(Question q, int questionNumber) throws IOException 
+	{
+		if(q instanceof WrittenResponseQuestion wrq)
+		{
+			writeWrittenResponse(wrq, questionNumber);
+		} else if(q instanceof FillInTheBlankQuestion filb)
+		{
+			writeFillBlank(filb, questionNumber);
+		} else if(q instanceof MultipleChoiceQuestion mc)
+		{
+			writeMultipleChoice(mc, questionNumber);
+		} else if(q instanceof MatchingQuestion match)
+		{
+			writeMatching(match, questionNumber);
+		}
+		else
+		{
+			logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
+		}
+	}
+	
+	/**
 	 * Writes a {@link WrittenResponseQuestion} to the Word Document. Depending on the {@link ResponseLength},
 	 * the amount of page available to answer will change.
 	 * 
