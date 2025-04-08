@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.text.DecimalFormat;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTTblBorders;
@@ -31,6 +32,7 @@ import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion.Respon
 public class QuestionWriter
 {
 	public static final Logger logger = LoggerFactory.getLogger(QuestionWriter.class);
+	private static final DecimalFormat POINT_FORMAT = new DecimalFormat("#.##");
 	
 	private final XWPFDocument document;
 	
@@ -54,7 +56,7 @@ public class QuestionWriter
 	 * @param q The written response question to write
 	 * @throws IOException If an error occurs during label writing
 	 */
-	public void writeWrittenResponse(WrittenResponseQuestion q) throws IOException
+	public void writeWrittenResponse(WrittenResponseQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
 		if(q.getResponseLength() == ResponseLength.Essay)
@@ -62,7 +64,7 @@ public class QuestionWriter
 			XWPFParagraph paragraph = document.createParagraph();
 			paragraph.setPageBreak(true);
 		}
-		labelWriter.write(q.getLabel());
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
 		switch (q.getResponseLength()) {
 			case Line -> {
 				if(isKey)
@@ -110,7 +112,7 @@ public class QuestionWriter
 			run.setText(" "); //Can be changed to a label write if needed
 		}
 	}
-	
+
 	/**
 	 * Writes a {@link FillInTheBlankQuestion} to the Word Document. This changes the tags to blanks,
 	 * and if {@code isKey} is true, will print out the answers in order of blanks.
@@ -118,13 +120,13 @@ public class QuestionWriter
 	 * @param q The fill in the blank question to write
 	 * @throws IOException If an error occurs during label writing
 	 */
-	public void writeFillBlank(FillInTheBlankQuestion q) throws IOException
+	public void writeFillBlank(FillInTheBlankQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
 		String tagBlank = q.getLabel().asText();
 		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
-		
-		labelWriter.write(new Label(tagBlank, q.getLabel().getType()));
+		Label tagBlankLabel = new Label(tagBlank, q.getLabel().getType());
+		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints()));
 		
 		if(isKey)
 		{
@@ -156,10 +158,10 @@ public class QuestionWriter
 	 * @param q The multiple choice question to be written
 	 * @throws IOException If an error occurs during label writing
 	 */
-	public void writeMultipleChoice(MultipleChoiceQuestion q) throws IOException
+	public void writeMultipleChoice(MultipleChoiceQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(q.getLabel());
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
 		
 		for (SimpleAnswer answer : q.getAnswers())
 		{
@@ -191,9 +193,10 @@ public class QuestionWriter
 	 * @param q The matching question to write
 	 * @throws IOException If an error occurs during writing
 	 */
-	public void writeMatching(MatchingQuestion q) throws IOException
+	public void writeMatching(MatchingQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
 		writeMatchingTable(q, labelWriter);
 		
 	}
@@ -207,9 +210,7 @@ public class QuestionWriter
 	 * @throws IOException If label rendering fails due to I/O or formatting issues.
 	 */
 	private void writeMatchingTable(MatchingQuestion q, LabelWriter labelWriter) throws IOException
-	{
-		labelWriter.write(q.getLabel());
-		
+	{	
 		List<MatchingAnswer> answers = q.getAnswers();
 		List<Label> leftLabels = new ArrayList<>();
 		List<Label> rightLabels = new ArrayList<>();
@@ -276,5 +277,29 @@ public class QuestionWriter
 		borders.addNewRight().setVal(STBorder.NONE);
 		borders.addNewInsideH().setVal(STBorder.NONE);
 		borders.addNewInsideV().setVal(STBorder.NONE);
+	}
+	
+
+	/**
+	 * Builds a new Label containing the question number, the original label, and point value.
+	 * Preserves the label's formatting (plain or HTML).
+	 *
+	 * @param label The original question label.
+	 * @param number The question number.
+	 * @param points The number of points for this question.
+	 * @return A new Label with numbering and points included.
+	 */
+	private Label buildQuestionLabel(Label label, int number, float points) {
+		String prefix = number + ". ";
+		String formattedPoints = POINT_FORMAT.format(points);
+	    if (label.getType() == Label.Type.html) {
+	    	String html = label.asText(); 
+	    	String updated = "<p><b>" + prefix + "</b>" + html + " <i>(Points: " + formattedPoints + ")</i></p>"; // Inject number and points inside the HTML
+	    	return new Label(updated, Label.Type.html);
+	    } else {
+	    	String text = label.asText();
+	    	String updated = prefix + text + " (Points: " + formattedPoints + ")";
+	    	return new Label(updated);
+	    }
 	}
 }

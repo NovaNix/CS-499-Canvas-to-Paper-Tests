@@ -88,29 +88,29 @@ public class WordExporter
 			writtenResponse.setLabel(new Label("This is a written response"));
 			writtenResponse.setAnswer("And this should be the answer!");
 			writtenResponse.setResponseLength(ResponseLength.Line);
-			questionWriter.writeWrittenResponse(writtenResponse);
+			questionWriter.writeWrittenResponse(writtenResponse, 1);
 			
 			// Fill in the Blank Question
-	        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].");
+	        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].", 5);
 	        fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
-	        questionWriter.writeFillBlank(fitb);
+	        questionWriter.writeFillBlank(fitb, 2);
 	        
 	        // Matching Question
-	        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4f);
+	        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4);
 	        match.setLabel(new Label("Match the programming concepts to their definitions:"));
 	        match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
 	        match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
 	        match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
-	        questionWriter.writeMatching(match);
+	        questionWriter.writeMatching(match, 3);
 	        
 	        // Multiple Choice Question
-	        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4f);
+	        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4);
 	        mc.setLabel(new Label("Which of the following are part of the Java Collections Framework?"));
 	        mc.addAnswer(new SimpleAnswer(1, "HashMap"), true);
 	        mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
 	        mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
 	        mc.addAnswer(new SimpleAnswer(4, "File"), false);
-	        questionWriter.writeMultipleChoice(mc);
+	        questionWriter.writeMultipleChoice(mc, 4);
 	        
 			try (FileOutputStream out = new FileOutputStream(Paths.get(System.getProperty("user.dir"), "output.docx").toFile())) {
 				document.write(out);
@@ -121,5 +121,4 @@ public class WordExporter
 			throw new IOException("Failed to export document to: " + Paths.get(System.getProperty("user.dir"), "output.docx"), e); //This should throw up to the UI
 		}
 	}
-	
 }
