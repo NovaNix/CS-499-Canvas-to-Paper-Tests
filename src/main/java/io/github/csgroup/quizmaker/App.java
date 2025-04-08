@@ -41,6 +41,7 @@ public class App
 			e.printStackTrace();
 		}*/
 
+
 		// Create a new blank project
 		project = new Project();
 
