@@ -21,7 +21,7 @@ import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 public class MatchingQuestion extends Question
 {
 	
-	private List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
+	private final List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
 	
 	public MatchingQuestion(String title)
 	{
