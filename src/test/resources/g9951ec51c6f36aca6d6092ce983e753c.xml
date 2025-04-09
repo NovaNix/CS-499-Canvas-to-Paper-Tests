@@ -876,6 +876,17 @@
           </respcondition>
         </resprocessing>
       </item>
+      <section ident="g9a1fc140fa26348c89d14198595e1eb7" title="Group">
+        <selection_ordering>
+          <selection>
+            <sourcebank_ref>g10772bc628f94cffab8739e3a75e90d9</sourcebank_ref>
+            <selection_number>1</selection_number>
+            <selection_extension>
+              <points_per_item>1.0</points_per_item>
+            </selection_extension>
+          </selection>
+        </selection_ordering>
+      </section>
     </section>
   </assessment>
 </questestinterop>
