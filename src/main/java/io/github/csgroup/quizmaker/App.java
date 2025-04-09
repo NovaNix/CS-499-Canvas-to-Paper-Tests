@@ -35,7 +35,7 @@ public class App
 		logger.info("Testing word exporting!");
 		WordExporter wordExportTest = new WordExporter();
 		try {
-			wordExportTest.exportTest(true);
+			wordExportTest.exportTest(null, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

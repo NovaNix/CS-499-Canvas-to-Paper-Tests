@@ -58,7 +58,7 @@ public class QuestionWriter
 	 */
 	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
-		switch (q){
+		switch (q) {
 		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
 		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
 		case MatchingQuestion match -> writeMatching(match, questionNumber);

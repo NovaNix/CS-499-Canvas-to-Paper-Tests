@@ -3,12 +3,14 @@ package io.github.csgroup.quizmaker.word;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
@@ -27,28 +29,25 @@ import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 public class WordExporter 
 {
 	public static final Logger logger = LoggerFactory.getLogger(WordExporter.class);
-
-	public WordExporter()
-	{
-		
-	}
 	
 	/**
 	 * Manages the exporting of a quiz through LabelWriter and QuestionWriter calls.
 	 * @param isKey If the quiz to be exported is a key
 	 * @throws IOException If the quiz is unable to be exported.
 	 */
-	public void exportTest(/*Quiz quiz, Path template, Path destination,*/ boolean isKey) throws IOException //Can only use isKey for now for testing
+	public void exportTest(GeneratedQuiz quiz,/*, Path template, Path destination,*/ boolean isKey) throws IOException //Can only use isKey for now for testing
 	{
 		try (XWPFDocument document = new XWPFDocument()) 
 		{
 			LabelWriter labelWriter = new LabelWriter(document);
-			QuestionWriter questionWriter = new QuestionWriter(document, false);
-
-			//for (Question q : GeneratedQuiz().quizArray) { Code that will be used once the Generated Quiz function is available
-				//labelWriter.write(q.getLabel());
-				//questionWriter.write(q, isKey);
-			//}
+			QuestionWriter questionWriter = new QuestionWriter(document, isKey); //This will be moved into the if(quiz!=null) statement
+			if(quiz != null) 
+			{
+				List<Question> generatedQuiz = quiz.getQuestions();
+				for(int i = 0; i < quiz.getQuestions().size(); i++ ) {
+					questionWriter.writeQuestion(generatedQuiz.get(i), i+1);
+				}
+			}
 
 			//These are example labels that should be used to test the label writer
 			//These should be removed or moved to a test file when functionality of the label writer has been fully tested
