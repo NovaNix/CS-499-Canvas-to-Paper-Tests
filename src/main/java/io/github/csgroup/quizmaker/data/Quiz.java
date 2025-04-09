@@ -8,6 +8,7 @@ import io.github.csgroup.quizmaker.data.events.quiz.QuizEvent;
 import io.github.csgroup.quizmaker.data.events.quiz.QuizRenameEvent;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.utils.DataUtils;
 import io.github.csgroup.quizmaker.data.utils.QuestionContainer;
 import io.github.csgroup.quizmaker.events.ListUpdateListener;
@@ -35,6 +36,8 @@ public class Quiz implements QuestionContainer
 
 	private List<BankSelection> banks = new ArrayList<BankSelection>();
 
+	private final QuizMetadata metadata = new QuizMetadata();
+	
 	// Generated Quiz Cache
 	private GeneratedQuiz generated;
 	
@@ -164,6 +167,11 @@ public class Quiz implements QuestionContainer
 	public Label getDescription()
 	{
 		return description;
+	}
+	
+	public QuizMetadata getMetadata()
+	{
+		return metadata;
 	}
 	
 	public void setShuffleAnswers(boolean shouldShuffle)
