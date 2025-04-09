@@ -19,6 +19,7 @@ public class Presentation
 	
 	private List<Material> materials;
 	private List<ResponseLid> responseLids;
+	private List<ResponseStr> responseStrs;
 	
 	public void setMaterials(List<Material> materials) 
 	{
@@ -28,6 +29,11 @@ public class Presentation
 	public void setResponseLids(List<ResponseLid> responseLids) 
 	{
 		this.responseLids = responseLids;
+	}
+	
+	public void setResponseStrs(List<ResponseStr> responseStrs) 
+	{
+		this.responseStrs = responseStrs;
 	}
 	
 	@XmlElement(name = "material", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
@@ -42,12 +48,20 @@ public class Presentation
 		return responseLids;
 	}
 	
+	@XmlElement(name = "response_str", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<ResponseStr> getResponseStrs()
+	{
+		return responseStrs;
+	}
+	
+	
 	@Override
 	public String toString()
 	{
 		return "Presentation{" +
 				"materials=" + materials +
 				", responseLids=" + responseLids +
+				", responseStrs=" + responseStrs +
 				'}';
 	}
 }

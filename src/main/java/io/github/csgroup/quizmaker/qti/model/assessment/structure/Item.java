@@ -84,7 +84,7 @@ public class Item
 		return presentation;
 	}
 
-	public ResponseProcessing getResprocessing() 
+	public ResponseProcessing getResponseProcessing() 
 	{
 		return resprocessing;
 	}
