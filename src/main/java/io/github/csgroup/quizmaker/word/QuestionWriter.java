@@ -35,7 +35,6 @@ public class QuestionWriter
 	private static final DecimalFormat POINT_FORMAT = new DecimalFormat("#.##");
 	
 	private final XWPFDocument document;
-	
 	private final boolean isKey;
 	
 	/**
@@ -47,6 +46,16 @@ public class QuestionWriter
 	{
 		this.document = document;
 		this.isKey = isKey;
+	}
+	
+	/**
+	 * Creates a page blank before the next paragraph,
+	 * which is used to separate the questions from the front pages.
+	 */
+	public void insertPageBreak()
+	{
+		XWPFParagraph paragraph = document.createParagraph();
+		paragraph.setPageBreak(true);
 	}
 	
 	/**
@@ -154,7 +163,7 @@ public class QuestionWriter
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex =  index + ": ";
+					String addIndex =  "	Blank " +  index + ": ";
 					if(answer.getAnswer().getType() == Label.Type.html)
 					{
 						labelWriter.write(new Label(addIndex + answer.asText(), Label.Type.html));
@@ -183,7 +192,7 @@ public class QuestionWriter
 		
 		for (SimpleAnswer answer : q.getAnswers())
 		{
-			String prefix = "- ";
+			String prefix = "	- ";
 			if(isKey && q.isCorrect(answer))
 			{
 				prefix += "[Correct] ";

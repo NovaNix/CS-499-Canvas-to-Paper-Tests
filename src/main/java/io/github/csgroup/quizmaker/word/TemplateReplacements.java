@@ -68,7 +68,4 @@ public class TemplateReplacements
 	{
 		return replacementStrings.get(r);
 	}
-	
-	
-	
 }
