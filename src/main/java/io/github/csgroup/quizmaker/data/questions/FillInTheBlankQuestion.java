@@ -154,6 +154,7 @@ public class FillInTheBlankQuestion extends Question
 		
 		c.setLabel(getLabel().clone());
 		c.setShowAnswers(shouldShowAnswers());
+		c.setAbet(isAbet());
 		
 		for (String key : answers.keySet())
 		{

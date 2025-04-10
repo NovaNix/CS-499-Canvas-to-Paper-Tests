@@ -148,6 +148,7 @@ public class MultipleChoiceQuestion extends Question
 		var c = new MultipleChoiceQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
+		c.setAbet(isAbet());
 		
 		for (var answer : answers)
 		{
