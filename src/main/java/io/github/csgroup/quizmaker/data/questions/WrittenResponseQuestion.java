@@ -100,6 +100,7 @@ public class WrittenResponseQuestion extends Question
 		var c = new WrittenResponseQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
+		c.setAbet(isAbet());
 		
 		c.setResponseLength(length);
 		c.setAnswer(getLabel().clone());
