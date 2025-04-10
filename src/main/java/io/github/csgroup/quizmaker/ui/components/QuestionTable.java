@@ -8,10 +8,10 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JComponent;
 import java.awt.Dimension;
+import java.awt.Color;
 
 /**
- * Creates a JPanel that contains a table of the quiz bank questions
- * and answers
+ * Creates a JPanel that contains a table 
  * 
  * @author Emily Palmer
  */
@@ -21,7 +21,8 @@ public class QuestionTable extends JComponent
     private final int defaultRowNumbers;
     private JTable dataTable;
     private JScrollPane tableScrollPane;
-    
+    private DefaultTableModel model;
+        
     public QuestionTable(String[] columnHeaders, int rows)
     {
         columnNames = columnHeaders;
@@ -34,20 +35,32 @@ public class QuestionTable extends JComponent
         return dataTable;
     }
     
+    public DefaultTableModel getModel()
+    {
+        return model;
+    }
+    
     /**
-     * Creates a JTable to hold the quiz bank questions and answers and 
-     * places the JTable in a JPanel
+     * Creates a reusable JTables
      *
      * @return JPanel containing the JTable
      */
     private void createTablePanel()
     {
         // column headers for dataTable
-        DefaultTableModel model = new DefaultTableModel(columnNames, defaultRowNumbers);
+        model = new DefaultTableModel(columnNames, defaultRowNumbers) {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
+         
         dataTable = new JTable(model);
         
         // JScrollPane for the JTable dataTable
         tableScrollPane = new JScrollPane(dataTable);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
                 
         this.setLayout(new GridBagLayout());
         GridBagConstraints tableConstraint = new GridBagConstraints();
@@ -57,21 +70,93 @@ public class QuestionTable extends JComponent
         tableConstraint.gridx = 0;
         tableConstraint.gridy = 0;
         this.add(tableScrollPane, tableConstraint);
-    } 
+    }
     
+    /**
+     * Sets the height of the rows in the table
+     * 
+     * @param rowHeight 
+     */
     public void setTableRowHeight(int rowHeight)
     {
         dataTable.setRowHeight(rowHeight);
     }
     
+    /**
+     * Gets the selected row in the table
+     * 
+     * @return the row selected
+     */
+    public int getRowSelected()
+    {
+        int row = dataTable.getSelectedRow();
+        return row;
+    }
+    
+    /**
+     * Gets the number of rows in the table
+     * 
+     * @return number of rows
+     */
+    public int getRows()
+    {
+        int rows = dataTable.getRowCount();
+        return rows;
+    }
+    
+    /**
+     * Sets the width of a column in the table
+     * 
+     * @param column
+     * @param columnWidth 
+     */
     public void setColumnWidth(int column, int columnWidth)
     {
         TableColumnModel columnModel = dataTable.getColumnModel();
         columnModel.getColumn(column).setPreferredWidth(columnWidth);
     }
     
+    /**
+     * Sets the size of the scroll pane
+     * 
+     * @param width
+     * @param height 
+     */
     public void setTableSize(int width, int height)
     {
         tableScrollPane.setPreferredSize(new Dimension(width, height));        
     } 
+    
+    /**
+     * Sets a cell value in the table
+     * 
+     * @param value display value
+     * @param row 
+     * @param column 
+     */
+    public void setValue(Object value, int row, int column)
+    {
+        dataTable.setValueAt(value, row, column);
+    }
+    
+    public void addEmptyRow()
+    {
+        model.addRow(new Object[]{null, null, null, null});
+    }
+    
+    /**
+     * Resets the table 
+     */
+    public void clearTable()
+    {
+        int rows = dataTable.getRowCount();
+        int columns = dataTable.getColumnCount();
+        for (int i = 0; i < columns; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                dataTable.setValueAt(null, j, i);
+            }
+        }
+    }    
 }

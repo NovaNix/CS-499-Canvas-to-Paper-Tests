@@ -1,7 +1,8 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
-import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.ui.QuizPanel;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 
 import javax.swing.JFrame;
@@ -15,26 +16,26 @@ import java.awt.Insets;
 import javax.swing.JList;
 
 /**
- * Creates a frame that ensures the user is deleting the correct question bank
+ * Creates a frame that ensures the user is deleting the correct quiz 
  * they selected 
  * 
  * @author Emily Palmer
  */
-public class RemoveBankDialog 
+public class RemoveQuizDialog 
 { 
     private JFrame removeFrame;
     private final Project project;
-    private final JList bankList;
-    private final JButton removeButton;
-    private final QuestionTable bankTable;
+    private final JList quizList;
+    private final Quiz quiz;
+    private final JPanel test;
     
-    public RemoveBankDialog(QuestionBank bankName, Project currentProject, JList list, JButton button, QuestionTable table)
+    public RemoveQuizDialog(Quiz currentQuiz, Project currentProject, JList list, JPanel panel)
     {
-        bankList = list;
+        quizList = list;
         project = currentProject;
-        removeButton = button;
-        bankTable = table;
-        createRemoveBankFrame(bankName);
+        quiz = currentQuiz;
+        test = panel;
+        createRemoveBankFrame();
     }
           
     /**
@@ -45,12 +46,12 @@ public class RemoveBankDialog
      * @param name the name of the quiz bank to be removed
      * @param bankProject used to remove the new question bank to the QuestionBank list
      */
-    private void createRemoveBankFrame(QuestionBank name)
+    private void createRemoveBankFrame()
     {            
         removeFrame = new JFrame();
         removeFrame.setSize(380, 270);
         
-        JLabel questionLabel = new JLabel("Are you sure you want to remove question bank: " + name + "?");
+        JLabel questionLabel = new JLabel("Are you sure you want to remove the quiz: " + quiz + "?");
                             
         // contains questionLabel and buttonPanel
         JPanel removeBankPanel = new JPanel(new GridBagLayout());
@@ -65,7 +66,7 @@ public class RemoveBankDialog
         removeBankPanel.add(questionLabel, questionConstraint);
         
         // places buttonPanel at the bottom of removeBankPanel
-        JPanel buttonPanel = removeButtonPanel(name);
+        JPanel buttonPanel = removeButtonPanel();
         buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonConstraint.gridx = 0;
         buttonConstraint.gridy = 1;
@@ -81,7 +82,7 @@ public class RemoveBankDialog
      * @param questionBankName name of the question bank
      * @return the button panel
      */
-    private JPanel removeButtonPanel(QuestionBank questionBankName)
+    private JPanel removeButtonPanel()
     {
         JButton yesButton = new JButton("Yes");
         JButton noButton = new JButton("No");
@@ -106,26 +107,29 @@ public class RemoveBankDialog
         
         // listens for when yesButton is clicked
         yesButton.addActionListener((ActionEvent e) -> {
-            int index = bankList.getSelectedIndex();
+            int index = quizList.getSelectedIndex();
             // remove the bank from the list            
-            project.removeBank(questionBankName);
+            project.removeQuiz(quiz);
             
-            int bankCount = project.getBankCount();            
-            if (index == bankCount)
+            int quizCount = project.getQuizCount();                   
+            if (index == quizCount)
             {
-                bankList.setSelectedIndex(index - 1);
-            }             
-            else if (bankCount == 0)
+                quizList.setSelectedIndex(index - 1);
+            }
+            else if (index == 0)
             {
-                removeButton.setEnabled(false);
-                bankTable.setVisible(false);
+                quizList.setSelectedIndex(0);
             }
             else
             {
-                bankList.setSelectedIndex(index);
+                quizList.setSelectedIndex(index);
+            }
+            // close removeFrame
+            if (quizCount == 0)
+            {
+                test.setVisible(false);
             }
             
-            // close removeFrame
             removeFrame.dispose();          
         });
                 

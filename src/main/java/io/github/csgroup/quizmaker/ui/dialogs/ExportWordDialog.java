@@ -24,25 +24,15 @@ import javax.swing.JFileChooser;
 public class ExportWordDialog 
 {
     private JFrame exportFrame;
-    private boolean radioButtonResponse;
     private String locationPath;
+    private JRadioButton keyButton;
+    private JRadioButton testButton;
     
     public ExportWordDialog()
     {
         createExportFileFrame();
     }
-        
-    private void setRadioButtonResponse(boolean response)
-    {
-        radioButtonResponse = response;
-    }
-        
-    // true if "Test" button is selected, false if "Key" button is selected
-    private boolean getRadioButtonResponse()
-    {
-        return radioButtonResponse;
-    }     
-        
+          
     private void setLocation(String path)
     {
         locationPath = path;
@@ -222,8 +212,8 @@ public class ExportWordDialog
      */
     private JPanel radioButtonPanel()
     {
-        JRadioButton testButton = new JRadioButton("Test");
-        JRadioButton keyButton = new JRadioButton("Key");
+        testButton = new JRadioButton("Test");
+        keyButton = new JRadioButton("Key");
         ButtonGroup group = new ButtonGroup();
         group.add(testButton);
         group.add(keyButton);
@@ -244,16 +234,6 @@ public class ExportWordDialog
         keyButtonConstraint.gridx = 1;
         keyButtonConstraint.gridy = 0;
         buttonPanel.add(keyButton, keyButtonConstraint);
-                
-        // listens for when the user selects testButton
-        testButton.addActionListener((ActionEvent e) -> {
-            setRadioButtonResponse(true);              
-        });
-                
-        // listens for when the user selects keyButton
-            keyButton.addActionListener((ActionEvent e) -> {
-            setRadioButtonResponse(false);              
-        });
                 
         return buttonPanel;            
     }
@@ -280,8 +260,12 @@ public class ExportWordDialog
             tempFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             tempFileChooser.showOpenDialog(null);
             // get the file path and display it on tempTextField
-            String templateFilePath = tempFileChooser.getSelectedFile().getPath();             
-            tempTextField.setText(templateFilePath);
+            try
+            {
+                String templateFilePath = tempFileChooser.getSelectedFile().getPath();             
+                tempTextField.setText(templateFilePath);
+            }
+            catch (NullPointerException n) {}
         });
                 
         return selectTempButtonPanel;
@@ -309,9 +293,13 @@ public class ExportWordDialog
             locFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             locFileChooser.showOpenDialog(null);
             // get the file path and display it on locTextField
-            String locationFilePath = locFileChooser.getSelectedFile().getPath(); 
-            setLocation(locationFilePath);
-            locTextField.setText(locationFilePath);               
+            try 
+            {
+                String locationFilePath = locFileChooser.getSelectedFile().getPath(); 
+                setLocation(locationFilePath);
+                locTextField.setText(locationFilePath);    
+            } 
+            catch (NullPointerException n) {}
         }); 
                 
         return selectLocButtonPanel;
@@ -341,20 +329,26 @@ public class ExportWordDialog
                 
         // listens for when the user selects exportButton
         exportButton.addActionListener((ActionEvent e) -> {
-            boolean buttonResponse = getRadioButtonResponse(); 
-            // export the test or answer key
-            if (buttonResponse == true)
+            if ((testButton.isSelected() == true) || (keyButton.isSelected() == true))
             {
-                String testLocation = getLocation();
-                //exportFile.exportTest(quiz, testLocation);
+                if (testButton.isSelected() == true)
+                {
+                    String testLocation = getLocation();
+                    if (testLocation.isEmpty() == false)
+                    {
+                        //exportFile.exportTest(quiz, testLocation);
+                    }
+                }
+                if (keyButton.isSelected() == true)
+                {
+                    String keyLocation = getLocation();
+                    if (keyLocation.isEmpty() == false)
+                    {
+                        //exportFile.exportAnswerKey(quiz, keyLocation);
+                    }
+                }
+                exportFrame.dispose();
             }
-            else if (buttonResponse == false)
-            {
-                String keyLocation = getLocation();
-                //exportFile.exportAnswerKey(quiz, keyLocation);
-            }                                        
-            // close the frame
-            exportFrame.dispose();
         }); 
                 
         return exportButtonPanel;

@@ -144,11 +144,15 @@ public class ImportQTIDialog
             fileChooser.setAcceptAllFileFilterUsed(false);
             fileChooser.showOpenDialog(null);
             // get the name of the selected file
-            String fileName = fileChooser.getSelectedFile().getName();
-            String qtiFilePath = fileChooser.getSelectedFile().getPath();
-            setPath(qtiFilePath);     
-            // display the file name in the text field
-            textField.setText(fileName);               
+            try
+            {
+                String fileName = fileChooser.getSelectedFile().getName();
+                String qtiFilePath = fileChooser.getSelectedFile().getPath();
+                setPath(qtiFilePath);     
+                // display the file name in the text field
+                textField.setText(fileName);   
+            }   
+            catch (NullPointerException n) {}
         }); 
                 
         return attachButton;

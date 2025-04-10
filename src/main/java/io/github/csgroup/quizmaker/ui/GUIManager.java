@@ -68,9 +68,9 @@ public class GUIManager
             
         // panel that will hold the quiz bank list and quiz bank questions 
         // and answers     
-        Project quizBankProject = App.getCurrentProject();
-        BankPanel selectPanel = new BankPanel(quizBankProject);
-        QuizPanel quizzes = new QuizPanel(quizBankProject);
+        Project project = App.getCurrentProject();
+        BankPanel selectPanel = new BankPanel(project);
+        QuizPanel quizzes = new QuizPanel(project);
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
@@ -88,7 +88,7 @@ public class GUIManager
         // listens for when the user selects importFileItems
         importFileItem.addActionListener((ActionEvent e) -> {
             // display the frame that lets the user attach their QTI files
-            ImportQTIDialog importFrame = new ImportQTIDialog(quizBankProject);
+            ImportQTIDialog importFrame = new ImportQTIDialog(project);
             importFrame.show();
         });
         

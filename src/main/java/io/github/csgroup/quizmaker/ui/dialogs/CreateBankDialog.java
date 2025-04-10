@@ -28,11 +28,11 @@ import javax.swing.AbstractAction;
 public class CreateBankDialog
 {
     private JFrame newBankFrame;
-    private final Project newBankProject;
+    private final Project project;
     
     public CreateBankDialog(Project currentProject)
     {
-        newBankProject = currentProject;
+        project = currentProject;
         createAddBankFrame();
     }
         
@@ -96,8 +96,7 @@ public class CreateBankDialog
         addButton.addActionListener((ActionEvent e) -> {
             // get the question bank name from bankTextField
             String name = bankField.getText();
-            addBank(name);        
-            newBankFrame.dispose();            
+            addBank(name);                 
         });     
         
         bindEnterKey(addButton, bankField);
@@ -125,8 +124,7 @@ public class CreateBankDialog
             public void actionPerformed(ActionEvent e) {
                 // get the question bank name from bankTextField
                 String bankName = nameField.getText();
-                addBank(bankName);        
-                newBankFrame.dispose();  
+                addBank(bankName);          
             }
         });
     }
@@ -137,11 +135,16 @@ public class CreateBankDialog
      * @param bankNameField gets the name of the bank
      */
     private void addBank(String bankName)
-    {       
-        // create a QuestionBank object for bankName
-        QuestionBank newBank = new QuestionBank(bankName);
-        // add the QuesionBank object to the QuestionBank list                    
-        newBankProject.addBank(newBank);    
+    {   
+        boolean emptyName = bankName.isEmpty();
+        if (emptyName == false)
+        {
+            // create a QuestionBank object for bankName
+            QuestionBank newBank = new QuestionBank(bankName);
+            // add the QuesionBank object to the QuestionBank list                    
+            project.addBank(newBank);
+            newBankFrame.dispose();
+        }    
     }
         
     /**
