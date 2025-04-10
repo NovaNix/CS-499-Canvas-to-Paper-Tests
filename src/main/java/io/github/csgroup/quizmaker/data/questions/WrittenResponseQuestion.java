@@ -102,7 +102,7 @@ public class WrittenResponseQuestion extends Question
 		c.setLabel(getLabel().clone());
 		
 		c.setResponseLength(length);
-		c.setAnswer(getLabel().clone());
+		c.setAnswer(getAnswer().clone());
 		
 		return c;
 	}
