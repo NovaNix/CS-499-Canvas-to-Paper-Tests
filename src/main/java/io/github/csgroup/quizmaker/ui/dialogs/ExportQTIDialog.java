@@ -1,41 +1,33 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
-import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.qti.QTIContents;
-import io.github.csgroup.quizmaker.qti.QTIReader;
-
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JLabel;
-import java.awt.Dimension;
-import javax.swing.JFileChooser;
-import java.awt.event.ActionEvent;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
- * Creates a frame that will allow the user to import the QTI file from 
+ * Creates a frame that will allow the user to export the QTI file from 
  * their file system
  * 
  * @author Emily Palmer
  */
-public class ImportQTIDialog 
-{ 
-    private JFrame importFrame;
+public class ExportQTIDialog 
+{
+    private JFrame exportQTIFrame;
     private String filePath;
-    private final Project importFileProject;
-    private JButton importButton;
+    private JButton exportButton;
     
-    public ImportQTIDialog(Project importProject)
+    public ExportQTIDialog()
     {
-        importFileProject = importProject;
-        importFileFrame();
+        exportFileFrame();
     }
         
     private void setPath(String path)
@@ -47,21 +39,17 @@ public class ImportQTIDialog
     {
         return filePath;
     }
-        
-    /**
-     * Creates a frame that prompts the user to attach a QTI file
-     * 
-     */
-    private void importFileFrame()
-    {            
-        importFrame = new JFrame("Import File");
-        importFrame.setSize(380, 220);
+       
+    private void exportFileFrame()
+    {
+        exportQTIFrame = new JFrame("Export File");
+        exportQTIFrame.setSize(380, 220);
                 
         JLabel fileLabel = new JLabel("File: ");
                        
         // contains importButtonPanel and importFilePanel
-        JPanel importPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints importPanelConstraint = new GridBagConstraints();
+        JPanel exportPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints exportPanelConstraint = new GridBagConstraints();
         GridBagConstraints buttonPanelConstraint = new GridBagConstraints();
         GridBagConstraints fileLabelConstraint = new GridBagConstraints();
         
@@ -70,24 +58,24 @@ public class ImportQTIDialog
         fileLabelConstraint.gridx = 0;
         fileLabelConstraint.gridy = 0;
         fileLabelConstraint.insets = new Insets(40, 5, 0, 0);
-        importPanel.add(fileLabel, fileLabelConstraint);
+        exportPanel.add(fileLabel, fileLabelConstraint);
                 
         // places importFilePanel at the top of the panel
-        JPanel filePanel = importFilePanel();
-        importPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
-        importPanelConstraint.gridx = 0;
-        importPanelConstraint.gridy = 1;
-        importPanelConstraint.insets = new Insets(0, 0, 35, 0);
-        importPanel.add(filePanel, importPanelConstraint);
+        JPanel filePanel = exportFilePanel();
+        exportPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        exportPanelConstraint.gridx = 0;
+        exportPanelConstraint.gridy = 1;
+        exportPanelConstraint.insets = new Insets(0, 0, 35, 0);
+        exportPanel.add(filePanel, exportPanelConstraint);
         
         // places importButtonPanel at the bottom of the panel
-        JPanel importFileButtonPanel = importButtonPanel();
+        JPanel importFileButtonPanel = exportButtonPanel();
         buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonPanelConstraint.gridx = 0;
         buttonPanelConstraint.gridy = 2;
-        importPanel.add(importFileButtonPanel, buttonPanelConstraint);
+        exportPanel.add(importFileButtonPanel, buttonPanelConstraint);
         
-        importFrame.add(importPanel);  
+        exportQTIFrame.add(exportPanel);  
     }
     
     /**
@@ -96,7 +84,7 @@ public class ImportQTIDialog
      * 
      * @return the file panel
      */
-    private JPanel importFilePanel()
+    private JPanel exportFilePanel()
     {
         JTextField fileTextField = new JTextField();
         fileTextField.setPreferredSize(new Dimension(250, 22));
@@ -105,7 +93,7 @@ public class ImportQTIDialog
         textPanel.add(fileTextField);
         
         // contains fileTextField and attachButton
-        JPanel importFilePanel = new JPanel(new GridBagLayout());
+        JPanel exportFilePanel = new JPanel(new GridBagLayout());
         GridBagConstraints attachButtonConstraint = new GridBagConstraints();
         GridBagConstraints textFieldConstraint = new GridBagConstraints();
         
@@ -113,7 +101,7 @@ public class ImportQTIDialog
         textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         textFieldConstraint.gridx = 0;
         textFieldConstraint.gridy = 0;
-        importFilePanel.add(textPanel, textFieldConstraint);
+        exportFilePanel.add(textPanel, textFieldConstraint);
         
         // places attachButton at the bottom of importFilePanel
         JButton attachFileButton = attachButton(fileTextField);
@@ -121,11 +109,11 @@ public class ImportQTIDialog
         attachButtonConstraint.gridx = 1;
         attachButtonConstraint.gridy = 0;
         attachButtonConstraint.insets = new Insets(0, 5, 0, 0);
-        importFilePanel.add(attachFileButton, attachButtonConstraint);
+        exportFilePanel.add(attachFileButton, attachButtonConstraint);
         
-        return importFilePanel;
+        return exportFilePanel;
     }
-       
+    
     /**
      * Creates the button that allows the user to attach a QTi file
      * 
@@ -147,61 +135,47 @@ public class ImportQTIDialog
             // get the name of the selected file
             try
             {
-                importButton.setEnabled(true);
+                exportButton.setEnabled(true);
                 String fileName = fileChooser.getSelectedFile().getName();
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
                 setPath(qtiFilePath);     
                 // display the file name in the text field
-                textField.setText(fileName);   
+                textField.setText(fileName);  
             }   
             catch (NullPointerException n) {
-                importButton.setEnabled(false);
+                exportButton.setEnabled(false);
             }
         }); 
-                
+        
         return attachButton;
     }
-        
+    
     /**
-     * Creates the button panel that contains the import file button
+     * Creates the button panel that contains the export file button
      * 
      * @return the button panel
      */
-    private JPanel importButtonPanel()
+    private JPanel exportButtonPanel()
     {
-        importButton = new JButton("Import");    
-        importButton.setEnabled(false);
+        exportButton = new JButton("Export");
+        exportButton.setEnabled(false);
         JPanel importButtonPanel = new JPanel();
-        importButtonPanel.add(importButton);
+        importButtonPanel.add(exportButton);
                
         // listens for when importButton is selected
-        importButton.addActionListener((ActionEvent e) -> {
+        exportButton.addActionListener((ActionEvent e) -> {
             // get the path of the file
-            String importFilePath = getPath();
-            if (importFilePath != null)
+            String exportFilePath = getPath();
+            if (exportFilePath != null)
             {
-                importFile(importFilePath);
                 // close the frame
-                importFrame.dispose();
+                exportQTIFrame.dispose();
             }
         });
         
         return importButtonPanel;
     }   
-    
-    /**
-     * Imports the QTI file
-     * 
-     * @param qtiFilePath file path of the QTI file
-     */
-    private void importFile(String qtiStringPath)
-    {
-        Path qtiFilePath = Paths.get(qtiStringPath);
-        QTIReader importQTIFile = new QTIReader();
-        //QTIContents test = importQTIFile.readFile(qtiFilePath);
-        //importFileProject.addQTI(test);
-    }
-            
+               
     /**
      * Controls when and where the frame appears
      * 
@@ -209,8 +183,8 @@ public class ImportQTIDialog
     public void show()
     {
         // makes the JFrame appear in the center of the screen
-        importFrame.setLocationRelativeTo(null);
+        exportQTIFrame.setLocationRelativeTo(null);
         // makes the JFrame visible
-        importFrame.setVisible(true);
+        exportQTIFrame.setVisible(true);
     }
 }

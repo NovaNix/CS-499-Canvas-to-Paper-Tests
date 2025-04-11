@@ -4,56 +4,159 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JComponent;
+import java.awt.Dimension;
+import java.awt.Color;
 
 /**
- * Creates a JPanel that contains a table of the quiz bank questions
- * and answers
+ * Creates a JPanel that contains a table 
  * 
  * @author Emily Palmer
  */
 public class QuestionTable extends JComponent
 {    
-	public QuestionTable()
-	{
-		createTablePanel();
-	}
-
-	/**
-	 * Creates a JTable to hold the quiz bank questions and answers and 
-	 * places the JTable in a JPanel
-	 *
-	 * @return JPanel containing the JTable
-	 */
-	private void createTablePanel()
-	{
-		// column headers for dataTable
-		String[] columnHeaders = {"Questions", "Answers"};
-		// the default number of columns that will be displayed on the panel
-		DefaultTableModel model = new DefaultTableModel(columnHeaders, 30);
-		JTable dataTable = new JTable(model);
-		// the height of each row in the JTable
-		dataTable.setRowHeight(17);
-		TableColumnModel columnModel = dataTable.getColumnModel();
-		// the preferred width of each column in the JTable
-		columnModel.getColumn(0).setPreferredWidth(250);
-		columnModel.getColumn(1).setPreferredWidth(250);
-
-		// JScrollPane for the JTable dataTable
-		JScrollPane tableScrollPane = new JScrollPane(dataTable);
-		JPanel tablePanel = new JPanel();
-		tablePanel.add(tableScrollPane);
-
-		this.setLayout(new GridBagLayout());
-		GridBagConstraints tableConstraint = new GridBagConstraints();
-
-		// places tablePanel at the top of QuestionTable
-		tableConstraint.fill = GridBagConstraints.HORIZONTAL;
-		tableConstraint.gridx = 0;
-		tableConstraint.gridy = 0;
-		this.add(tablePanel, tableConstraint);
-	}   
+    private final String[] columnNames;
+    private final int defaultRowNumbers;
+    private JTable dataTable;
+    private JScrollPane tableScrollPane;
+    private DefaultTableModel model;
+        
+    public QuestionTable(String[] columnHeaders, int rows)
+    {
+        columnNames = columnHeaders;
+        defaultRowNumbers = rows;
+        createTablePanel();
+    }
+    
+    public JTable getTable()
+    {
+        return dataTable;
+    }
+    
+    public DefaultTableModel getModel()
+    {
+        return model;
+    }
+    
+    /**
+     * Creates a reusable JTables
+     *
+     * @return JPanel containing the JTable
+     */
+    private void createTablePanel()
+    {
+        // column headers for dataTable
+        model = new DefaultTableModel(columnNames, defaultRowNumbers) {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
+         
+        dataTable = new JTable(model);
+        
+        // JScrollPane for the JTable dataTable
+        tableScrollPane = new JScrollPane(dataTable);
+        tableScrollPane.getViewport().setBackground(Color.WHITE);
+                
+        this.setLayout(new GridBagLayout());
+        GridBagConstraints tableConstraint = new GridBagConstraints();
+                
+        // places tablePanel at the top of QuestionTable
+        tableConstraint.fill = GridBagConstraints.HORIZONTAL;
+        tableConstraint.gridx = 0;
+        tableConstraint.gridy = 0;
+        this.add(tableScrollPane, tableConstraint);
+    }
+    
+    /**
+     * Sets the height of the rows in the table
+     * 
+     * @param rowHeight 
+     */
+    public void setTableRowHeight(int rowHeight)
+    {
+        dataTable.setRowHeight(rowHeight);
+    }
+    
+    /**
+     * Gets the selected row in the table
+     * 
+     * @return the row selected
+     */
+    public int getRowSelected()
+    {
+        int row = dataTable.getSelectedRow();
+        return row;
+    }
+    
+    /**
+     * Gets the number of rows in the table
+     * 
+     * @return number of rows
+     */
+    public int getRows()
+    {
+        int rows = dataTable.getRowCount();
+        return rows;
+    }
+    
+    /**
+     * Sets the width of a column in the table
+     * 
+     * @param column
+     * @param columnWidth 
+     */
+    public void setColumnWidth(int column, int columnWidth)
+    {
+        TableColumnModel columnModel = dataTable.getColumnModel();
+        columnModel.getColumn(column).setPreferredWidth(columnWidth);
+    }
+    
+    /**
+     * Sets the size of the scroll pane
+     * 
+     * @param width
+     * @param height 
+     */
+    public void setTableSize(int width, int height)
+    {
+        tableScrollPane.setPreferredSize(new Dimension(width, height));        
+    } 
+    
+    /**
+     * Sets a cell value in the table
+     * 
+     * @param value display value
+     * @param row 
+     * @param column 
+     */
+    public void setValue(Object value, int row, int column)
+    {
+        dataTable.setValueAt(value, row, column);
+    }
+    
+    public void addEmptyRow()
+    {
+        model.addRow(new Object[]{null, null, null, null});
+    }
+    
+    /**
+     * Resets the table 
+     */
+    public void clearTable()
+    {
+        int rows = dataTable.getRowCount();
+        int columns = dataTable.getColumnCount();
+        for (int i = 0; i < columns; i++)
+        {
+            for (int j = 0; j < rows; j++)
+            {
+                dataTable.setValueAt(null, j, i);
+            }
+        }
+    }    
 }

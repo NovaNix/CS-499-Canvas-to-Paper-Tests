@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.nio.file.*;
 
 import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.ui.UIManager;
+import io.github.csgroup.quizmaker.ui.GUIManager;
 import io.github.csgroup.quizmaker.word.WordExporter;
 
 /**
@@ -22,7 +22,7 @@ public class App
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	@SuppressWarnings("unused")
-	private static UIManager ui;
+	private static GUIManager ui;
 
 	private static Project project;
 	
@@ -48,7 +48,7 @@ public class App
 		// Initiate the UI code
 		SwingUtilities.invokeLater(() -> {
 			// The UI needs to be started on the event threads
-			ui = new UIManager();
+			ui = new GUIManager();
 			ui.createHomeFrame();
 		});
 	}
