@@ -77,7 +77,7 @@ public class QuestionsDialog
         questionDialogPanel.add(questionPanel, questionPanelConstraint);
        
         answerPanel = questionPanels();
-        displayAnswerPanel("Select");        
+        displayAnswerPanel("Fill in the Blank");        
         answerConstraint.fill = GridBagConstraints.HORIZONTAL;
         answerConstraint.gridx = 0;
         answerConstraint.gridy = 1;
@@ -95,10 +95,6 @@ public class QuestionsDialog
     private JPanel questionPanels()
     {      
         cardPanel = new JPanel(new CardLayout());
-        
-        JPanel containerPanel = new JPanel();
-        containerPanel.setPreferredSize(new Dimension(100, 245));
-        cardPanel.add(containerPanel, "Select");
         
         if (quiz != null)
         {
@@ -170,7 +166,7 @@ public class QuestionsDialog
         JPanel titlePanel = new JPanel();
         titlePanel.add(title);
         
-        String [] questionTypes = {"Select", "Fill in the Blank", "Matching", "Multiple Choice", "Written Response"};
+        String [] questionTypes = {"Fill in the Blank", "Matching", "Multiple Choice", "Written Response"};
         JComboBox questionTypesList = new JComboBox(questionTypes);
         
         JLabel pointsLabel = new JLabel("Points: ");

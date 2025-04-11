@@ -110,19 +110,20 @@ public class RemoveBankDialog
             // remove the bank from the list            
             project.removeBank(questionBankName);
             
-            int bankCount = project.getBankCount();            
+            int bankCount = project.getBankCount();  
             if (index == bankCount)
             {
                 bankList.setSelectedIndex(index - 1);
-            }             
-            else if (bankCount == 0)
-            {
-                removeButton.setEnabled(false);
-                bankTable.setVisible(false);
-            }
+            }         
             else
             {
                 bankList.setSelectedIndex(index);
+            }
+            
+            if (bankCount == 0)
+            {
+                removeButton.setEnabled(false);
+                bankTable.setVisible(false);
             }
             
             // close removeFrame

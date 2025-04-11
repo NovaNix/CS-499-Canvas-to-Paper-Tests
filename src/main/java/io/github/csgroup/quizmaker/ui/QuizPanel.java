@@ -9,6 +9,7 @@ import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankFromQuizDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuizDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
@@ -34,11 +35,13 @@ import javax.swing.JList;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import javax.swing.JFrame;
 import javax.swing.ListModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.text.Document;
 
 /**
  * Creates the panel that allows the user to create quizzes and their questions
@@ -47,7 +50,7 @@ import javax.swing.event.ListSelectionEvent;
  */
 public class QuizPanel extends JComponent
 {
-    private Project project;
+    private final Project project;
     private DefaultTableModel model;
     private QuestionTable bankTable;
     private QuestionTable quizTable;
@@ -58,25 +61,22 @@ public class QuizPanel extends JComponent
     private JPanel quizButtonPanel;
     private ListModel<Quiz> quizNames;
     private JTextField nameTextField;
-    private JFrame removeFrame;
     private JButton addButton;
     private JButton removeButton;
     private JButton generateButton;
     private JTextArea descriptionTextArea;
+    private JButton addQuizButton;
     private JButton removeQuizButton;
     private Quiz newQuiz;
     private JList quizList;
     private JPanel detailsPanel;
+    private JPanel nameFieldPanel;
+    private JScrollPane textScrollPane;
     
     public QuizPanel(Project currentProject)
     {
         project = currentProject;
         quizzesPanel();
-    }
-    
-    public QuizPanel()
-    {
-        
     }
             
     /**
@@ -139,8 +139,8 @@ public class QuizPanel extends JComponent
     {
         JLabel quizLabel = new JLabel("Quizzes");
             
-        quizNames = project.getQuizModel();
-        quizList = new JList(quizNames);  
+        quizNames();
+        quizList();
         JScrollPane quizScrollPane = new JScrollPane(quizList);
         quizScrollPane.setPreferredSize(new Dimension(190, 418));
             
@@ -169,31 +169,122 @@ public class QuizPanel extends JComponent
         buttonsConstraint.gridy = 2;
         listPanel.add(listButtons, buttonsConstraint);
         
-        // once a quiz has been added select it on quizList
+        return listPanel;
+    }
+    
+    /**
+     * Creates the ListModel of quiz names and its action listener 
+     */
+    private void quizNames()
+    {
+        quizNames = project.getQuizModel();
+        
+        // once a quiz has been added/imported select it on the JList
         quizNames.addListDataListener(new ListDataListener() {
             @Override
-            public void intervalAdded(ListDataEvent e) {
+            public void intervalAdded(ListDataEvent e) {                    
+                // set the selected JList index to the new quiz
                 int index = (project.getQuizCount()) - 1;
                 quizList.setSelectedIndex(index);
+                
+                // display the name of the quiz
                 Quiz quiz = project.getQuiz(index);
                 String quizName = quiz.getTitle();
                 nameTextField.setText(quizName);  
 
+                // display the quiz's description
                 Label description = quiz.getDescription();
                 String stringDescription = description.asText();
                 descriptionTextArea.setText(stringDescription);
             }
 
             @Override
-            public void intervalRemoved(ListDataEvent e) {}
+            public void intervalRemoved(ListDataEvent e) {
+                // hide panel components once all quizzes have been removed
+                int quizCount = project.getQuizCount();
+                if (quizCount == 0)
+                {
+                    removeQuizButton.setEnabled(false);
+                    quizTable.setVisible(false);
+                    showComponents(false);
+                }
+            }
+            @Override
+            public void contentsChanged(ListDataEvent e) {}                                             
+        });  
+    }
+    
+    /**
+     * Implements an event listener for the question bank names list model
+     */
+    private void bankNames()
+    {
+        ListModel<QuestionBank> banks = project.getBankModel();
+        
+        // once a bank has been added enable add/remove bank buttons
+        banks.addListDataListener(new ListDataListener() {
+            @Override
+            public void intervalAdded(ListDataEvent e) {                
+                addButton.setEnabled(true);
+                removeButton.setEnabled(true);
+            }
+
+            @Override
+            public void intervalRemoved(ListDataEvent e) {
+                int bankCount = project.getBankCount();
+                if (bankCount == 0)
+                {
+                    removeButton.setEnabled(false);
+                    addButton.setEnabled(false);
+                }
+            }
 
             @Override
             public void contentsChanged(ListDataEvent e) {}                                             
         });  
-                
-        return listPanel;
     }
     
+    /**
+     * Creates the JList for the quizListPanel and its event listener
+     */
+    private void quizList()
+    {
+        quizList = new JList(quizNames);
+        
+        // listens for when a quiz is selected and populates the information for 
+        // that quiz
+        quizList.addListSelectionListener((ListSelectionEvent e) -> { 
+            // show the quiz edit components and enable quiz removal
+            showComponents(true); 
+            removeQuizButton.setEnabled(true);
+            
+            // validate the selected index
+            int index = quizList.getSelectedIndex();           
+            if (project.getQuizCount() > 0 && (index <= (project.getQuizCount() - 1)) && (index != -1))
+            {
+                // display the quiz's name
+                Quiz quiz = project.getQuiz(index);
+                String quizName = quiz.getTitle();
+                nameTextField.setText(quizName);  
+
+                // display the quiz's instructions 
+                Label description = quiz.getDescription();
+                String stringDescription = description.asText();
+                descriptionTextArea.setText(stringDescription);  
+                
+                // clear both quiz and bank tables       
+                quizTable.clearTable();
+                bankTable.clearTable();            
+                // populate the bank table with all the question bank information 
+                // for the quiz
+                populateBankTable(quiz);
+                // populate the quiz table with the questions and answers of the
+                // quiz
+                populateQuizTable(quiz);  
+            }
+        });
+    }
+         
     /**
      * Creates the button panel that allows the user to add or remove a quiz
      * 
@@ -201,9 +292,8 @@ public class QuizPanel extends JComponent
      */
     private JPanel quizButtonPanel()
     {
-        JButton addQuizButton = new JButton("+");
-        removeQuizButton = new JButton("-");
-        removeQuizButton.setEnabled(false);
+        addQuizButton();
+        removeQuizButton();
                 
         // contains addQuizbutton and removeQuizButton
         listButtonPanel = new JPanel(new GridBagLayout());
@@ -225,63 +315,46 @@ public class QuizPanel extends JComponent
         removeButtonConstraint.ipadx = 55;
         removeButtonConstraint.ipady = 2;
         listButtonPanel.add(removeQuizButton, removeButtonConstraint); 
+                       
+        return listButtonPanel;
+    }
+    
+    /**
+     * Creates the button to add quizzes and its event listener
+     */
+    private void addQuizButton()
+    {
+        addQuizButton = new JButton("+");
         
         // listens for when addQuizButton has been selected and adds the quiz
         addQuizButton.addActionListener((ActionEvent e) -> {
             showComponents(true);
-            // reset components
-            nameTextField.setText("Unnamed Quiz");
+            
+            // add quiz with a default name
+            newQuiz = new Quiz("Unnamed Quiz");
             descriptionTextArea.setText("");
-            // create quiz           
-            String quizName = nameTextField.getText();
-            newQuiz = new Quiz(quizName);
             project.addQuiz(newQuiz);      
-            enableComponents(true);
-        });
-        
-        // listens for when a quiz is selected and populates the information for 
-        // that quiz
-        quizList.addListSelectionListener((ListSelectionEvent e) -> { 
-            // show the quiz edit components and enable quiz removal
-            showComponents(true); 
-            removeQuizButton.setEnabled(true);
-            
-            int index = quizList.getSelectedIndex();
-            
-            if (project.getQuizCount() > 0 && (index < (project.getQuizCount() - 1)) && (index != -1))
-            {
-                Quiz selectedQuiz = project.getQuiz(index);
-                Quiz quiz = project.getQuiz(index);
-                String quizName = quiz.getTitle();
-                nameTextField.setText(quizName);  
-
-                Label description = quiz.getDescription();
-                String stringDescription = description.asText();
-                descriptionTextArea.setText(stringDescription);                          
-            }
-            // clear both quiz and bank tables       
-            quizTable.clearTable();
-            bankTable.clearTable();            
-            // populate the bank table with all the question bank information 
-            // for the selected quiz
-            populateBankTable(project.getQuiz(index));
-            // populate the quiz table with the questions and answers of the selected
-            // quiz
-            populateQuizTable(project.getQuiz(index));  
-        });
+        });       
+    }
+    
+    /**
+     * Creates the button to remove quizzes and its event listener
+     */
+    private void removeQuizButton()
+    {
+        removeQuizButton = new JButton("-");
+        removeQuizButton.setEnabled(false);
         
         // listens for when removeQuizButton has been selected and removes the quiz
         removeQuizButton.addActionListener((ActionEvent e) -> {
             int index = quizList.getSelectedIndex();                        
             Quiz removedQuiz = project.getQuiz(index);  
             
-            RemoveQuizDialog removeQuizDialog = new RemoveQuizDialog(removedQuiz, project, quizList, detailsPanel);
+            RemoveQuizDialog removeQuizDialog = new RemoveQuizDialog(removedQuiz, project, quizList);
             removeQuizDialog.show();          
         });
-                
-        return listButtonPanel;
     }
-    
+        
     /**
      * Creates the panel that allows the user to enter in the the description/
      * instructions of the quiz
@@ -290,17 +363,9 @@ public class QuizPanel extends JComponent
      */
     private JPanel descriptionPanel()
     {
-        nameTextField = new JTextField("Unnamed Quiz");  
-        nameTextField.setPreferredSize(new Dimension(200, 25));
-        JPanel nameFieldPanel = new JPanel();
-        nameFieldPanel.add(nameTextField);
-        
+        nameFieldPanel();       
         JLabel descriptionLabel = new JLabel("Quiz Description:");
-        descriptionTextArea = new JTextArea();
-        descriptionTextArea.setLineWrap(true);
-        descriptionTextArea.setWrapStyleWord(true);
-        JScrollPane textScrollPane = new JScrollPane(descriptionTextArea);
-        textScrollPane.setPreferredSize(new Dimension(360, 150));
+        descriptionPane();
               
         // contains nameFieldPanel, descriptionLabel, and textScrollPane
         descriptPanel = new JPanel(new GridBagLayout());
@@ -334,6 +399,70 @@ public class QuizPanel extends JComponent
         return descriptPanel;                
     }
     
+    /**
+     * Creates the panel that allows the user to enter in the quiz name
+     */
+    private void nameFieldPanel()
+    {
+        nameTextField = new JTextField("Unnamed Quiz");  
+        nameTextField.setPreferredSize(new Dimension(200, 25));
+        nameFieldPanel = new JPanel();
+        nameFieldPanel.add(nameTextField);
+        
+        // update the JList value to the new name
+        Document textFieldDocument = nameTextField.getDocument();
+        textFieldDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                if (project.getQuizCount() > 0)
+                {
+                    int index = quizList.getSelectedIndex();
+                    Quiz quiz = project.getQuiz(index);
+                    quiz.setTitle(nameTextField.getText());                    
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {}           
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+    }
+    
+    /**
+     * Creates the scroll pane that allows the user to enter in the quiz's 
+     * description
+     */
+    private void descriptionPane()
+    {
+        descriptionTextArea = new JTextArea();
+        descriptionTextArea.setLineWrap(true);
+        descriptionTextArea.setWrapStyleWord(true);
+        textScrollPane = new JScrollPane(descriptionTextArea);
+        textScrollPane.setPreferredSize(new Dimension(360, 150));
+        
+        Document textAreaDocument = descriptionTextArea.getDocument();
+        textAreaDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                if (project.getQuizCount() > 0)
+                {
+                    int index = quizList.getSelectedIndex();
+                    Quiz quiz = project.getQuiz(index);
+                    quiz.setDescription(new Label(descriptionTextArea.getText()));                  
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e) {}           
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+    }
+    
+      
     /** 
      * Creates the table panel that displays the list of questions banks, their points, 
      * number of questions, and number of questions excluded from the quiz
@@ -383,8 +512,9 @@ public class QuizPanel extends JComponent
      */
     private JPanel tableButtonPanel()
     {
-        addButton = new JButton("+");
-        removeButton = new JButton("-");
+        addBankButton();
+        removeBankButton();
+        bankNames();
         
         // contains addButton and removeButton
         bankButtonPanel = new JPanel(new GridBagLayout());
@@ -404,22 +534,40 @@ public class QuizPanel extends JComponent
         bankButtonPanel.add(removeButton, removeButtonConstraint);
         
         bankButtonPanel.setVisible(false);
+                        
+        return bankButtonPanel;
+    }
+    
+    /**
+     * Creates the button that allows the user to add a question bank to a quiz
+     * and its event listener
+     */
+    private void addBankButton()
+    {
+        addButton = new JButton("+");
+        addButton.setEnabled(false);
         
         // listens for when addButton is selected
         addButton.addActionListener((ActionEvent e) -> {
             // show the dialog that allows the user to add a question bank to a quiz
-            if (project.getBankCount() > 0)
-            {
-                int index = quizList.getSelectedIndex();
-                Quiz quiz = project.getQuiz(index);            
-                BankToQuizDialog addBankDialog = new BankToQuizDialog(project, bankTable, quiz);
-                addBankDialog.show();
-            }
+            int index = quizList.getSelectedIndex();
+            Quiz quiz = project.getQuiz(index);            
+            BankToQuizDialog addBankDialog = new BankToQuizDialog(project, bankTable, quiz);
+            addBankDialog.show();
         });
+    }
+    
+    /**
+     * Creates the button that allows the user to remove a question bank to a quiz
+     */
+    private void removeBankButton()
+    {
+        removeButton = new JButton("-");
+        removeButton.setEnabled(false);
         
-        // listens for when addButton is selected
+        // listens for when removeButton is selected
         removeButton.addActionListener((ActionEvent e) -> {
-            // if the user selects a row with a bank prompt them to delete it 
+            // if the user selects a row with a bank, prompt them to delete it 
             int row = bankTable.getRowSelected();
             if (row >= 0)
             {
@@ -429,14 +577,13 @@ public class QuizPanel extends JComponent
                 Object value = model.getValueAt(row, 0);
                 if (value != null)
                 {
-                    removeBankFrame(row, quiz);
+                    RemoveBankFromQuizDialog remove = new RemoveBankFromQuizDialog(quiz, row, model);
+                    remove.show();
                 }
             }
-        });
-                
-        return bankButtonPanel;
+        });        
     }
-          
+             
     /**
      * Creates the panel that contains the description panel, panel labels, table, and
      * button panels
@@ -485,7 +632,7 @@ public class QuizPanel extends JComponent
         detailsPanel.setPreferredSize(new Dimension(486, 440));
         containerPanel.setPreferredSize(new Dimension(486, 440));
         containerPanel.add(detailsPanel);
-                       
+                               
         return containerPanel;
     }
     
@@ -498,7 +645,6 @@ public class QuizPanel extends JComponent
     private JPanel quizActionButtonPanel()
     {
         JButton exportButton = new JButton("Export");
-        exportButton.setEnabled(false);
         generateButton = new JButton("Generate");
         
         // contains exportButton and generateButton
@@ -529,22 +675,7 @@ public class QuizPanel extends JComponent
         });
                 
         // listens for when exportButton is clicked
-        generateButton.addActionListener((ActionEvent e) -> {
-            exportButton.setEnabled(true);     
-            String description = descriptionTextArea.getText();
-            Label instructions = new Label(description);          
-            if (newQuiz == null)
-            {
-                int index = quizList.getSelectedIndex();
-                newQuiz = project.getQuiz(index);
-            }            
-            // get the name and description of the quiz
-            String quizName = nameTextField.getText();
-            // set the name and description of the quiz
-            newQuiz.setTitle(quizName);
-            newQuiz.setDescription(instructions);
-            // disable details panel buttons
-            enableComponents(false);
+        generateButton.addActionListener((ActionEvent e) -> {     
         });
                 
         return quizButtonPanel;
@@ -586,94 +717,6 @@ public class QuizPanel extends JComponent
     } 
     
     /**
-     * Creates the button panel that will remove a question bank
-     * 
-     * @param row the selected row 
-     * @param quiz the selected quiz
-     * @return the button panel
-     */
-    private JPanel removeButtonPanel(int row, Quiz quiz)
-    {
-        JButton yesButton = new JButton("Yes");
-        JButton noButton = new JButton("No");
-        
-        // contains yesButton and noButton
-        JPanel buttonPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints yesButtonConstraint = new GridBagConstraints();
-        GridBagConstraints noButtonConstraint = new GridBagConstraints();
-        
-        // places yesButton on the left side of buttonPanel
-        yesButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
-        yesButtonConstraint.gridx = 0;
-        yesButtonConstraint.gridy = 0;
-        yesButtonConstraint.insets = new Insets(0, 0, 0, 1);
-        buttonPanel.add(yesButton, yesButtonConstraint);
-        
-        // places noButton on the right side of buttonPanel
-        noButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
-        noButtonConstraint.gridx = 1;
-        noButtonConstraint.gridy = 0;
-        noButtonConstraint.insets = new Insets(0, 1, 0, 0);
-        buttonPanel.add(noButton, noButtonConstraint);
-        
-        // listens for when exportButton is clicked
-        yesButton.addActionListener((ActionEvent e) -> { 
-            // remove row from table
-            model.removeRow(row);
-            model.addRow(new Object[]{null,null,null,null});
-            // remove bank from quiz
-            List<BankSelection> banks = quiz.getBankSelections();
-            quiz.removeBank(banks.get(row));
-            removeFrame.dispose();
-        });
-        
-        // listens for when exportButton is clicked
-        noButton.addActionListener((ActionEvent e) -> {
-            // close the frame
-            removeFrame.dispose();          
-        });
-        
-        return buttonPanel;
-    }
-    
-    /**
-     * Creates the frame that prompts the user to delete the selected bank
-     * 
-     * @param selectedRow row the user selected
-     * @param quiz the quiz that the bank is removed from 
-     */
-    private void removeBankFrame(int selectedRow, Quiz quiz)
-    {
-        removeFrame = new JFrame();
-        removeFrame.setSize(300, 200);
-        
-        JLabel removeLabel = new JLabel("Delete question bank?");
-        
-        // contains removeLabel and buttonPanel
-        JPanel removePanel = new JPanel(new GridBagLayout());
-        GridBagConstraints labelConstraint = new GridBagConstraints();
-        GridBagConstraints buttonConstraint = new GridBagConstraints();
-        
-        // places removeLabel at the top of removePanel
-        labelConstraint.fill = GridBagConstraints.HORIZONTAL;
-        labelConstraint.gridx = 0;
-        labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 0, 10, 0);
-        removePanel.add(removeLabel, labelConstraint);
-        
-        // places buttonPanel below removeLabel
-        JPanel buttonPanel = removeButtonPanel(selectedRow, quiz);
-        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
-        buttonConstraint.gridx = 0;
-        buttonConstraint.gridy = 1;
-        removePanel.add(buttonPanel, buttonConstraint);
-        
-        removeFrame.add(removePanel);       
-        removeFrame.setLocationRelativeTo(null);
-        removeFrame.setVisible(true);
-    }
-    
-    /**
      * Sets the visibility of the quiz information components
      * 
      * @param visible controls if the components are visible
@@ -686,18 +729,6 @@ public class QuizPanel extends JComponent
         bankButtonPanel.setVisible(visible);
         quizButtonPanel.setVisible(visible);
     }  
-    
-    /**
-     * Enables/disables buttons on the quiz details panel
-     * 
-     * @param enable controls if the buttons are enabled/disabled
-     */
-    private void enableComponents(boolean enable)
-    {
-        generateButton.setEnabled(enable);
-        addButton.setEnabled(enable);
-        removeButton.setEnabled(enable);        
-    }
     
     /**
      * Populates bankTable with all information about the question banks added
@@ -736,6 +767,11 @@ public class QuizPanel extends JComponent
         int questionCount = quiz.getQuestionCount();
         for (int i = 0; i < questionCount; i++)
         {
+            if (i > quizTable.getRows() - 1)
+            {
+                quizTable.addEmptyRow();
+            }
+            
             Question question = quiz.getQuestion(i);
             String answer = question.getAnswerString();
             

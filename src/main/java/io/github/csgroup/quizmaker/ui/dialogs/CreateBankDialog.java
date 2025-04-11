@@ -19,6 +19,9 @@ import javax.swing.ActionMap;
 import javax.swing.KeyStroke;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.text.Document;
 
 /**
  * Creates a frame that allows the user to enter a name for a new quiz bank
@@ -29,6 +32,7 @@ public class CreateBankDialog
 {
     private JFrame newBankFrame;
     private final Project project;
+    private JButton addButton;
     
     public CreateBankDialog(Project currentProject)
     {
@@ -79,6 +83,31 @@ public class CreateBankDialog
         buttonConstraint.gridx = 1;
         buttonConstraint.gridy = 1;
         newBankPanel.add(addBankButton, buttonConstraint);
+                
+        // listens for when addButton is clicked
+        Document textFieldDocument = bankTextField.getDocument();
+        textFieldDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                addButton.setEnabled(true);
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = bankTextField.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
         
         newBankFrame.add(newBankPanel);          
     }
@@ -90,7 +119,8 @@ public class CreateBankDialog
      */
     private JButton addButton(JTextField bankField)        
     {
-        JButton addButton = new JButton("Add");
+        addButton = new JButton("Add");
+        addButton.setEnabled(false);
         
         // listens for when addButton is clicked
         addButton.addActionListener((ActionEvent e) -> {

@@ -30,6 +30,7 @@ public class ImportQTIDialog
     private JFrame importFrame;
     private String filePath;
     private final Project importFileProject;
+    private JButton importButton;
     
     public ImportQTIDialog(Project importProject)
     {
@@ -146,13 +147,16 @@ public class ImportQTIDialog
             // get the name of the selected file
             try
             {
+                importButton.setEnabled(true);
                 String fileName = fileChooser.getSelectedFile().getName();
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
                 setPath(qtiFilePath);     
                 // display the file name in the text field
                 textField.setText(fileName);   
             }   
-            catch (NullPointerException n) {}
+            catch (NullPointerException n) {
+                importButton.setEnabled(false);
+            }
         }); 
                 
         return attachButton;
@@ -165,7 +169,8 @@ public class ImportQTIDialog
      */
     private JPanel importButtonPanel()
     {
-        JButton importButton = new JButton("Import");               
+        importButton = new JButton("Import");    
+        importButton.setEnabled(false);
         JPanel importButtonPanel = new JPanel();
         importButtonPanel.add(importButton);
                

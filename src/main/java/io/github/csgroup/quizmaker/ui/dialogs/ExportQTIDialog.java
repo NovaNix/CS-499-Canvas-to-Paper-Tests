@@ -23,6 +23,7 @@ public class ExportQTIDialog
 {
     private JFrame exportQTIFrame;
     private String filePath;
+    private JButton exportButton;
     
     public ExportQTIDialog()
     {
@@ -134,13 +135,16 @@ public class ExportQTIDialog
             // get the name of the selected file
             try
             {
+                exportButton.setEnabled(true);
                 String fileName = fileChooser.getSelectedFile().getName();
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
                 setPath(qtiFilePath);     
                 // display the file name in the text field
                 textField.setText(fileName);  
             }   
-            catch (NullPointerException n) {}
+            catch (NullPointerException n) {
+                exportButton.setEnabled(false);
+            }
         }); 
         
         return attachButton;
@@ -153,12 +157,13 @@ public class ExportQTIDialog
      */
     private JPanel exportButtonPanel()
     {
-        JButton importButton = new JButton("Export");               
+        exportButton = new JButton("Export");
+        exportButton.setEnabled(false);
         JPanel importButtonPanel = new JPanel();
-        importButtonPanel.add(importButton);
+        importButtonPanel.add(exportButton);
                
         // listens for when importButton is selected
-        importButton.addActionListener((ActionEvent e) -> {
+        exportButton.addActionListener((ActionEvent e) -> {
             // get the path of the file
             String exportFilePath = getPath();
             if (exportFilePath != null)

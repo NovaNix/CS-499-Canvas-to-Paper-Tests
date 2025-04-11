@@ -27,14 +27,12 @@ public class RemoveQuizDialog
     private final Project project;
     private final JList quizList;
     private final Quiz quiz;
-    private final JPanel test;
     
-    public RemoveQuizDialog(Quiz currentQuiz, Project currentProject, JList list, JPanel panel)
+    public RemoveQuizDialog(Quiz currentQuiz, Project currentProject, JList list)
     {
         quizList = list;
         project = currentProject;
         quiz = currentQuiz;
-        test = panel;
         createRemoveBankFrame();
     }
           
@@ -123,11 +121,6 @@ public class RemoveQuizDialog
             else
             {
                 quizList.setSelectedIndex(index);
-            }
-            // close removeFrame
-            if (quizCount == 0)
-            {
-                test.setVisible(false);
             }
             
             removeFrame.dispose();          

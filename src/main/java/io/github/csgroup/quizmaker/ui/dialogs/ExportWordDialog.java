@@ -314,6 +314,7 @@ public class ExportWordDialog
     private JPanel exportButtonPanel()
     {
         JButton exportButton = new JButton("Export");
+        exportButton.setEnabled(false);
         WordExporter exportFile = new WordExporter();
                 
         // contains exportButton
