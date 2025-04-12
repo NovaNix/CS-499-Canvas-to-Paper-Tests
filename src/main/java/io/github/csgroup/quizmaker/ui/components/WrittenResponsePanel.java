@@ -20,6 +20,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 /**
  * Creates the panel that allows user to create the written response type
@@ -38,6 +41,7 @@ public class WrittenResponsePanel extends JComponent
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
     private QuestionBank questionBank;
+    private JButton addQuestionButton;
     
     public WrittenResponsePanel(JFrame frame, JTextArea wrQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
     {
@@ -50,10 +54,10 @@ public class WrittenResponsePanel extends JComponent
         writtenResponsePanel();
     }
     
-    public WrittenResponsePanel(JFrame frame, JTextArea mcQuestion, JTextField points, QuestionBank bank, QuestionTable table, JTextField title)
+    public WrittenResponsePanel(JFrame frame, JTextArea wrQuestion, JTextField points, QuestionBank bank, QuestionTable table, JTextField title)
     {
         mainFrame = frame;
-        question = mcQuestion;
+        question = wrQuestion;
         pointsValue = points;
         questionBank = bank;
         questionTable = table;
@@ -143,11 +147,14 @@ public class WrittenResponsePanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        JButton addButton = new JButton("Add");
+        addQuestionButton = new JButton("Add");
+        addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(addButton);
+        buttonPanel.add(addQuestionButton);
         
-        addButton.addActionListener((ActionEvent e) -> { 
+        componentListeners();
+        
+        addQuestionButton.addActionListener((ActionEvent e) -> { 
             // the question the user entered
             String questionString = question.getText();
             // the answer the user entered
@@ -157,38 +164,120 @@ public class WrittenResponsePanel extends JComponent
             // get the title of the question
             String questionLabel = questionTitle.getText();
             
-            // check for empty strings
-            boolean emptyAnswer = answerString.isEmpty();
-            boolean emptyQuestion = questionString.isEmpty();
-            boolean emptyPoints = pointsString.isEmpty();
-            boolean emptyTitle = questionLabel.isEmpty();            
-            // add the question to the quiz if the user has entered the points value, 
-            // answer, question, and question title       
-            if ((emptyAnswer == false) && (emptyQuestion == false) && (emptyPoints == false) && (emptyTitle == false))
+            try
             {
-                try
-                {
-                    float floatPoints = Float.parseFloat(pointsString);
-                    WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
-                    wrQuestion.setLabel(new Label(questionString));
-                    wrQuestion.setAnswer(answerString);
+                float floatPoints = Float.parseFloat(pointsString);
+                WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
+                wrQuestion.setLabel(new Label(questionString));
+                wrQuestion.setAnswer(answerString);
                 
-                    if (newQuiz != null)
-                    {
-                        newQuiz.addQuestion(wrQuestion);
-                    }
-                    if (questionBank != null)
-                    {
-                        questionBank.add(wrQuestion);
-                    }
-                    populateTable();
-                    mainFrame.dispose();
+                if (newQuiz != null)
+                {
+                    newQuiz.addQuestion(wrQuestion);
                 }
-                catch (NumberFormatException n) {}
+                if (questionBank != null)
+                {
+                    questionBank.add(wrQuestion);
+                }
+                
+                populateTable();
+                mainFrame.dispose();
             }
+             catch (NumberFormatException n) {}
         });
         
         return buttonPanel;
+    }
+    
+    private void componentListeners()
+    {       
+        Document titleDocument = questionTitle.getDocument();
+        titleDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                boolean points = (pointsValue.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((points == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = questionTitle.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }                 
+        });
+        
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((title == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+        
+        Document questionDocument = question.getDocument();
+        questionDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean points = (pointsValue.getText()).isEmpty();
+                if ((title == false) && (points == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = question.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
     }
     
     /**

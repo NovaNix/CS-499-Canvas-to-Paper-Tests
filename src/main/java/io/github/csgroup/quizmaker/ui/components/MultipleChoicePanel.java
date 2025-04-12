@@ -23,6 +23,9 @@ import javax.swing.JFrame;
 import javax.swing.JCheckBox;
 import java.awt.CardLayout;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 /**
  * Creates the panel that allows user to create the multiple choice question type
@@ -50,6 +53,7 @@ public class MultipleChoicePanel extends JComponent
     private Quiz newQuiz;
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
+    private JButton addQuestionButton;
     private final int numAnswers = 10;
     private QuestionBank questionBank;
     
@@ -327,41 +331,128 @@ public class MultipleChoicePanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        JButton addButton = new JButton("Add");
+        addQuestionButton = new JButton("Add");
+        addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(addButton);
+        buttonPanel.add(addQuestionButton);
+
+        componentListeners();
         
-        addButton.addActionListener((ActionEvent e) -> {   
+        addQuestionButton.addActionListener((ActionEvent e) -> {   
             // the question the user entered
             String questionString = question.getText();
             // the point value of the question
             String pointsString = pointsValue.getText();
             // the title of the question
             String questionLabel = questionTitle.getText();
-            
-            // check for empty strings
-            boolean emptyQuestion = questionString.isEmpty();             
-            boolean emptyPoints = pointsString.isEmpty();
-            // add the question to the quiz if the user has entered the points value
-            // and question
-            if ((emptyQuestion == false) && (emptyPoints == false))
+
+            try 
             {
-                try 
-                {
-                    float floatPoints = Float.parseFloat(pointsString);                
-                    MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
-                    mcQuestion.setLabel(new Label(questionString));
-                    addMCQuestion(mcQuestion);
+                float floatPoints = Float.parseFloat(pointsString);                
+                MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
+                mcQuestion.setLabel(new Label(questionString));
+                addMCQuestion(mcQuestion);
                 
-                    mainFrame.dispose();  
-                }  
-                catch (NumberFormatException n) {}
-            }
+                mainFrame.dispose();  
+            }  
+            catch (NumberFormatException n) {}
+
         });
         
         return buttonPanel;
     }
     
+    private void componentListeners()
+    {       
+        Document titleDocument = questionTitle.getDocument();
+        titleDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                boolean points = (pointsValue.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((points == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = questionTitle.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }                 
+        });
+        
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((title == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+        
+        Document questionDocument = question.getDocument();
+        questionDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean points = (pointsValue.getText()).isEmpty();
+                if ((title == false) && (points == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = question.getText();
+                boolean empty = text.isEmpty();
+                
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }
+            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+    }
+        
     /**
      * Adds a text field and radio button to the panel
      */
