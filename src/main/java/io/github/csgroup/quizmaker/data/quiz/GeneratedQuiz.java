@@ -18,11 +18,13 @@ public class GeneratedQuiz
 {
 	// This class is designed to be immutable on the outside
 
-	private Quiz quiz;
+	private final Quiz quiz;
 	
-	private List<Question> questions = new ArrayList<Question>();
+	private final List<Question> questions = new ArrayList<Question>();
 	
 	private float pointTotal = 0f;
+	
+	private final QuizMetadata metadata;
 	
 	/**
 	 * Generates a new quiz with a random seed
@@ -69,6 +71,10 @@ public class GeneratedQuiz
 		
 		// Shuffle the added questions
 		Collections.shuffle(questions, random);
+		
+		// Generate the metadata
+		this.metadata = quiz.getMetadata().clone();
+		metadata.setDynamicValues(this);
 	}
 	
 	/**
@@ -102,8 +108,22 @@ public class GeneratedQuiz
 		pointTotal += q.getPoints();
 	}
 	
+	public List<Question> getQuestions()
+	{
+		return new ArrayList<Question>(questions);
+	}
+	
 	public float getTotalPoints()
 	{
 		return pointTotal;
+	}
+	
+	/**
+	 * @return the metadata associated with the quiz<br>
+	 * note: be careful using the metadata object, as it is mutable
+	 */
+	public QuizMetadata getQuizMetadata()
+	{
+		return metadata;
 	}
 }

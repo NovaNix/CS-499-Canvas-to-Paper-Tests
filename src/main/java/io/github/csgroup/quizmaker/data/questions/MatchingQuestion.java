@@ -21,7 +21,7 @@ import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 public class MatchingQuestion extends Question
 {
 	
-	private List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
+	private final List<MatchingAnswer> answers = new ArrayList<MatchingAnswer>();
 	
 	public MatchingQuestion(String title)
 	{
@@ -106,6 +106,7 @@ public class MatchingQuestion extends Question
 		var c = new MatchingQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
+		c.setAbet(isAbet());
 		
 		for (var answer : answers)
 		{
