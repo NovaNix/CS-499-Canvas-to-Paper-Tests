@@ -23,6 +23,9 @@ import javax.swing.JComponent;
 import java.awt.CardLayout;
 import javax.swing.JTextArea;
 import java.util.ArrayList;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
     
 /**
  * Creates the panel that allows user to create the fill in the blank question type
@@ -49,6 +52,7 @@ public class FillInTheBlankPanel extends JComponent
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
     private QuestionBank questionBank;
+    private JButton addQuestionButton;
     private final int numAnswers = 10;
     
     public FillInTheBlankPanel(JFrame frame, JTextArea fitbQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -62,10 +66,10 @@ public class FillInTheBlankPanel extends JComponent
         fillInTheBlankPanel();       
     }
     
-    public FillInTheBlankPanel(JFrame frame, JTextArea mcQuestion, JTextField points, QuestionBank bank, QuestionTable table, JTextField title)
+    public FillInTheBlankPanel(JFrame frame, JTextArea fitbQuestion, JTextField points, QuestionBank bank, QuestionTable table, JTextField title)
     {
         mainFrame = frame;
-        question = mcQuestion;
+        question = fitbQuestion;
         pointsValue = points;
         questionBank = bank;
         questionTable = table;
@@ -262,16 +266,19 @@ public class FillInTheBlankPanel extends JComponent
         JButton addButton = new JButton("+");
         JButton removeButton = new JButton("-");
         
+        // contains addButton and removeButton
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints addConstraint = new GridBagConstraints();
         GridBagConstraints removeConstraint = new GridBagConstraints();
         
+        // places addButton on the left side of buttonPanel
         addConstraint.fill = GridBagConstraints.HORIZONTAL;
         addConstraint.gridx = 0;
         addConstraint.gridy = 0;
         addConstraint.insets = new Insets(0, 0, 0, 2);
         buttonPanel.add(addButton, addConstraint);
         
+        // places removeButton on the right side of buttonPanel
         removeConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeConstraint.gridx = 1;
         removeConstraint.gridy = 0;
@@ -301,40 +308,127 @@ public class FillInTheBlankPanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        JButton addButton = new JButton("Add");
+        addQuestionButton = new JButton("Add");
+        addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
-        buttonPanel.add(addButton);
+        buttonPanel.add(addQuestionButton);
         
-        addButton.addActionListener((ActionEvent e) -> { 
+        componentListeners();
+        
+        addQuestionButton.addActionListener((ActionEvent e) -> { 
             // the question the user entered
             String questionString = question.getText();
             // the point value of the question
             String pointsString = pointsValue.getText();
             // the title of the question
             String questionLabel = questionTitle.getText();
-            
-            // check for empty strings
-            boolean emptyQuestion = questionString.isEmpty();             
-            boolean emptyPoints = pointsString.isEmpty();
-            boolean emptyTitle = questionLabel.isEmpty();                       
-            // add the question to the quiz if the user has entered the points value,
-            // question, and question title
-            if ((emptyQuestion == false) && (emptyPoints == false) && (emptyTitle == false))
-            {
-                try
-                {
-                    float floatPoints = Float.parseFloat(pointsString);               
-                    FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
-                    fitbQuestion.setLabel(new Label(questionString));
-                    addFITBQuestion(fitbQuestion, questionString);
 
-                    mainFrame.dispose();
-                }
-                catch(NumberFormatException n) {}            
+            try
+            {
+                float floatPoints = Float.parseFloat(pointsString);               
+                FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
+                fitbQuestion.setLabel(new Label(questionString));
+                addFITBQuestion(fitbQuestion, questionString);
+
+                mainFrame.dispose();
             }
+            catch(NumberFormatException n) {}            
+
         });
         
         return buttonPanel;
+    }
+    
+    /**
+     * Ensures that the question title, points value, and question description 
+     * have been entered before addQuestionButton is enabled
+     */
+    private void componentListeners()
+    {       
+        // event listener for the question title text field
+        Document titleDocument = questionTitle.getDocument();
+        titleDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                boolean points = (pointsValue.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((points == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = questionTitle.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the title field is empty
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+        
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean fitbQuestion = (question.getText()).isEmpty();
+                if ((title == false) && (fitbQuestion == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the points text field is empty 
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }           
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+        
+        Document questionDocument = question.getDocument();
+        questionDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                boolean title = (questionTitle.getText()).isEmpty();
+                boolean points = (pointsValue.getText()).isEmpty();
+                if ((title == false) && (points == false))
+                {
+                    addQuestionButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = question.getText();
+                boolean empty = text.isEmpty();
+                // disabel the button if the description text area is empty
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
     }
     
     /**

@@ -196,10 +196,10 @@ public class ImportQTIDialog
      */
     private void importFile(String qtiStringPath)
     {
-        Path qtiFilePath = Paths.get(qtiStringPath);
-        QTIReader importQTIFile = new QTIReader();
-        QTIContents test = importQTIFile.readFile(qtiFilePath);
-        importFileProject.addQTI(test);
+        //Path qtiFilePath = Paths.get(qtiStringPath);
+        //QTIReader importQTIFile = new QTIReader();
+        //QTIContents test = importQTIFile.readFile(qtiFilePath);
+        //importFileProject.addQTI(test);
     }
             
     /**

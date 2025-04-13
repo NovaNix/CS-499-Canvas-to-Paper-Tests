@@ -23,7 +23,6 @@ import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
-import java.util.ArrayList;
 
 /**
  * Creates a frame that allows the user to select what bank questions to add/remove 
@@ -39,7 +38,6 @@ public class BankToQuizDialog
     private final QuestionTable table;
     private DefaultTableModel bankModel;
     private JTable questionTable;
-    private final ArrayList<Question> excludedQuestions;
     private final Quiz quiz;
     private BankSelection selectedBank;
     
@@ -47,7 +45,6 @@ public class BankToQuizDialog
     
     public BankToQuizDialog(Project currentProject, QuestionTable bankTable, Quiz currentQuiz)
     {
-        this.excludedQuestions = new ArrayList<>();
         project = currentProject;
         table = bankTable;
         quiz = currentQuiz;
@@ -57,12 +54,11 @@ public class BankToQuizDialog
     /**
      * Creates frame that contains the list of bank names, the amount of points, 
      * and a table of selected questions
-     * 
      */
     private void createBankToQuizDialog()
     {
         bankFrame = new JFrame("Add Bank to Quiz");
-        bankFrame.setSize(370, 370);
+        bankFrame.setSize(430, 390);
         
         // contains bankInfoPanel and questionPanel
         JPanel addBankPanel = new JPanel(new GridBagLayout());
@@ -110,7 +106,7 @@ public class BankToQuizDialog
         
         float initPoints = getPoints(0);
         
-        JLabel pointsLabel = new JLabel ("Points:");
+        JLabel pointsLabel = new JLabel ("Points per question:");
         JTextField pointsTextField = new JTextField();
         pointsTextField.setFocusable(false);
         pointsTextField.setText(Float.toString(initPoints));
@@ -166,12 +162,18 @@ public class BankToQuizDialog
         return bankInfoPanel;
     }
     
+    /**
+     * Populates the table with the selected bank's questions
+     * 
+     * @param index the index of the bank that is selected
+     */
     private void populateTable(int index)
     {
         QuestionBank bank = project.getBank(index);
         int size = bank.getQuestionCount();
         int rowCount = questionTable.getRowCount();
         
+        // remove unused rows from the table
         if (rowCount > size)
         {
             for (int i = 0; i < size; i++)
@@ -179,6 +181,7 @@ public class BankToQuizDialog
                 bankModel.removeRow(0);
             }
         }
+        // add rows to the table
         else if (rowCount < size)
         {
             int addedRows = size - rowCount;
@@ -188,6 +191,7 @@ public class BankToQuizDialog
             }
         }                   
         
+        // populate the table with the bank's questions
         for (int i = 0; i < size; i++)
         {
             Question question = bank.get(i);
@@ -211,6 +215,9 @@ public class BankToQuizDialog
         return total;
     }
     
+    /**
+     * Clears the table
+     */
     private void clearTable()
     {
         int rows = questionTable.getRowCount();
@@ -235,6 +242,8 @@ public class BankToQuizDialog
         QuestionBank bank = project.getBank(0);
         int size = bank.getQuestionCount();
         
+        // overrides the DefaultTableModel so that the first column only contains
+        // checkboxes
         bankModel = new DefaultTableModel(columnHeaders, size) 
         {
             @Override
@@ -244,6 +253,7 @@ public class BankToQuizDialog
                 {
                     case 0 -> 
                     {
+                        // make this column only checkboxes
                         return Boolean.class;
                     }
                     case 1 ->
@@ -265,43 +275,51 @@ public class BankToQuizDialog
         TableColumnModel columnModel = questionTable.getColumnModel();
         // the preferred width of each column in the JTable
         columnModel.getColumn(0).setPreferredWidth(30);
-        columnModel.getColumn(1).setPreferredWidth(280);
+        columnModel.getColumn(1).setPreferredWidth(360);
                 
         // JScrollPane for the JTable table
         tableScrollPane = new JScrollPane(questionTable);
-        tableScrollPane.setPreferredSize(new Dimension(320, 200));
+        tableScrollPane.setPreferredSize(new Dimension(390, 230));
         
         populateTable(0);
         
         return tableScrollPane;      
     }
     
+    /**
+     * Adds the bank to the quiz and gets the bank's excluded questions and add 
+     * them to the excluded questions array list
+     * 
+     * @return the number of excluded questions in the bank
+     */
     private int excludedQuestionInfo()
     {
         int rows = questionTable.getRowCount();
         
+        // add the bank to the quiz
         QuestionBank bank = project.getBank(bankList.getSelectedIndex());        
         selectedBank = new BankSelection(bank, bank.getQuestionCount(), 2.0f);
         quiz.addBank(selectedBank);
         
         for (int i = 0; i < rows; i++)
         {
+            // if the checkbox was selected add it to the array list 
             Boolean value = (Boolean) questionTable.getValueAt(i, 0);
             if (value == true)
             {
-                excludedQuestions.add(bank.get(i));
+                selectedBank.addBlockedQuestion(bank.get(i));
             }
         }
         
-        int finalSize = bank.getQuestionCount() - excludedQuestions.size();
+        int excludedQuestions = (selectedBank.getBlockedQuestions()).size();
                
-        return finalSize;
+        return excludedQuestions;
     }
         
     /**
-     * Places the question table along with a label on panel
+     * Places questionTable on a panel with the "Excluded" JLabel
      * 
-     * @return 
+     * @return the panel
      */
     private JPanel excludedPanel()
     {
@@ -316,7 +334,6 @@ public class BankToQuizDialog
         excludedConstraint.fill = GridBagConstraints.HORIZONTAL;
         excludedConstraint.gridx = 0;
         excludedConstraint.gridy = 0;
-        excludedConstraint.insets = new Insets(0, 5, 0, 0);
         excludedPanel.add(excludedLabel, excludedConstraint);
         
         // places table below excludedLabel
@@ -329,37 +346,47 @@ public class BankToQuizDialog
         return excludedPanel;            
     }
     
+    /**
+     * Creates the button that allows the user to add a question bank to a quiz and 
+     * then adds that bank to the table
+     * 
+     * @return the button panel
+     */
     private JPanel buttonPanel()
     {
         JButton addButton = new JButton("Add");        
         JPanel buttonPanel = new JPanel();                        
         buttonPanel.add(addButton);
         
-        // listens for when removeBankButton is clicked
-        addButton.addActionListener((ActionEvent e) -> {                  
+        // listens for when addButton is clicked
+        addButton.addActionListener((ActionEvent e) -> {  
+            // get the number of excluded questions
             int questions = excludedQuestionInfo();
             List<BankSelection> quizQuestionBanks = quiz.getBankSelections();
+            // get the number of bank questions
             int numBanks = quizQuestionBanks.size();
             
             for (int i = 0; i < numBanks; i++)
             {
                 QuestionBank bank = quizQuestionBanks.get(i).getBank();
+                int size = bank.getQuestionCount();
                 if (i <= (table.getRows() - 1))
                 {                   
                     table.setValue(bank, i, 0);
                     table.setValue("holder", i, 1);
-                    table.setValue(questions, i, 2);
-                    table.setValue("holder", i, 3);
+                    table.setValue(size, i, 2);
+                    table.setValue(questions, i, 3);
                     bankFrame.dispose();
                 }
+                // add more rows if needed 
                 if (i > (table.getRows() - 1))
                 {
                     table.addEmptyRow();
                     int newRow = table.getRows() - 1;
                     table.setValue(bankList.getSelectedItem(), newRow, 0);
                     table.setValue("holder", newRow, 1);
-                    table.setValue(questions, newRow, 2);
-                    table.setValue("holder", newRow, 3);
+                    table.setValue(size, newRow, 2);
+                    table.setValue(questions, newRow, 3);
                     bankFrame.dispose();
                 }
             }
@@ -370,7 +397,6 @@ public class BankToQuizDialog
            
     /**
      * Controls when and where the frame appears
-     * 
      */
     public void show()
     {

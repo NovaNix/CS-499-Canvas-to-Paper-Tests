@@ -44,7 +44,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.Document;
 
 /**
- * Creates the panel that allows the user to create quizzes and their questions
+ * Creates the panel that allows the user to add/delete quizzes, their questions, 
+ * and question banks
  * 
  * @author Emily Palmer
  */
@@ -61,8 +62,8 @@ public class QuizPanel extends JComponent
     private JPanel quizButtonPanel;
     private ListModel<Quiz> quizNames;
     private JTextField nameTextField;
-    private JButton addButton;
-    private JButton removeButton;
+    private JButton addBankButton;
+    private JButton removeBankButton;
     private JButton generateButton;
     private JTextArea descriptionTextArea;
     private JButton addQuizButton;
@@ -173,7 +174,7 @@ public class QuizPanel extends JComponent
     }
     
     /**
-     * Creates the ListModel of quiz names and its action listener 
+     * Implements the ListModel of quiz names and its action listener 
      */
     private void quizNames()
     {
@@ -200,7 +201,8 @@ public class QuizPanel extends JComponent
 
             @Override
             public void intervalRemoved(ListDataEvent e) {
-                // hide panel components once all quizzes have been removed
+                // hide panel components and disable the remove button once all 
+                // quizzes have been removed
                 int quizCount = project.getQuizCount();
                 if (quizCount == 0)
                 {
@@ -215,7 +217,7 @@ public class QuizPanel extends JComponent
     }
     
     /**
-     * Implements an event listener for the question bank names list model
+     * Implements an event listener for the question bank names ListModel
      */
     private void bankNames()
     {
@@ -225,20 +227,19 @@ public class QuizPanel extends JComponent
         banks.addListDataListener(new ListDataListener() {
             @Override
             public void intervalAdded(ListDataEvent e) {                
-                addButton.setEnabled(true);
-                removeButton.setEnabled(true);
+                addBankButton.setEnabled(true);
             }
 
             @Override
             public void intervalRemoved(ListDataEvent e) {
+                // if there are no question banks disable the add/remove buttons
                 int bankCount = project.getBankCount();
                 if (bankCount == 0)
                 {
-                    removeButton.setEnabled(false);
-                    addButton.setEnabled(false);
+                    removeBankButton.setEnabled(false);
+                    addBankButton.setEnabled(false);
                 }
             }
-
             @Override
             public void contentsChanged(ListDataEvent e) {}                                             
         });  
@@ -345,11 +346,13 @@ public class QuizPanel extends JComponent
         removeQuizButton = new JButton("-");
         removeQuizButton.setEnabled(false);
         
-        // listens for when removeQuizButton has been selected and removes the quiz
+        // listens for when removeQuizButton has been selected
         removeQuizButton.addActionListener((ActionEvent e) -> {
+            // get the quiz to be removed 
             int index = quizList.getSelectedIndex();                        
-            Quiz removedQuiz = project.getQuiz(index);  
+            Quiz removedQuiz = project.getQuiz(index);
             
+            // show the dialog that prompts the user to delete the quiz  
             RemoveQuizDialog removeQuizDialog = new RemoveQuizDialog(removedQuiz, project, quizList);
             removeQuizDialog.show();          
         });
@@ -409,7 +412,7 @@ public class QuizPanel extends JComponent
         nameFieldPanel = new JPanel();
         nameFieldPanel.add(nameTextField);
         
-        // update the JList value to the new name
+        // if the name is changed, update the JList value to the new name
         Document textFieldDocument = nameTextField.getDocument();
         textFieldDocument.addDocumentListener(new DocumentListener() {
             @Override
@@ -421,8 +424,7 @@ public class QuizPanel extends JComponent
                     Quiz quiz = project.getQuiz(index);
                     quiz.setTitle(nameTextField.getText());                    
                 }
-            }
-            
+            }            
             @Override
             public void removeUpdate(DocumentEvent e) {}           
             @Override
@@ -442,6 +444,7 @@ public class QuizPanel extends JComponent
         textScrollPane = new JScrollPane(descriptionTextArea);
         textScrollPane.setPreferredSize(new Dimension(360, 150));
         
+        // update the quiz description as the user is typing it in the text area
         Document textAreaDocument = descriptionTextArea.getDocument();
         textAreaDocument.addDocumentListener(new DocumentListener() {
             @Override
@@ -453,8 +456,7 @@ public class QuizPanel extends JComponent
                     Quiz quiz = project.getQuiz(index);
                     quiz.setDescription(new Label(descriptionTextArea.getText()));                  
                 }
-            }
-            
+            }            
             @Override
             public void removeUpdate(DocumentEvent e) {}           
             @Override
@@ -500,6 +502,24 @@ public class QuizPanel extends JComponent
         tablePanel.add(bankTable, tableConstraint);
                         
         tablePanel.setVisible(false);
+        
+        JTable table = bankTable.getTable();  
+        // listens for when bankTable is seleted
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            { 
+                // if there is a question bank in the row that the user has seleted
+                // enable the remove button 
+                int row = bankTable.getRowSelected();
+                model = bankTable.getModel();
+                Object value = model.getValueAt(row, 0);
+                if (value != null)
+                {
+                    removeBankButton.setEnabled(true);
+                }                
+            }        
+        });
                                                
         return tablePanel;                     
     }
@@ -525,13 +545,13 @@ public class QuizPanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 0;
-        bankButtonPanel.add(addButton, addButtonConstraint);
+        bankButtonPanel.add(addBankButton, addButtonConstraint);
         
         // places removeButton on the right side of tableButtonPanel
         removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeButtonConstraint.gridx = 1;
         removeButtonConstraint.gridy = 0;
-        bankButtonPanel.add(removeButton, removeButtonConstraint);
+        bankButtonPanel.add(removeBankButton, removeButtonConstraint);
         
         bankButtonPanel.setVisible(false);
                         
@@ -544,11 +564,11 @@ public class QuizPanel extends JComponent
      */
     private void addBankButton()
     {
-        addButton = new JButton("+");
-        addButton.setEnabled(false);
+        addBankButton = new JButton("+");
+        addBankButton.setEnabled(false);
         
-        // listens for when addButton is selected
-        addButton.addActionListener((ActionEvent e) -> {
+        // listens for when addBankButton is selected
+        addBankButton.addActionListener((ActionEvent e) -> {
             // show the dialog that allows the user to add a question bank to a quiz
             int index = quizList.getSelectedIndex();
             Quiz quiz = project.getQuiz(index);            
@@ -562,24 +582,21 @@ public class QuizPanel extends JComponent
      */
     private void removeBankButton()
     {
-        removeButton = new JButton("-");
-        removeButton.setEnabled(false);
+        removeBankButton = new JButton("-");
+        removeBankButton.setEnabled(false);
         
-        // listens for when removeButton is selected
-        removeButton.addActionListener((ActionEvent e) -> {
-            // if the user selects a row with a bank, prompt them to delete it 
+        // listens for when removeBankButton is selected
+        removeBankButton.addActionListener((ActionEvent e) -> {
+            // if the user selects a row with a bank, show the dialog that 
+            // prompts them to delete it 
             int row = bankTable.getRowSelected();
             if (row >= 0)
             {
                 int index = quizList.getSelectedIndex();
                 Quiz quiz = project.getQuiz(index);    
                 model = bankTable.getModel();
-                Object value = model.getValueAt(row, 0);
-                if (value != null)
-                {
-                    RemoveBankFromQuizDialog remove = new RemoveBankFromQuizDialog(quiz, row, model);
-                    remove.show();
-                }
+                RemoveBankFromQuizDialog remove = new RemoveBankFromQuizDialog(quiz, row, model);
+                remove.show();
             }
         });        
     }
@@ -588,7 +605,7 @@ public class QuizPanel extends JComponent
      * Creates the panel that contains the description panel, panel labels, table, and
      * button panels
      * 
-     * @return the panel
+     * @return the details panel
      */
     private JPanel detailsPanel()
     {
@@ -623,7 +640,7 @@ public class QuizPanel extends JComponent
         detailsPanel.add(addDelQuizButtons, bankButtonConstraint);
         
         // places expportGenButtons below addDelQuizButtons
-        JPanel exportGenButtons = quizActionButtonPanel();
+        JPanel exportGenButtons = exportGenerateButtonPanel();
         exportGenConstraint.fill = GridBagConstraints.HORIZONTAL;
         exportGenConstraint.gridx = 0;
         exportGenConstraint.gridy = 3;
@@ -642,7 +659,7 @@ public class QuizPanel extends JComponent
      * 
      * @return the button panel
      */
-    private JPanel quizActionButtonPanel()
+    private JPanel exportGenerateButtonPanel()
     {
         JButton exportButton = new JButton("Export");
         generateButton = new JButton("Generate");
@@ -674,7 +691,7 @@ public class QuizPanel extends JComponent
             exportDialog.show();
         });
                 
-        // listens for when exportButton is clicked
+        // listens for when generateButton is clicked
         generateButton.addActionListener((ActionEvent e) -> {     
         });
                 
@@ -700,13 +717,15 @@ public class QuizPanel extends JComponent
         quizTablePanel.add(quizTable);
         quizTablePanel.setPreferredSize(new Dimension(486, 440));
         
-        JTable table = quizTable.getTable();     
+        JTable table = quizTable.getTable();  
+        // listens for when the user double clicks a row in quizTable
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e)
             { 
                 if (e.getClickCount() == 2)
                 {
+                    // show the question editing frame
                     QuestionsDialog questionDialog = new QuestionsDialog(newQuiz, quizTable);
                     questionDialog.show();
                 }        
@@ -741,6 +760,7 @@ public class QuizPanel extends JComponent
         int size = quiz.getBankSelections().size();
         for (int i = 0; i < size; i++)
         {
+            // add another row if the bank count exceeds the row count
             if (i > bankTable.getRows() - 1)
             {
                 bankTable.addEmptyRow();
@@ -753,7 +773,13 @@ public class QuizPanel extends JComponent
             bankTable.setValue(bank, i, 0);
             bankTable.setValue("holder", i, 1);
             bankTable.setValue(totalQuestions, i, 2); 
-            bankTable.setValue("holder", i, 3);            
+            bankTable.setValue(selectedBanks.size(), i, 3);            
+        }
+        
+        // if there are no banks disable removeBankButton
+        if (size == 0)
+        {
+            removeBankButton.setEnabled(false);
         }
     }
     
@@ -767,6 +793,7 @@ public class QuizPanel extends JComponent
         int questionCount = quiz.getQuestionCount();
         for (int i = 0; i < questionCount; i++)
         {
+            // add another row if the question count exceeds the row count
             if (i > quizTable.getRows() - 1)
             {
                 quizTable.addEmptyRow();

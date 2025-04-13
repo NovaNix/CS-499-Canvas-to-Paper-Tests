@@ -57,25 +57,31 @@ public class QuestionsDialog
         table = questionTable;
         bank = questionBank;
         questionDialog();
-    }
+    }  
     
-    
+    /**
+     * Creates the panel that allows the user to enter in questions, question types, 
+     * question title, and question point value
+     */
     private void questionDialog()
     {
         questionFrame = new JFrame("Questions");
         questionFrame.setSize(460, 465);
         
+        // contains questionPanel and answerPanel
         JPanel questionDialogPanel = new JPanel(new GridBagLayout());
         questionPane = new JScrollPane(questionDialogPanel);
         GridBagConstraints questionPanelConstraint = new GridBagConstraints();
         GridBagConstraints answerConstraint = new GridBagConstraints();
           
+        // places questionPanel at the top of questionDialogPanel
         JPanel questionPanel = questionPanel();
         questionPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
         questionPanelConstraint.gridx = 0;
         questionPanelConstraint.gridy = 0;
         questionDialogPanel.add(questionPanel, questionPanelConstraint);
        
+        // places answerPanel below questionPanel
         answerPanel = questionPanels();
         displayAnswerPanel("Fill in the Blank");        
         answerConstraint.fill = GridBagConstraints.HORIZONTAL;
@@ -87,7 +93,7 @@ public class QuestionsDialog
     }
     
     /**
-     * Adds and blank panel and the four question types (multiple choice, fill in
+     * Adds the four question type panels (multiple choice, fill in
      * the blank, matching, and written response) to a CardLayout panel
      * 
      * @return CardLayout panel
@@ -96,6 +102,7 @@ public class QuestionsDialog
     {      
         cardPanel = new JPanel(new CardLayout());
         
+        // if the user is adding quiz questions call the question type quiz constructors
         if (quiz != null)
         {
             fitbPanel = new FillInTheBlankPanel(questionFrame, question, points, quiz, table, title);
@@ -103,6 +110,7 @@ public class QuestionsDialog
             mcPanel = new MultipleChoicePanel(questionFrame, question, points, quiz, table, title);
             wrPanel = new WrittenResponsePanel(questionFrame, question, points, quiz, table, title);
         }
+        // if the user is adding bank questions call the question type bank constructors
         if (bank != null)
         {
             fitbPanel = new FillInTheBlankPanel(questionFrame, question, points, bank, table, title);
@@ -130,7 +138,12 @@ public class QuestionsDialog
         return cardPanel;
     }
     
-            
+    /**
+     * Creates the panel that contains the text area for the users question and 
+     * places it in a layout manager with the informationPanel
+     * 
+     * @return the question panel
+     */        
     private JPanel questionPanel()
     {                  
         question = new JTextArea();
@@ -141,16 +154,19 @@ public class QuestionsDialog
         JPanel panePanel = new JPanel();
         panePanel.add(questionScrollPane);
         
+        // constains questionInfoPanel and panePanel
         JPanel questionPanel = new JPanel(new GridBagLayout());
         GridBagConstraints infoConstraint = new GridBagConstraints();
         GridBagConstraints questionConstraint = new GridBagConstraints();
         
+        // places questionInfoPanel at the top of questionPanel
         JPanel questionInfoPanel = informationPanel();
         infoConstraint.fill = GridBagConstraints.HORIZONTAL;
         infoConstraint.gridx = 0;
         infoConstraint.gridy = 0;
         questionPanel.add(questionInfoPanel, infoConstraint);
         
+        // places panePanel below questionInfoPanel
         questionConstraint.fill = GridBagConstraints.HORIZONTAL;
         questionConstraint.gridx = 0;
         questionConstraint.gridy = 1;
@@ -159,6 +175,12 @@ public class QuestionsDialog
         return questionPanel;
     }
     
+    /**
+     * Creates the panel that allows the user to enter in the question title, 
+     * select the question type, and enter in the point value
+     * 
+     * @return 
+     */
     private JPanel informationPanel()
     {
         title = new JTextField("Question");
@@ -171,39 +193,46 @@ public class QuestionsDialog
         
         JLabel pointsLabel = new JLabel("Points: ");
         
-        points = new JTextField();
+        points = new JTextField("2");
         points.setPreferredSize(new Dimension(35, 25));
         JPanel pointsPanel = new JPanel();
         pointsPanel.add(points);
         
+        // contains titlePanel, questionTypesList, pointsLabel, and pointsPanel
         JPanel informationPanel = new JPanel(new GridBagLayout());
         GridBagConstraints titleConstraint = new GridBagConstraints();
         GridBagConstraints checkBoxConstraint = new GridBagConstraints();
         GridBagConstraints labelConstraint = new GridBagConstraints();
         GridBagConstraints pointsFieldConstraint = new GridBagConstraints();
         
+        // places titlePanel at the top of informationPanel
         titleConstraint.fill = GridBagConstraints.HORIZONTAL;
         titleConstraint.gridx = 0;
         titleConstraint.gridy = 0;
         informationPanel.add(titlePanel, titleConstraint);
         
+        // places questinTypesList to the right of titlePanel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
         checkBoxConstraint.insets = new Insets(0, 0, 0, 24);
         informationPanel.add(questionTypesList, checkBoxConstraint);
         
+        // places pointsLabel to the right of questionTypesList
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 2;
         labelConstraint.gridy = 0;
         informationPanel.add(pointsLabel, labelConstraint);
         
+        // places pointsPanel to the right of pointsLabel
         pointsFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         pointsFieldConstraint.gridx = 3;
         pointsFieldConstraint.gridy = 0;
         informationPanel.add(pointsPanel, pointsFieldConstraint);
-               
+        
+        // listens for when a user selects a question type
         questionTypesList.addActionListener((ActionEvent e) -> { 
+            // display the question type panel on the frame
             String item = (String) questionTypesList.getSelectedItem();
             displayAnswerPanel(item);            
         });
@@ -212,9 +241,10 @@ public class QuestionsDialog
     }
     
     /**
-     * Shows the 
+     * Shows a question type panel depending on what they user selected in the 
+     * JCombobox
      * 
-     * @param questionType 
+     * @param questionType the type of question the user selected
      */
     private void displayAnswerPanel(String questionType)
     {

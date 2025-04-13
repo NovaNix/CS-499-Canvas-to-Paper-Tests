@@ -122,7 +122,6 @@ public class BankPanel extends JComponent
                 bankList.setSelectedIndex(index);
                 bankTable.setVisible(true);
             }
-
             @Override
             public void intervalRemoved(ListDataEvent e) {}
 

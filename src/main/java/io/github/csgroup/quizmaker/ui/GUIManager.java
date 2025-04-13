@@ -42,7 +42,6 @@ public class GUIManager
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
                
         //size of the JFrame (width, height)
-        //705, 530
         homeFrame.setSize(705, 560);
             
         // will contain the menus "File" and "About"
@@ -69,13 +68,13 @@ public class GUIManager
         // panel that will hold the quiz bank list and quiz bank questions 
         // and answers     
         Project project = App.getCurrentProject();
-        BankPanel selectPanel = new BankPanel(project);
-        QuizPanel quizzes = new QuizPanel(project);
+        BankPanel bankPanel = new BankPanel(project);
+        QuizPanel quizPanel = new QuizPanel(project);
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Question Banks", selectPanel);
-        tabs.addTab("Quizzes", quizzes);
+        tabs.addTab("Question Banks", bankPanel);
+        tabs.addTab("Quizzes", quizPanel);
         // setting the looks and feel of the tabs
         tabs.setBackgroundAt(0, new Color(237, 237, 237));
         tabs.setBackgroundAt(1, new Color(237, 237, 237));
