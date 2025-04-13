@@ -40,6 +40,7 @@ public class BankToQuizDialog
     private JTable questionTable;
     private final Quiz quiz;
     private BankSelection selectedBank;
+    private JTextField pointsTextField;
     
     private JScrollPane tableScrollPane;
     
@@ -107,8 +108,7 @@ public class BankToQuizDialog
         float initPoints = getPoints(0);
         
         JLabel pointsLabel = new JLabel ("Points per question:");
-        JTextField pointsTextField = new JTextField();
-        pointsTextField.setFocusable(false);
+        pointsTextField = new JTextField();
         pointsTextField.setText(Float.toString(initPoints));
         pointsTextField.setPreferredSize(new Dimension(50, 20));
         
@@ -295,10 +295,11 @@ public class BankToQuizDialog
     private int excludedQuestionInfo()
     {
         int rows = questionTable.getRowCount();
+        float points = Float.parseFloat(pointsTextField.getText());
         
         // add the bank to the quiz
         QuestionBank bank = project.getBank(bankList.getSelectedIndex());        
-        selectedBank = new BankSelection(bank, bank.getQuestionCount(), 2.0f);
+        selectedBank = new BankSelection(bank, bank.getQuestionCount(), points);
         quiz.addBank(selectedBank);
         
         for (int i = 0; i < rows; i++)
@@ -365,6 +366,8 @@ public class BankToQuizDialog
             List<BankSelection> quizQuestionBanks = quiz.getBankSelections();
             // get the number of bank questions
             int numBanks = quizQuestionBanks.size();
+            // get the number of points per question
+            float points = selectedBank.getPointsPerQuestion();
             
             for (int i = 0; i < numBanks; i++)
             {
@@ -373,7 +376,7 @@ public class BankToQuizDialog
                 if (i <= (table.getRows() - 1))
                 {                   
                     table.setValue(bank, i, 0);
-                    table.setValue("holder", i, 1);
+                    table.setValue(points, i, 1);
                     table.setValue(size, i, 2);
                     table.setValue(questions, i, 3);
                     bankFrame.dispose();
@@ -384,7 +387,7 @@ public class BankToQuizDialog
                     table.addEmptyRow();
                     int newRow = table.getRows() - 1;
                     table.setValue(bankList.getSelectedItem(), newRow, 0);
-                    table.setValue("holder", newRow, 1);
+                    table.setValue(points, newRow, 1);
                     table.setValue(size, newRow, 2);
                     table.setValue(questions, newRow, 3);
                     bankFrame.dispose();
