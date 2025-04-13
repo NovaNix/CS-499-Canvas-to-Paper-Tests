@@ -23,8 +23,8 @@ public class MultipleChoiceQuestion extends Question
 	
 	// TODO this system should be refactored. I'm not happy with how answers and correct answers are stored right now. 
 	
-	private List<SimpleAnswer> answers = new ArrayList<SimpleAnswer>();
-	private List<Integer> correctAnswers = new ArrayList<Integer>();
+	private final List<SimpleAnswer> answers = new ArrayList<SimpleAnswer>();
+	private final List<Integer> correctAnswers = new ArrayList<Integer>();
 	
 	public MultipleChoiceQuestion(String title)
 	{
@@ -148,6 +148,7 @@ public class MultipleChoiceQuestion extends Question
 		var c = new MultipleChoiceQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
+		c.setAbet(isAbet());
 		
 		for (var answer : answers)
 		{

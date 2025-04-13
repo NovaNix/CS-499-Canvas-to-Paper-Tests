@@ -7,6 +7,8 @@ import java.util.Random;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.utils.RandomBag;
+import io.github.csgroup.quizmaker.utils.stores.writable.DefaultWritableStore;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
 
 /**
  * Represents {@link Question Questions} to be pulled from a {@link QuestionBank}.
@@ -17,20 +19,23 @@ public class BankSelection
 {
 
 	/** The bank to pull questions from */
-	private QuestionBank bank;
+	private WritableStore<QuestionBank> bank;
 	
 	/** The number of questions to take from the bank */
-	private int questionCount;
+	private WritableStore<Integer> questionCount;
 	
 	/** The number of points each question should be */
-	private float pointsPerQuestion;
+	private WritableStore<Float> pointsPerQuestion;
 	
 	/** A list of Question ids to remove from the selection */
 	private List<String> blockedQuestions = new ArrayList<String>();
 	
 	public BankSelection(QuestionBank bank, int questionCount, float pointsPerQuestion)
 	{
-		this.bank = bank;
+		this.bank = new DefaultWritableStore<QuestionBank>(bank);
+		
+		this.questionCount = new DefaultWritableStore<Integer>(questionCount);
+		this.pointsPerQuestion = new DefaultWritableStore<Float>(pointsPerQuestion);
 		
 		setQuestionCount(questionCount);
 		setPointsPerQuestion(pointsPerQuestion);
@@ -43,7 +48,7 @@ public class BankSelection
 	
 	public RandomBag<Question> asRandomBag(Random random)
 	{
-		List<Question> contents = bank.getQuestions();
+		List<Question> contents = getBank().getQuestions();
 		
 		// Remove blocked questions from the list
 		List<Question> allowedQuestions = contents.stream()
@@ -55,7 +60,7 @@ public class BankSelection
 	
 	public void setBank(QuestionBank bank)
 	{
-		this.bank = bank;
+		this.bank.set(bank);
 	}
 	
 	/**
@@ -69,12 +74,12 @@ public class BankSelection
 		// TODO the max question count should be limited by the number of removed questions as well
 		
 		// Limit the question count
-		if (count > bank.getQuestionCount())
-			count = bank.getQuestionCount();
+		if (count > getBank().getQuestionCount())
+			count = getBank().getQuestionCount();
 		else if (count < 0)
 			count = 0;
 		
-		this.questionCount = count;
+		this.questionCount.set(count);
 	}
 	
 	public void setPointsPerQuestion(float points)
@@ -83,7 +88,7 @@ public class BankSelection
 		if (points < 0)
 			points = 0;
 		
-		this.pointsPerQuestion = points;
+		this.pointsPerQuestion.set(points);
 	}
 	
 	public void addBlockedQuestion(Question q)
@@ -113,22 +118,32 @@ public class BankSelection
 	
 	public QuestionBank getBank()
 	{
-		return bank;
+		return bank.get();
 	}
 	
 	public int getQuestionCount()
 	{
-		return questionCount;
+		return questionCount.get();
 	}
 	
 	public float getPointsPerQuestion()
+	{
+		return pointsPerQuestion.get();
+	}
+	
+	public WritableStore<Integer> getQuestionCountStore()
+	{
+		return questionCount;
+	}
+	
+	public WritableStore<Float> getPointsPerQuestionStore()
 	{
 		return pointsPerQuestion;
 	}
 	
 	public List<Question> getBlockedQuestions()
 	{
-		return bank.getQuestions().stream()
+		return getBank().getQuestions().stream()
 				.filter((q) -> blockedQuestions.contains(q.getId()))
 				.toList();
 	}

@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
+import io.github.csgroup.quizmaker.utils.stores.writable.DefaultWritableStore;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
 
 /**
  * A {@link Question} where the user fills in blank spots.<br>
@@ -27,14 +29,14 @@ import io.github.csgroup.quizmaker.data.events.question.QuestionUpdateEvent;
 public class FillInTheBlankQuestion extends Question
 {
 
-	private static final Pattern TAG_REGEX = Pattern.compile("\\[(.+?)\\]"); 
+	public static final Pattern TAG_REGEX = Pattern.compile("\\[(.+?)\\]"); 
 	
-	private Map<String, BlankAnswer> answers = new HashMap<String, BlankAnswer>();
+	private final Map<String, BlankAnswer> answers = new HashMap<String, BlankAnswer>();
 	
 	/**
 	 * Whether the possible answers for each blank will be shown underneath the question
 	 */
-	private boolean showAnswers = false;
+	private WritableStore<Boolean> showAnswers = new DefaultWritableStore<Boolean>(false);
 	
 	public FillInTheBlankQuestion(String title)
 	{
@@ -127,7 +129,7 @@ public class FillInTheBlankQuestion extends Question
 	 */
 	public void setShowAnswers(boolean showAnswers)
 	{
-		this.showAnswers = showAnswers;
+		this.showAnswers.set(showAnswers);
 		
 		fireEvent(new QuestionUpdateEvent(this));
 	}
@@ -136,6 +138,11 @@ public class FillInTheBlankQuestion extends Question
 	 * @return whether the possible answers for each blank should be shown under the question when exported to a Word file
 	 */
 	public boolean shouldShowAnswers()
+	{
+		return showAnswers.get();
+	}
+	
+	public WritableStore<Boolean> getShouldShowAnswersStore()
 	{
 		return showAnswers;
 	}
@@ -146,7 +153,8 @@ public class FillInTheBlankQuestion extends Question
 		var c = new FillInTheBlankQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
-		c.setShowAnswers(showAnswers);
+		c.setShowAnswers(shouldShowAnswers());
+		c.setAbet(isAbet());
 		
 		for (String key : answers.keySet())
 		{
