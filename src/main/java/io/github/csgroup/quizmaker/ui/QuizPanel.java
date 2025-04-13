@@ -9,6 +9,7 @@ import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankFromQuizDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuizDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
@@ -517,7 +518,11 @@ public class QuizPanel extends JComponent
                 if (value != null)
                 {
                     removeBankButton.setEnabled(true);
-                }                
+                }       
+                if (value == null)
+                {
+                    removeBankButton.setEnabled(false);
+                }
             }        
         });
                                                
@@ -595,7 +600,7 @@ public class QuizPanel extends JComponent
                 int index = quizList.getSelectedIndex();
                 Quiz quiz = project.getQuiz(index);    
                 model = bankTable.getModel();
-                RemoveBankFromQuizDialog remove = new RemoveBankFromQuizDialog(quiz, row, model);
+                RemoveBankFromQuizDialog remove = new RemoveBankFromQuizDialog(quiz, row, model, removeBankButton);
                 remove.show();
             }
         });        
@@ -687,12 +692,27 @@ public class QuizPanel extends JComponent
         
         // listens for when exportButton is clicked
         exportButton.addActionListener((ActionEvent e) -> {
-            ExportWordDialog exportDialog = new ExportWordDialog();
+            int index = quizList.getSelectedIndex();
+            Quiz selectedQuiz = project.getQuiz(index);
+            // show the export dialog
+            ExportWordDialog exportDialog = new ExportWordDialog(selectedQuiz);
             exportDialog.show();
         });
                 
         // listens for when generateButton is clicked
-        generateButton.addActionListener((ActionEvent e) -> {     
+        generateButton.addActionListener((ActionEvent e) -> { 
+            int index = quizList.getSelectedIndex();
+            Quiz quiz = project.getQuiz(index);
+            // generate the quiz
+            if (quiz.isGenerated() == false)
+            {
+                GeneratedQuiz generateQuiz = new GeneratedQuiz(quiz);
+            }
+            if (quiz.isGenerated() == true)
+            {
+                quiz.regenerate();
+            }
+            
         });
                 
         return quizButtonPanel;

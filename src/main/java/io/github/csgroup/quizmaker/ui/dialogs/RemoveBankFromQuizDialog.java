@@ -24,12 +24,14 @@ public class RemoveBankFromQuizDialog
     private final int row;
     private JFrame removeFrame;
     private final DefaultTableModel model;
+    private final JButton removeButton;
    
-    public RemoveBankFromQuizDialog(Quiz currentQuiz, int selectedRow, DefaultTableModel tableModel)
+    public RemoveBankFromQuizDialog(Quiz currentQuiz, int selectedRow, DefaultTableModel tableModel, JButton button)
     {        
         quiz = currentQuiz;
         row = selectedRow;
         model = tableModel;
+        removeButton = button;
         removeBankFrame();
     }
       
@@ -90,12 +92,22 @@ public class RemoveBankFromQuizDialog
         
         // listens for when exportButton is clicked
         yesButton.addActionListener((ActionEvent e) -> { 
-            // remove row from table
-            model.removeRow(row);
-            model.addRow(new Object[]{null,null,null,null});
             // remove bank from quiz
             List<BankSelection> banks = quiz.getBankSelections();
             quiz.removeBank(banks.get(row));
+            
+            // remove row from table
+            model.removeRow(row);
+            model.addRow(new Object[]{null,null,null,null});
+            
+            // disable button if all banks have been deleted
+            List<BankSelection> remainingBanks = quiz.getBankSelections();
+            int size = remainingBanks.size();
+            if (size == 0)
+            {
+                removeButton.setEnabled(false);
+            }
+            
             removeFrame.dispose();
         });
         

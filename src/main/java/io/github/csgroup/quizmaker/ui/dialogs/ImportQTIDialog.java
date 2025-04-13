@@ -15,9 +15,8 @@ import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JOptionPane;
 
 /**
  * Creates a frame that will allow the user to import the QTI file from 
@@ -29,12 +28,12 @@ public class ImportQTIDialog
 { 
     private JFrame importFrame;
     private String filePath;
-    private final Project importFileProject;
+    private final Project project;
     private JButton importButton;
     
     public ImportQTIDialog(Project importProject)
     {
-        importFileProject = importProject;
+        project = importProject;
         importFileFrame();
     }
         
@@ -181,8 +180,6 @@ public class ImportQTIDialog
             if (importFilePath != null)
             {
                 importFile(importFilePath);
-                // close the frame
-                importFrame.dispose();
             }
         });
         
@@ -196,15 +193,32 @@ public class ImportQTIDialog
      */
     private void importFile(String qtiStringPath)
     {
-        //Path qtiFilePath = Paths.get(qtiStringPath);
-        //QTIReader importQTIFile = new QTIReader();
-        //QTIContents test = importQTIFile.readFile(qtiFilePath);
-        //importFileProject.addQTI(test);
+        QTIReader importQTIFile = new QTIReader();
+        try 
+        {
+            QTIContents contents = importQTIFile.readFile(qtiStringPath);
+            project.addQTI(contents);
+            importFrame.dispose();
+        } 
+        catch (Exception ex) 
+        {
+            errorDialog();
+        }
+    }
+    
+    /**
+     * Shows a JOptionPane to let the user know if an error has occurred importing 
+     * their file
+     */
+    private void errorDialog()
+    {
+        JFrame errorFrame = new JFrame();
+        JOptionPane.showMessageDialog(errorFrame, "Could not import file", "Error", JOptionPane.ERROR_MESSAGE);
+        
     }
             
     /**
      * Controls when and where the frame appears
-     * 
      */
     public void show()
     {

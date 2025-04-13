@@ -1,6 +1,8 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.word.WordExporter;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
@@ -14,6 +16,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
 import javax.swing.JFileChooser;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 /**
  * Creates the frame that allows the user to export their quiz into a word 
@@ -27,9 +32,14 @@ public class ExportWordDialog
     private String locationPath;
     private JRadioButton keyButton;
     private JRadioButton testButton;
+    private JTextField templateTextField;
+    private JTextField locationTextField;
+    private JButton exportButton;
+    private Quiz quiz;
     
-    public ExportWordDialog()
+    public ExportWordDialog(Quiz exportQuiz)
     {
+        quiz = exportQuiz;
         createExportFileFrame();
     }
           
@@ -135,19 +145,7 @@ public class ExportWordDialog
     private JPanel fileAttachPanel()
     {
         JLabel templateLabel = new JLabel("Template:");
-        JLabel locationLabel = new JLabel("Export Location:");
-               
-        JTextField templateTextField = new JTextField();
-        templateTextField.setFocusable(false);
-        templateTextField.setPreferredSize(new Dimension(280, 22));
-        JPanel tempPanel = new JPanel();
-        tempPanel.add(templateTextField);
-        
-        JTextField locationTextField = new JTextField();
-        locationTextField.setPreferredSize(new Dimension(280, 22));
-        locationTextField.setFocusable(false);
-        JPanel locPanel = new JPanel();
-        locPanel.add(locationTextField);
+        JLabel locationLabel = new JLabel("Export Location:");;
                 
         // contains templateLabel, templateTextField, tempButtonPanel, 
         // locationLabel, locationTextField, and locationButtonPanel
@@ -166,6 +164,7 @@ public class ExportWordDialog
         fileAttachPanel.add(templateLabel, templateConstraint);
                 
         // places templateTextField below templateLabel on fileAttachPanel
+        JPanel tempPanel = templateTextField();
         tempTextFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         tempTextFieldConstraint.gridx = 0;
         tempTextFieldConstraint.gridy = 1;
@@ -188,11 +187,12 @@ public class ExportWordDialog
         fileAttachPanel.add(locationLabel, locationConstraint);
                 
         // places locationTextField below locationLabel on fileAttachPanel
+        JPanel locationPanel = locationTextField();
         locTextFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         locTextFieldConstraint.gridx = 0;
         locTextFieldConstraint.gridy = 3;
         locTextFieldConstraint.insets = new Insets(0, 0, 15, 0);
-        fileAttachPanel.add(locPanel, locTextFieldConstraint);
+        fileAttachPanel.add(locationPanel, locTextFieldConstraint);
                 
         // places locationButtonPanel to the right of locationTextField on fileAttachPanel
         JPanel locationButtonPanel = selectLocButtonPanel(locationTextField);
@@ -206,6 +206,100 @@ public class ExportWordDialog
     }
     
     /**
+     * Creates the panel and text field that holds the file path of the template
+     * and its event listener
+     * 
+     * @return text field panel
+     */
+    private JPanel templateTextField()
+    {
+        templateTextField = new JTextField();
+        templateTextField.setFocusable(false);
+        templateTextField.setPreferredSize(new Dimension(280, 22));
+        JPanel tempPanel = new JPanel();
+        tempPanel.add(templateTextField);
+        
+        // listens for when text appears in the text field
+        Document templateDocument = templateTextField.getDocument();
+        templateDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                // if text is in both the template and location text fields enable 
+                // the export button
+                boolean location = (locationTextField.getText()).isEmpty();
+                if (location == false)
+                {
+                    exportButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = templateTextField.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the template field is empty
+                if (empty == true)
+                {
+                    exportButton.setEnabled(false);
+                }                
+            }            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+             
+        return tempPanel;
+    }
+    
+    /**
+     * Creates the panel and text field that holds the file path of the export 
+     * location text field and its event listener
+     * 
+     * @return location field panel
+     */
+    private JPanel locationTextField()
+    {
+        locationTextField = new JTextField();
+        locationTextField.setPreferredSize(new Dimension(280, 22));
+        locationTextField.setFocusable(false);
+        JPanel locationPanel = new JPanel();
+        locationPanel.add(locationTextField);
+        
+        // listens for when text appears in the text field
+        Document locationDocument = locationTextField.getDocument();
+        locationDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e)
+            {
+                // if text is in both the template and location text fields enable 
+                // the export button
+                boolean template = (templateTextField.getText()).isEmpty();
+                if (template == false)
+                {
+                    exportButton.setEnabled(true);
+                }
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = locationTextField.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the location field is empty
+                if (empty == true)
+                {
+                    exportButton.setEnabled(false);
+                }                
+            }            
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+        
+        return locationPanel;
+    }
+    
+    /**
      * Creates the JPanel that holds the "Test" and "Key" radio buttons
      * 
      * @return the radio button panel
@@ -213,6 +307,7 @@ public class ExportWordDialog
     private JPanel radioButtonPanel()
     {
         testButton = new JRadioButton("Test");
+        testButton.setSelected(true);
         keyButton = new JRadioButton("Key");
         ButtonGroup group = new ButtonGroup();
         group.add(testButton);
@@ -313,7 +408,7 @@ public class ExportWordDialog
      */
     private JPanel exportButtonPanel()
     {
-        JButton exportButton = new JButton("Export");
+        exportButton = new JButton("Export");
         exportButton.setEnabled(false);
         WordExporter exportFile = new WordExporter();
                 

@@ -5,12 +5,8 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.file.*;
-
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.ui.GUIManager;
-import io.github.csgroup.quizmaker.ui.UIManager;
 import io.github.csgroup.quizmaker.word.WordExporter;
 
 /**
