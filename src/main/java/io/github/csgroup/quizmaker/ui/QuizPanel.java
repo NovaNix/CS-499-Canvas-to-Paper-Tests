@@ -787,11 +787,12 @@ public class QuizPanel extends JComponent
             }
             
             List<BankSelection> selectedBanks = quiz.getBankSelections();
+            float points = selectedBanks.get(i).getPointsPerQuestion();
             QuestionBank bank = selectedBanks.get(i).getBank();
             int totalQuestions = bank.getQuestionCount();
                                 
             bankTable.setValue(bank, i, 0);
-            bankTable.setValue("holder", i, 1);
+            bankTable.setValue(points, i, 1);
             bankTable.setValue(totalQuestions, i, 2); 
             bankTable.setValue(selectedBanks.size(), i, 3);            
         }
