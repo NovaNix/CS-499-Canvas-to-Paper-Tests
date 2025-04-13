@@ -179,7 +179,6 @@ public class CreateBankDialog
         
     /**
      * Controls when and where the frame appears
-     * 
      */
     public void show()
     {
