@@ -35,7 +35,6 @@ public class QuestionWriter
 	private static final DecimalFormat POINT_FORMAT = new DecimalFormat("#.##");
 	
 	private final XWPFDocument document;
-	
 	private final boolean isKey;
 	
 	/**
@@ -50,30 +49,30 @@ public class QuestionWriter
 	}
 	
 	/**
+	 * Creates a page blank before the next paragraph,
+	 * which is used to separate the questions from the front pages.
+	 */
+	public void insertPageBreak()
+	{
+		XWPFParagraph paragraph = document.createParagraph();
+		paragraph.setPageBreak(true);
+	}
+	
+	/**
 	 * Determines the type of question to be written to the quiz and calls the appropriate writer
 	 * 
 	 * @param q The question to be written
 	 * @param questionNumber Number of the question to write
 	 * @throws IOException If an error occurs during writing the label
 	 */
-	public void pickQuestionType(Question q, int questionNumber) throws IOException 
+	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
-		if(q instanceof WrittenResponseQuestion wrq)
-		{
-			writeWrittenResponse(wrq, questionNumber);
-		} else if(q instanceof FillInTheBlankQuestion filb)
-		{
-			writeFillBlank(filb, questionNumber);
-		} else if(q instanceof MultipleChoiceQuestion mc)
-		{
-			writeMultipleChoice(mc, questionNumber);
-		} else if(q instanceof MatchingQuestion match)
-		{
-			writeMatching(match, questionNumber);
-		}
-		else
-		{
-			logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
+		switch (q) {
+		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
+		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
+		case MatchingQuestion match -> writeMatching(match, questionNumber);
+		case MultipleChoiceQuestion mc -> writeMultipleChoice(mc, questionNumber);
+		default -> logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
 		}
 	}
 	
@@ -164,7 +163,7 @@ public class QuestionWriter
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex =  index + ": ";
+					String addIndex =  "	Blank " +  index + ": ";
 					if(answer.getAnswer().getType() == Label.Type.html)
 					{
 						labelWriter.write(new Label(addIndex + answer.asText(), Label.Type.html));
@@ -193,7 +192,7 @@ public class QuestionWriter
 		
 		for (SimpleAnswer answer : q.getAnswers())
 		{
-			String prefix = "- ";
+			String prefix = "	- ";
 			if(isKey && q.isCorrect(answer))
 			{
 				prefix += "[Correct] ";

@@ -1,14 +1,18 @@
 package io.github.csgroup.quizmaker.word;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.answers.MatchingAnswer;
@@ -16,39 +20,89 @@ import io.github.csgroup.quizmaker.data.answers.SimpleAnswer;
 import io.github.csgroup.quizmaker.data.questions.*;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion.ResponseLength;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 
 /**
  * Responsible for taking a {@link Quiz} and turning it into a .docx file <br>
- * Currently only has support for examples used inside the function, but does
- * write correctly to a .docx file
+ * Currently supports writing to and editing a template file, but cannot currently create one.
  * 
  * @author Samuel Garcia 
  */
 public class WordExporter 
 {
 	public static final Logger logger = LoggerFactory.getLogger(WordExporter.class);
-
-	public WordExporter()
-	{
-		
-	}
 	
+	//Make Constructor with paths, verify paths as entered.
 	/**
 	 * Manages the exporting of a quiz through LabelWriter and QuestionWriter calls.
 	 * @param isKey If the quiz to be exported is a key
 	 * @throws IOException If the quiz is unable to be exported.
 	 */
-	public void exportTest(/*Quiz quiz, Path template, Path destination,*/ boolean isKey) throws IOException //Can only use isKey for now for testing
+	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, boolean isKey) throws IOException //Can only use isKey for now for testing
 	{
-		try (XWPFDocument document = new XWPFDocument()) 
+		template = Paths.get("Test Template.docx");
+		destination = Paths.get("Output Template.docx");
+		
+		// Here are some example questions to test the code with
+		// These should be removed or moved to a test file eventually
+		Quiz testQuiz = new Quiz("test");
+		// Written Response Question
+		var writtenResponse = new WrittenResponseQuestion("Written Test", 1);
+		writtenResponse.setLabel(new Label("This is a written response"));
+		writtenResponse.setAnswer("And this should be the answer!");
+		writtenResponse.setResponseLength(ResponseLength.Line);
+		
+		// Fill in the Blank Question
+        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].", 5);
+        fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
+        
+        // Matching Question
+        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4);
+        match.setLabel(new Label("Match the programming concepts to their definitions:"));
+        match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
+        match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
+        match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
+        
+        // Multiple Choice Question
+        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4);
+        mc.setLabel(new Label("Which of the following are part of the Java Collections Framework?"));
+        mc.addAnswer(new SimpleAnswer(1, "HashMap"), true);
+        mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
+        mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
+        mc.addAnswer(new SimpleAnswer(4, "File"), false);
+        
+        testQuiz.addQuestion(writtenResponse);
+        testQuiz.addQuestion(fitb);
+        testQuiz.addQuestion(match);
+        testQuiz.addQuestion(mc);
+        testQuiz.regenerate();
+        quiz = testQuiz.getGenerated();
+        QuizMetadata metadata = buildTestMetadata(quiz);
+        TemplateReplacements test  = new TemplateReplacements();
+    	test.setReplacementString(QuizMetadata.MetadataType.ClassNum, "(Class)");
+    	test.setReplacementString(QuizMetadata.MetadataType.SectionNum, "(Section)");
+    	test.setReplacementString(QuizMetadata.MetadataType.Points, "(Points)");
+    	test.setReplacementString(QuizMetadata.MetadataType.Minutes, "(Minutes)");
+    	test.setReplacementString(QuizMetadata.MetadataType.Professor, "(Professor)");
+    	test.setReplacementString(QuizMetadata.MetadataType.Date, "(Date)");
+    	test.setReplacementString(QuizMetadata.MetadataType.TestNum, "(Test)");
+
+		TemplateWriter.applyMetadata(template, destination, test, metadata);
+		try (FileInputStream fis = new FileInputStream(destination.toFile()); XWPFDocument document = new XWPFDocument(fis)) //This needs to check if a template document exist or not. 
 		{
 			LabelWriter labelWriter = new LabelWriter(document);
-			QuestionWriter questionWriter = new QuestionWriter(document, false);
-
-			//for (Question q : GeneratedQuiz().quizArray) { Code that will be used once the Generated Quiz function is available
-				//labelWriter.write(q.getLabel());
-				//questionWriter.write(q, isKey);
-			//}
+			QuestionWriter questionWriter = new QuestionWriter(document, isKey);
+			
+			questionWriter.insertPageBreak();
+			questionWriter.writeQuestion(writtenResponse, 0);
+			
+			if(quiz != null) //Maybe move upwards in export
+			{
+				List<Question> generatedQuiz = quiz.getQuestions();
+				for(int i = 0; i < quiz.getQuestions().size(); i++ ) {
+					questionWriter.writeQuestion(generatedQuiz.get(i), i+1);
+				}
+			}
 
 			//These are example labels that should be used to test the label writer
 			//These should be removed or moved to a test file when functionality of the label writer has been fully tested
@@ -78,47 +132,31 @@ public class WordExporter
 			labelWriter.write(pictureURL);
 			labelWriter.write(pictureFile);
 			labelWriter.write(table);
-    		
-    		
-			// Here are some example questions to test the code with
-			// These should be removed or moved to a test file eventually
-			
-			// Written Response Question
-			var writtenResponse = new WrittenResponseQuestion("Written Test", 0);
-			writtenResponse.setLabel(new Label("This is a written response"));
-			writtenResponse.setAnswer("And this should be the answer!");
-			writtenResponse.setResponseLength(ResponseLength.Line);
-			questionWriter.pickQuestionType(writtenResponse, 1);
-			
-			// Fill in the Blank Question
-	        FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].", 5);
-	        fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
-	        questionWriter.pickQuestionType(fitb, 2);
 	        
-	        // Matching Question
-	        MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4);
-	        match.setLabel(new Label("Match the programming concepts to their definitions:"));
-	        match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
-	        match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
-	        match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
-	        questionWriter.pickQuestionType(match, 3);
-	        
-	        // Multiple Choice Question
-	        MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4);
-	        mc.setLabel(new Label("Which of the following are part of the Java Collections Framework?"));
-	        mc.addAnswer(new SimpleAnswer(1, "HashMap"), true);
-	        mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
-	        mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
-	        mc.addAnswer(new SimpleAnswer(4, "File"), false);
-	        questionWriter.pickQuestionType(mc, 4);
-	        
-			try (FileOutputStream out = new FileOutputStream(Paths.get(System.getProperty("user.dir"), "output.docx").toFile())) {
+			try (FileOutputStream out = new FileOutputStream(destination.toFile())) {
 				document.write(out);
 			}
-			logger.info("Quiz exported successfully to: {}", Paths.get(System.getProperty("user.dir"), "output.docx"));
+			logger.info("Quiz exported successfully to: {}", destination.toAbsolutePath());
 		} catch (IOException e) {
-			logger.error("Failed to export document to: {}", Paths.get(System.getProperty("user.dir"), "output.docx"));
-			throw new IOException("Failed to export document to: " + Paths.get(System.getProperty("user.dir"), "output.docx"), e); //This should throw up to the UI
+			logger.error("Failed to export document to: {}", e.getMessage());
+			throw e; //This should throw up to the UI
 		}
+	}
+	
+	/**
+	 * Builds a mock QuizMetadata instance for testing purposes.
+	 */
+	private QuizMetadata buildTestMetadata(GeneratedQuiz quiz) {
+		QuizMetadata metadata = new QuizMetadata();
+
+		metadata.setValue(QuizMetadata.MetadataType.ClassNum, "499");
+		metadata.setValue(QuizMetadata.MetadataType.SectionNum, "01");
+		metadata.setValue(QuizMetadata.MetadataType.TestNum, "2");
+		metadata.setValue(QuizMetadata.MetadataType.Date, "April 17, 2025");
+		metadata.setValue(QuizMetadata.MetadataType.Professor, "Mr. Example");
+		metadata.setValue(QuizMetadata.MetadataType.Minutes, "75");
+		metadata.setDynamicValues(quiz);
+
+		return metadata;
 	}
 }
