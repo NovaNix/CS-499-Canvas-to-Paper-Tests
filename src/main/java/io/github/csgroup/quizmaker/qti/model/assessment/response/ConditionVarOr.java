@@ -17,15 +17,27 @@ public class ConditionVarOr
 {
 	
 	private List<ConditionVar> conditionVars;
+	private List<VarEqual> varEquals;
 
-	@XmlElement(name = "conditionvar", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public void setConditionVars(List<ConditionVar> conditionVars) 
 	{
 		this.conditionVars = conditionVars;
 	}
+	
+	public void setVarEquals(List<VarEqual> varEquals) 
+	{
+		this.varEquals = varEquals;
+	}
 
+	@XmlElement(name = "conditionvar", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public List<ConditionVar> getConditionVars() 
 	{
 		return conditionVars;
+	}
+	
+	@XmlElement(name = "varequal", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<VarEqual> getVarEquals() 
+	{
+		return varEquals;
 	}
 }

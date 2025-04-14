@@ -16,6 +16,11 @@ public class ConditionVar
 {
 	
 	private List<VarEqual> varEquals;
+	private List<VarGte> varGte;
+	private List<VarGt> varGt;
+	private List<VarLte> varLte;
+	private List<VarLt> varLt;
+	
 	private ConditionVarAnd and;
 	private ConditionVarOr or;
 	private ConditionVarNot not;
@@ -23,6 +28,26 @@ public class ConditionVar
 	public void setVarEquals(List<VarEqual> varEquals) 
 	{
 		this.varEquals = varEquals;
+	}
+	
+	public void setVarGte(List<VarGte> varGte) 
+	{
+		this.varGte = varGte;
+	}
+	
+	public void setVarGt(List<VarGt> varGt) 
+	{
+		this.varGt = varGt;
+	}
+	
+	public void setVarLte(List<VarLte> varLte) 
+	{
+		this.varLte = varLte;
+	}
+	
+	public void setVarLt(List<VarLt> varLt) 
+	{
+		this.varLt = varLt;
 	}
 
 	public void setAnd(ConditionVarAnd and) 
@@ -44,6 +69,30 @@ public class ConditionVar
 	public List<VarEqual> getVarEquals() 
 	{
 		return varEquals;
+	}
+	
+	@XmlElement(name = "vargte", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<VarGte> getVarGte() 
+	{
+		return varGte;
+	}
+	
+	@XmlElement(name = "vargt", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<VarGt> getVarGt() 
+	{
+		return varGt;
+	}
+	
+	@XmlElement(name = "varlte", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<VarLte> getVarLte() 
+	{
+		return varLte;
+	}
+	
+	@XmlElement(name = "varlt", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
+	public List<VarLt> getVarLt() 
+	{
+		return varLt;
 	}
 
 	@XmlElement(name = "and", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")

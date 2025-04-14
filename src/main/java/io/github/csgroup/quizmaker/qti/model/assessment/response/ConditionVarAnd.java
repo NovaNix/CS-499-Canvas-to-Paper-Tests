@@ -21,34 +21,34 @@ public class ConditionVarAnd
 	private List<ConditionVarNot> nots;
 	private List<VarEqual> varEquals;
 
-	@XmlElement(name = "conditionvar", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public void setConditionVars(List<ConditionVar> conditionVars) 
 	{
 		this.conditionVars = conditionVars;
 	}
 
-	@XmlElement(name = "not", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public void setNots(List<ConditionVarNot> nots) 
 	{
 		this.nots = nots;
 	}
 
-	@XmlElement(name = "varequal", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public void setVarEquals(List<VarEqual> varEquals) 
 	{
 		this.varEquals = varEquals;
 	}
 
+	@XmlElement(name = "conditionvar", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public List<ConditionVar> getConditionVars() 
 	{
 		return conditionVars;
 	}
 
+	@XmlElement(name = "not", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public List<ConditionVarNot> getNots() 
 	{
 		return nots;
 	}
 
+	@XmlElement(name = "varequal", namespace = "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")
 	public List<VarEqual> getVarEquals() 
 	{
 		return varEquals;
