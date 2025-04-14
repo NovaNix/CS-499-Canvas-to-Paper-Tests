@@ -32,14 +32,14 @@ public class App
 		logger.info("Starting Application");
 		
 		//Word test, keep commented for now unless testing the word exporting or until correctly implemented in the UI
-		logger.info("Testing word exporting!");
+		/*logger.info("Testing word exporting!");
 		WordExporter wordExportTest = new WordExporter();
 		try {
 			wordExportTest.exportTest(null, null, null, true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 
 		// Create a new blank project

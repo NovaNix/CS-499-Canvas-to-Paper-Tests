@@ -49,7 +49,7 @@ public class WordExporter
 		// Written Response Question
 		var writtenResponse = new WrittenResponseQuestion("Written Test", 1);
 		writtenResponse.setLabel(new Label("This is a written response"));
-		writtenResponse.setAnswer("And this should be the answer!"); //No longer printing answer, prints question, quiz generation bug
+		writtenResponse.setAnswer("And this should be the answer!");
 		writtenResponse.setResponseLength(ResponseLength.Line);
 		
 		// Fill in the Blank Question
@@ -147,17 +147,16 @@ public class WordExporter
 	 * Builds a mock QuizMetadata instance for testing purposes.
 	 */
 	private QuizMetadata buildTestMetadata(GeneratedQuiz quiz) {
-	    QuizMetadata metadata = new QuizMetadata();
+		QuizMetadata metadata = new QuizMetadata();
 
-	    metadata.setValue(QuizMetadata.MetadataType.ClassNum, "499");
-	    metadata.setValue(QuizMetadata.MetadataType.SectionNum, "01");
-	    metadata.setValue(QuizMetadata.MetadataType.TestNum, "2");
-	    metadata.setValue(QuizMetadata.MetadataType.Date, "April 17, 2025");
-	    metadata.setValue(QuizMetadata.MetadataType.Professor, "Mr. Example");
-	    metadata.setValue(QuizMetadata.MetadataType.Minutes, "75");
-	    metadata.setDynamicValues(quiz);
+		metadata.setValue(QuizMetadata.MetadataType.ClassNum, "499");
+		metadata.setValue(QuizMetadata.MetadataType.SectionNum, "01");
+		metadata.setValue(QuizMetadata.MetadataType.TestNum, "2");
+		metadata.setValue(QuizMetadata.MetadataType.Date, "April 17, 2025");
+		metadata.setValue(QuizMetadata.MetadataType.Professor, "Mr. Example");
+		metadata.setValue(QuizMetadata.MetadataType.Minutes, "75");
+		metadata.setDynamicValues(quiz);
 
-	    return metadata;
+		return metadata;
 	}
-
 }
