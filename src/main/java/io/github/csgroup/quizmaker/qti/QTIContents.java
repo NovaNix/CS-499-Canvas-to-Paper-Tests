@@ -5,7 +5,6 @@ import java.util.List;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
-import io.github.csgroup.quizmaker.qti.model.AssessmentMetadata;
 
 /**
  * A container for the contents extracted from a QTI file
