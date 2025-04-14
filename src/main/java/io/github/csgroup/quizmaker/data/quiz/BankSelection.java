@@ -91,6 +91,31 @@ public class BankSelection
 		this.pointsPerQuestion.set(points);
 	}
 	
+	public void addBlockedQuestion(Question q)
+	{
+		addBlockedQuestion(q.getId());
+	}
+	
+	public void addBlockedQuestion(String id)
+	{
+		blockedQuestions.add(id);
+	}
+	
+	public void removeBlockedQuestion(String id)
+	{
+		blockedQuestions.remove(id);
+	}
+	
+	public void removeBlockedQuestion(Question q)
+	{
+		removeBlockedQuestion(q.getId());
+	}
+	
+	public void clearBlockedQuestions()
+	{
+		blockedQuestions.clear();
+	}
+	
 	public QuestionBank getBank()
 	{
 		return bank.get();
