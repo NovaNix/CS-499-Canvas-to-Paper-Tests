@@ -10,8 +10,11 @@ import io.github.csgroup.quizmaker.data.questions.MatchingQuestion;
 import io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
 import io.github.csgroup.quizmaker.qti.model.assessment.structure.Item;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +39,13 @@ import org.slf4j.LoggerFactory;
  */
 public class QuestionMapper
 {
-	
-	private static final Logger logger = LoggerFactory.getLogger(QuestionMapper.class);
 
+	private static final Logger logger = LoggerFactory.getLogger(QuestionMapper.class);
+	
+	// Used when no bracketed tag is found in the prompt.
+	// This acts as a default identifier for short answer responses.
+	private static final String FALLBACK_TAG = "answer";
+	
 	/**
 	 * Determines the question type based on the QTI {@code question_type} metadata and applies<br>
 	 * the appropriate mapping method.
@@ -65,7 +72,6 @@ public class QuestionMapper
 
 			case "fill_in_the_blank_question":
 			case "short_answer_question":
-			case "numerical_question":
 			case "fill_in_multiple_blanks_question":
 			case "multiple_dropdowns_question":
 				return mapBlank(item);
@@ -73,6 +79,7 @@ public class QuestionMapper
 			case "matching_question":
 				return mapMatching(item);
 
+			case "numerical_question":
 			case "essay_question":
 				return mapWrittenResponse(item);
 
@@ -83,7 +90,7 @@ public class QuestionMapper
 	}
 
 	/**
-	 * Maps a QTI {@code multiple_choice_question} or {@code true_false_question} into a {@link MultipleChoiceQuestion}.
+	 * Maps a QTI {@code multiple_choice_question}, {@code true_false_question}, or {@code multiple_answers_question} into a {@link MultipleChoiceQuestion}.
 	 * <p>
 	 * Uses {@link AnswerMapper} to populate answer choices and detect the correct one(s).
 	 * 
@@ -94,8 +101,13 @@ public class QuestionMapper
 	{
 		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
 		List<SimpleAnswer> answers = AnswerMapper.mapSimpleAnswers(item);
-		List<String> correctIds = AnswerMapper.getCorrectAnswerIds(item);
-
+		Set<String> correctIds = new HashSet<>();
+		for (String full : item.getCorrectAnswers()) 
+		{
+			String id = full.split(":")[0].trim();
+			correctIds.add(id);
+		}
+		
 		MultipleChoiceQuestion question = new MultipleChoiceQuestion(prompt.asText());
 		applyMetadata(question, item, prompt);
 
@@ -126,12 +138,43 @@ public class QuestionMapper
 		applyMetadata(question, item, prompt);
 
 		List<String> tags = question.getTags();
-		for (String tag : tags)
+		if (!tags.isEmpty())
 		{
-			BlankAnswer answer = blanks.get(tag);
-			if (answer != null)
+			// Use tags extracted from label
+			for (String tag : tags)
 			{
-				question.setAnswer(tag, answer);
+				BlankAnswer answer = blanks.get(tag);
+
+				// No direct match -> try to find one that ends with the tag
+				if (answer == null)
+				{
+					for (Map.Entry<String, BlankAnswer> entry : blanks.entrySet())
+					{
+						if (entry.getKey().endsWith(tag))
+						{
+							answer = entry.getValue();
+							break;
+						}
+					}
+				}
+
+				if (answer != null)
+				{
+					question.setAnswer(tag, answer);
+				}
+				else
+				{
+					logger.warn("No matching blank answer found for tag [{}] in item {}", tag, item.getIdent());
+				}
+			}
+		}
+		else
+		{
+			// No tag found in prompt -> treat as short answer fallback
+			if (!blanks.isEmpty())
+			{
+				Map.Entry<String, BlankAnswer> entry = blanks.entrySet().iterator().next();
+				question.setAnswer(FALLBACK_TAG, entry.getValue());
 			}
 		}
 
@@ -163,7 +206,7 @@ public class QuestionMapper
 	}
 
 	/**
-	 * Maps a QTI {@code essay_question} or similar open-ended question into a {@link WrittenResponseQuestion}.
+	 * Maps a QTI {@code essay_question} or {@code numerical_question} into a {@link WrittenResponseQuestion}.
 	 * 
 	 * @param item the parsed QTI {@code <item>}
 	 * @return a {@link WrittenResponseQuestion} with its label set
@@ -174,6 +217,29 @@ public class QuestionMapper
 
 		WrittenResponseQuestion question = new WrittenResponseQuestion("");
 		applyMetadata(question, item, prompt);
+		
+		// For numerical question -> extract answer type: exact answers 
+		List<String> exactAnswers = item.getExactNumericAnswers();
+
+		// For numerical question -> extract answer type: range answer
+		List<AnswerMapper.NumericRange> ranges = AnswerMapper.getNumericRanges(item);
+		List<String> displayParts = new ArrayList<>();
+
+		if (!exactAnswers.isEmpty())
+		{
+			displayParts.add(String.join(" or ", exactAnswers));
+		}
+
+		for (var range : ranges)
+		{
+			displayParts.add(range.toString());
+		}
+
+		if (!displayParts.isEmpty())
+		{
+			String finalAnswer = String.join(" or ", displayParts);
+			question.setAnswer(finalAnswer);
+		}
 
 		return question;
 	}
