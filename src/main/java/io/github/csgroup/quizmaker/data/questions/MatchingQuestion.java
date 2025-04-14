@@ -106,6 +106,7 @@ public class MatchingQuestion extends Question
 		var c = new MatchingQuestion(getId(), getTitle(), getPoints());
 		
 		c.setLabel(getLabel().clone());
+		c.setAbet(isAbet());
 		
 		for (var answer : answers)
 		{

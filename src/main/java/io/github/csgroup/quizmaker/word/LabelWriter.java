@@ -50,16 +50,80 @@ public class LabelWriter
 	 */
 	public void write(Label label) throws IOException
 	{
-		XWPFParagraph paragraph = document.createParagraph();
 		if (label.getType() == Label.Type.html) {
 			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
-			processElements(doc.body().childNodes(), paragraph, false, false, false);
+			processLabel(doc.body());
 		} else {
-			paragraph.createRun().addBreak(); //Needed for consistent spacing with HTML runs
+			XWPFParagraph paragraph = document.createParagraph();
 			processPlainText(label.asText(), paragraph);
 		}
 	}
 
+	/**
+	 * Writes a {@link Label} into an existing {@link XWPFParagraph}, preserving formatting. <p>
+	 * This is an inline variant of the standard {@link #write(Label)} method that does not
+	 * create a new paragraph in the document, allowing for multiple labels to be written on the same line.
+	 * 
+	 * @param label The label to write into the given paragraph.
+	 * @param paragraph The existing paragraph where the label will be written.
+	 * @throws IOException If an error occurs while processing or writing the label.
+	 */
+	public void writeInline(Label label, XWPFParagraph paragraph) throws IOException 
+	{
+		if(label.getType() == Label.Type.html)
+		{
+			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
+			processLabel(doc.body());
+		}
+		else
+		{
+			String[] lines = label.asText().split("\n", -1);
+			for(int i = 0; i < lines.length; i++)
+			{
+				XWPFRun run = paragraph.createRun();
+				run.setText(lines[i]);
+				if (i < lines.length - 1) run.addBreak();
+			}
+		}
+	}
+	
+	/**
+	 * Processes the root HTML node of a {@link Label} and writes its content into the Word document,
+	 * while carefully managing paragraph creation to avoid unwanted spacing between block and inline elements.
+	 * <p>
+	 * This method is only called internally by {@link #write(Label)} for labels of type {@code html}.
+	 *
+	 * @param root The root HTML node parsed from the label's HTML content (typically {@code <body>}).
+	 * @throws IOException If an error occurs during processing.
+	 */
+	private void processLabel(Node root) throws IOException {
+	    List<Node> children = root.childNodes();
+	    XWPFParagraph activeParagraph = null;
+
+	    for (Node node : children) {
+	        if (node instanceof TextNode textNode) {
+	            if (activeParagraph == null) 
+	            {
+	                activeParagraph = document.createParagraph();
+	            }
+	            processHtmlText(textNode.text(), activeParagraph, false, false, false);
+	        } else if (node instanceof Element element) {
+	            String tag = element.tagName();
+	            if (tag.equals("table") || tag.equals("ul") || tag.equals("ol")) 
+	            {
+	                activeParagraph = null;
+	            }
+
+	            processHtmlElement(element, activeParagraph, false, false, false);
+	            if (tag.equals("table") || tag.equals("ul") || tag.equals("ol")) 
+	            {
+	                activeParagraph = null;
+	            }
+	        }
+	    }
+	}
+
+	
 	/**
 	 * Recursively processes HTML elements, applying styles to each processed element
 	 * @param nodes The list of HTML nodes to process.
@@ -104,13 +168,16 @@ public class LabelWriter
 	 * @param underline Whether the text should be underlined.
 	 */
 	private void processHtmlText(String text, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) {
+		if (paragraph == null) {
+			paragraph = document.createParagraph();
+		}
 		XWPFRun run = paragraph.createRun();
 		run.setText(text);
 		run.setBold(bold);
 		run.setItalic(italic);
 		if (underline) run.setUnderline(UnderlinePatterns.SINGLE);
 	}
-    
+
 	/**
 	 *  Processes an individual HTML element and applies the correct formatting
 	 * @param element The HTML element.
@@ -130,7 +197,7 @@ public class LabelWriter
 					XWPFParagraph newParagraph = document.createParagraph();
 					processElements(element.childNodes(), newParagraph, bold, italic, underline);
 				}
-				case "ul", "ol" -> processList(element, paragraph, element.tagName().equals("ol"));
+				case "ul", "ol" -> processList(element, element.tagName().equals("ol"));
 				case "table" -> processTable(element);
 				case "img" -> processImage(element);
 				default -> processElements(element.childNodes(), paragraph, bold, italic, underline);
@@ -140,19 +207,53 @@ public class LabelWriter
 	/**
 	 * Processes an unordered/ordered list
 	 * @param listElement The HTML list element.
-	 * @param paragraph The paragraph where the list will be added.
 	 * @param isOrdered Whether the list is ordered.
 	 */
-	private void processList(Element listElement, XWPFParagraph paragraph, boolean isOrdered) {
-		int counter = 1;
-		for (Element listItem : listElement.children()) {
-			if (listItem.tagName().equals("li")) {
-				XWPFParagraph listParagraph = document.createParagraph();
-				XWPFRun listRun = listParagraph.createRun();
-				listRun.setText((isOrdered ? counter++ + ". " : "- ") + listItem.text());
-			}
-		}
+	private void processList(Element listElement, boolean isOrdered) {
+	    int counter = 1;
+
+	    for (Element listItem : listElement.children()) {
+	        if (!listItem.tagName().equals("li")) continue;
+
+	        XWPFParagraph paragraph;
+
+	        if (counter == 1) {
+	            // Try to reuse last paragraph *only* if it's truly empty
+	            if (!document.getParagraphs().isEmpty()) {
+	                XWPFParagraph last = document.getLastParagraph();
+	                boolean isEmpty = last.getRuns().isEmpty() || last.getRuns().stream().allMatch(run -> run.text().isBlank());
+
+	                if (isEmpty) {
+	                    paragraph = last;
+	                    clearParagraph(paragraph);
+	                } else {
+	                    paragraph = document.createParagraph();
+	                }
+	            } else {
+	                paragraph = document.createParagraph();
+	            }
+	        } else {
+	            paragraph = document.createParagraph();
+	        }
+
+	        XWPFRun run = paragraph.createRun();
+	        run.setText((isOrdered ? counter + ". " : "- ") + listItem.text());
+
+	        counter++;
+	    }
 	}
+	
+	/**
+	 * Clears text in a paragraph so that it is empty
+	 * @param paragraph The paragraph to clear text from
+	 */
+	private void clearParagraph(XWPFParagraph paragraph) {
+	    int runCount = paragraph.getRuns().size();
+	    for (int i = runCount - 1; i >= 0; i--) {
+	        paragraph.removeRun(i);
+	    }
+	}
+
 
 	/**
 	 * Processes an HTML table and adds it directly to the Word document
@@ -176,7 +277,6 @@ public class LabelWriter
 				cellRun.setText(cells.get(colIndex).text());
 			}
 		}
-		document.createParagraph().createRun().addBreak();
 	}
 
 	/**
@@ -232,7 +332,9 @@ public class LabelWriter
 	 */
 	private void addImageToDocument(InputStream imageStream, String imageName, int imageType) throws IOException {
 		try {
-			XWPFParagraph paragraph = document.createParagraph();
+			XWPFParagraph paragraph = document.getParagraphs().isEmpty()
+					? document.createParagraph()
+					: document.getLastParagraph();
 			XWPFRun run = paragraph.createRun();
 			run.addPicture(imageStream, imageType, imageName, Units.toEMU(150), Units.toEMU(200)); //Probably need input from the image to change sizing, just using this for now
 		} catch (Exception e) {

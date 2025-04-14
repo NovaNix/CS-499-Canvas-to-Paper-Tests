@@ -24,6 +24,8 @@ public abstract class Question
 	
 	private WritableStore<Float> points;
 	
+	private WritableStore<Boolean> abet;
+	
 	public Question(String title)
 	{
 		this(title, 0f);
@@ -42,6 +44,8 @@ public abstract class Question
 		this.label = new Label(title);
 		
 		this.points = new DefaultWritableStore<Float>(points);
+		
+		this.abet = new DefaultWritableStore<Boolean>(false);
 	}
 	
 	public abstract String getAnswerString();
@@ -100,6 +104,23 @@ public abstract class Question
 	public float getPoints()
 	{
 		return points.get();
+	}
+	
+	public void setAbet(boolean abet)
+	{
+		this.abet.set(abet);
+		
+		fireEvent(new QuestionUpdateEvent(this));
+	}
+	
+	public boolean isAbet()
+	{
+		return abet.get();
+	}
+	
+	public WritableStore<Boolean> getAbetStore()
+	{
+		return abet;
 	}
 	
 	// Event Processing
