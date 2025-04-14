@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.qti.model.assessment.structure;
 
+import io.github.csgroup.quizmaker.qti.mapping.AnswerMapper.NumericRange;
 import io.github.csgroup.quizmaker.qti.model.assessment.metadata.ItemMetadata;
 import io.github.csgroup.quizmaker.qti.model.assessment.metadata.QTIMetadataField;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.MatText;
@@ -296,6 +297,227 @@ public class Item
 			}
 		}
 		
+		return map;
+	}
+	
+	/**
+	 * Returns a list of human-readable numeric ranges for numerical questions,<br>
+	 * based on the QTI <vargte>, <varlte>, <vargt>, and <varlt> tags.
+	 * 
+	 * @return list of range descriptions (e.g., "between 1.0 and 10.0")
+	 */
+	public List<NumericRange> getNumericRanges()
+	{
+		List<NumericRange> ranges = new ArrayList<>();
+
+		if (resprocessing == null || resprocessing.getResponseConditions() == null)
+		{
+			return ranges;
+		}
+
+		for (RespCondition cond : resprocessing.getResponseConditions())
+		{
+			ConditionVar var = cond.getConditionVar();
+			if (var != null)
+			{
+				ranges.addAll(collectNumericRanges(var));
+			}
+		}
+
+		return ranges;
+	}
+
+	private List<NumericRange> collectNumericRanges(ConditionVar var)
+	{
+		List<NumericRange> result = new ArrayList<>();
+		if (var == null) return result;
+
+		String respId = null, min = null, max = null;
+
+		if (var.getVarGte() != null)
+		{
+			for (var gte : var.getVarGte()) 
+			{ 
+				respId = gte.getRespIdent(); min = gte.getValue(); 
+			}
+		}
+		if (var.getVarGt() != null)
+		{
+			for (var gt : var.getVarGt()) 
+			{ 
+				respId = gt.getRespIdent(); min = gt.getValue(); 
+			}
+		}
+		if (var.getVarLte() != null)
+		{
+			for (var lte : var.getVarLte()) 
+			{ 
+				respId = lte.getRespIdent(); max = lte.getValue(); 
+			}
+		}
+		if (var.getVarLt() != null)
+		{
+			for (var lt : var.getVarLt()) 
+			{ 
+				respId = lt.getRespIdent(); max = lt.getValue(); 
+			}
+			
+		}
+		if (respId != null && min != null && max != null)
+		{
+			result.add(new NumericRange(respId, min, max));
+		}
+
+		// Handle nested logic
+		if (var.getAnd() != null && var.getAnd().getConditionVars() != null)
+		{
+			for (ConditionVar sub : var.getAnd().getConditionVars())
+			{
+				result.addAll(collectNumericRanges(sub));
+			}
+		}
+		if (var.getOr() != null && var.getOr().getConditionVars() != null)
+		{
+			for (ConditionVar sub : var.getOr().getConditionVars())
+			{
+				result.addAll(collectNumericRanges(sub));
+			}
+		}
+		if (var.getNot() != null && var.getNot().getConditionVar() != null)
+		{
+			result.addAll(collectNumericRanges(var.getNot().getConditionVar()));
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Returns a list of literal (exact) numeric answers found in <varequal> blocks.<br>
+	 * These are typically used in numerical questions where the value must match exactly.
+	 * 
+	 * @return list of numeric values as strings (e.g., ["5.20", "2"])
+	 */
+	public List<String> getExactNumericAnswers()
+	{
+		List<String> values = new ArrayList<>();
+
+		if (resprocessing != null && resprocessing.getResponseConditions() != null)
+		{
+			for (RespCondition cond : resprocessing.getResponseConditions())
+			{
+				ConditionVar var = cond.getConditionVar();
+				if (var != null)
+				{
+					List<String> extracted = collectExactAnswers(var);
+					for (String value : extracted)
+					{
+						if (value.matches("-?\\d+(\\.\\d+)?")) // basic numeric check
+						{
+							values.add(value);
+						}
+					}
+				}
+			}
+		}
+
+		return values;
+	}
+
+	private List<String> collectExactAnswers(ConditionVar var)
+	{
+		List<String> result = new ArrayList<>();
+
+		if (var.getVarEquals() != null)
+		{
+			for (VarEqual ve : var.getVarEquals())
+			{
+				String val = ve.getValue();
+				if (val != null && !val.isBlank())
+				{
+					result.add(val.trim());
+				}
+			}
+		}
+
+		if (var.getAnd() != null)
+		{
+			if (var.getAnd().getVarEquals() != null)
+			{
+				for (VarEqual ve : var.getAnd().getVarEquals())
+				{
+					String val = ve.getValue();
+					if (val != null && !val.isBlank())
+					{
+						result.add(val.trim());
+					}
+				}
+			}
+
+			if (var.getAnd().getConditionVars() != null)
+			{
+				for (ConditionVar sub : var.getAnd().getConditionVars())
+				{
+					result.addAll(collectExactAnswers(sub));
+				}
+			}
+		}
+
+		if (var.getOr() != null)
+		{
+			if (var.getOr().getVarEquals() != null)
+			{
+				for (VarEqual ve : var.getOr().getVarEquals())
+				{
+					String val = ve.getValue();
+					if (val != null && !val.isBlank())
+					{
+						result.add(val.trim());
+					}
+				}
+			}
+
+			if (var.getOr().getConditionVars() != null)
+			{
+				for (ConditionVar sub : var.getOr().getConditionVars())
+				{
+					result.addAll(collectExactAnswers(sub));
+				}
+			}
+		}
+
+		if (var.getNot() != null && var.getNot().getConditionVar() != null)
+		{
+			result.addAll(collectExactAnswers(var.getNot().getConditionVar()));
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns a map of blank identifiers to their list of answer choices.<br>
+	 * Used for displaying drop-down answer options for each individual blank.
+	 * 
+	 * @return a map where each key is a blank ID and each value is the list of choices for that blank
+	 */
+	public Map<String, List<String>> getBlankChoicesByResponseId()
+	{
+		Map<String, List<String>> map = new LinkedHashMap<>();
+		if (presentation != null && presentation.getResponseLids() != null)
+		{
+			for (ResponseLid lid : presentation.getResponseLids())
+			{
+				String key = lid.getIdent();
+				List<String> choices = new ArrayList<>();
+				if (lid.getRenderChoice() != null && lid.getRenderChoice().getResponseLabels() != null)
+				{
+					for (ResponseLabel label : lid.getRenderChoice().getResponseLabels())
+					{
+						choices.add(label.getDisplayText());
+					}
+				}
+				map.put(key, choices);
+			}
+		}
 		return map;
 	}
 	

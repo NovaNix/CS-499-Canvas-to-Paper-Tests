@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.tests.qti;
 
+import io.github.csgroup.quizmaker.qti.mapping.AnswerMapper.NumericRange;
 import io.github.csgroup.quizmaker.qti.model.assessment.metadata.QTIMetadataField;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.MatText;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.Material;
@@ -10,14 +11,15 @@ import io.github.csgroup.quizmaker.qti.model.assessment.structure.Section;
 import io.github.csgroup.quizmaker.qti.parsing.AssessmentContentParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.URL;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test to verify that the AssessmentContentParser correctly parses the QTI assessment content XML file.
@@ -32,8 +34,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class AssessmentContentParserTest 
 {
-
+	
 	private static final Logger logger = LoggerFactory.getLogger(AssessmentContentParserTest.class);
+	
 	private AssessmentContentParser parser;
 
 	@BeforeEach
@@ -46,12 +49,15 @@ public class AssessmentContentParserTest
 	@Test
 	public void testParseAssessmentContent() throws Exception 
 	{
+		
+		// Load quiz content file
 		URL resource = getClass().getClassLoader().getResource("g9951ec51c6f36aca6d6092ce983e753c.xml");
 		assertNotNull(resource, "Assessment content XML file not found in test resources.");
 
 		File assessmentFile = new File(resource.toURI());
 		assertTrue(assessmentFile.exists(), "Assessment content XML file does not exist.");
 
+		// Parse quiz content file
 		Assessment assessment = parser.parse(assessmentFile);
 		assertNotNull(assessment, "Parsed Assessment object should not be null.");
 
@@ -59,6 +65,7 @@ public class AssessmentContentParserTest
 		logger.info("Assessment Title: {}", assessment.getTitle());
 		logger.info("Assessment ID: {}", assessment.getIdent());
 
+		// Process each section withint the file
 		for (Section section : assessment.getSections()) 
 		{
 			processSection(section, 0);
@@ -67,12 +74,14 @@ public class AssessmentContentParserTest
 
 	private void processSection(Section section, int level) 
 	{
+		
 		String indent = "  ".repeat(level);
 		if (section.getIdent() != null) 
 		{
 			logger.info(indent + "Section: {}", section.getIdent());
 		}
 
+		// Hnadles nested sections
 		if (section.getSubsections() != null) 
 		{
 			for (Section subsection : section.getSubsections()) 
@@ -81,20 +90,23 @@ public class AssessmentContentParserTest
 			}
 		}
 
+		// Process each item (question)
 		if (section.getItems() != null) 
 		{
 			for (Item item : section.getItems()) 
 			{
 				logger.info("\n" + indent + "------------------------------");
-				logger.info(indent + "Question {}", item.getTitle());
+				logger.info(indent + "Question: {}", item.getTitle());
 				logger.info(indent + " - ID: {}", item.getIdent());
 				logger.info(indent + " - Title: {}", item.getTitle());
 
-				// Points per question
+				String questionType = item.getQuestionType();
+				logger.info(indent + " - Question Type: {}", questionType);
+
 				String points = getPointsPossible(item);
 				logger.info(indent + " - Points: {}", (points != null ? points : "N/A"));
 
-				// Prompt
+				// Identify and process prompt
 				Presentation presentation = item.getPresentation();
 				if (presentation != null && presentation.getMaterials() != null) 
 				{
@@ -110,20 +122,94 @@ public class AssessmentContentParserTest
 					}
 				}
 
-				// Question type
-				String questionType = item.getQuestionType();
-				logger.info(indent + " - Question Type: {}", questionType);
+				boolean isBlankType = questionType != null && (questionType.contains("blank") || questionType.contains("dropdown"));
 
-				// Answer choices
-				Map<String, String> responseMap = item.getResponseIdToTextMap();
-				if (!responseMap.isEmpty()) 
+				// Display correct answer text (except for multiple answers question type)
+				List<String> exactAnswers = item.getCorrectAnswers();
+				if (!isBlankType && !exactAnswers.isEmpty() && !"multiple_answers_question".equalsIgnoreCase(questionType)) 
 				{
-					logger.info(indent + " - Answer Choices:");
-					responseMap.forEach((id, text) ->
-							logger.info(indent + "     • {}: {}", id, text));
+					List<String> values = exactAnswers.stream()
+						.map(ans -> {
+							String clean = ans.replace("(Literal Answer)", "").trim();
+							String[] split = clean.split(":", 2);
+							return (split.length == 2 ? split[1].trim() : split[0].trim());
+						})
+						.collect(Collectors.toList());
+					logger.info(indent + " - Correct Answer(s): {}", String.join(" or ", values));
 				}
 
-				// Matching pairs
+				// Map response IDs to the display text
+				Map<String, String> responseMap = item.getResponseIdToTextMap();
+				
+				// Track the correct response IDs
+				Map<String, List<String>> correctAnswersMap = new LinkedHashMap<>();
+				if (item.getResponseProcessing() != null)
+				{
+					for (var cond : item.getResponseProcessing().getResponseConditions())
+					{
+						var var = cond.getConditionVar();
+						if (var != null && var.getVarEquals() != null)
+						{
+							for (var ve : var.getVarEquals())
+							{
+								correctAnswersMap
+									.computeIfAbsent(ve.getRespIdent(), k -> new java.util.ArrayList<>())
+									.add(ve.getValue());
+							}
+						}
+					}
+				}
+
+				// Display answer chocies for each question
+				if (!isBlankType && !responseMap.isEmpty())
+				{
+					logger.info(indent + " - Answer Choices:");
+
+					for (Map.Entry<String, String> entry : responseMap.entrySet())
+					{
+						String id = entry.getKey();
+						String text = entry.getValue();
+
+						boolean isCorrect = "multiple_answers_question".equalsIgnoreCase(questionType)
+							&& item.getCorrectAnswers().stream()
+								.map(ans -> ans.split(":", 2)[0].trim()) // Extract just the ID
+								.anyMatch(correctId -> correctId.equalsIgnoreCase(id));
+
+						if (isCorrect)
+						{
+							logger.info(indent + "     • " + text + " (Correct)");
+						}
+						else
+						{
+							logger.info(indent + "     • " + text);
+						}
+					}
+				}
+
+				// Display answer blanks (for dropdown/fill-in-blank question types)
+				Map<String, List<String>> blankChoices = item.getBlankChoicesByResponseId();
+				if (!blankChoices.isEmpty() && isBlankType)
+				{
+					logger.info(indent + " - Answer Blanks:");
+					blankChoices.forEach((blankId, choices) ->
+					{
+						String label = blankId.replace("response_", "");
+						logger.info(indent + "     • [{}]", label);
+
+						List<String> corrects = correctAnswersMap.get(blankId);
+						if (corrects != null && !corrects.isEmpty())
+						{
+							List<String> display = corrects.stream()
+								.map(id -> responseMap.getOrDefault(id, id))
+								.collect(Collectors.toList());
+							logger.info(indent + "         - Correct Answer: {}", String.join(" or ", display));
+						}
+
+						logger.info(indent + "         - Choices: {}", String.join(", ", choices));
+					});
+				}
+
+				// Format matching pairs questions
 				if ("matching_question".equalsIgnoreCase(questionType)) 
 				{
 					List<String> matchingPairs = item.getMatchingPairs();
@@ -134,15 +220,25 @@ public class AssessmentContentParserTest
 					}
 				}
 
-				// Correct answers
-				List<String> correctAnswers = item.getCorrectAnswers();
-				if (!correctAnswers.isEmpty()) 
+				// Check for numeric values
+				if ("numerical_question".equalsIgnoreCase(questionType)) 
 				{
-					correctAnswers.forEach(answer -> logger.info(indent + " - Correct Answer: {}", answer));
+					List<String> numericValues = item.getExactNumericAnswers();
+					if (!numericValues.isEmpty()) 
+					{
+						logger.info(indent + " - Exact Numeric Value(s):");
+						numericValues.forEach(val -> logger.info(indent + "     • {}", val));
+					}
+					List<NumericRange> ranges = item.getNumericRanges();
+					if (!ranges.isEmpty()) 
+					{
+						logger.info(indent + " - Numeric Range(s):");
+						ranges.forEach(range -> logger.info(indent + "     • {}", range));
+					}
 				}
 
-				// Note for user input-required questions
-				if (questionType != null && (questionType.contains("essay") || questionType.contains("short_answer") || questionType.contains("numerical"))) 
+				// Note for user-input questions
+				if ("short_answer_question".equalsIgnoreCase(questionType) || "essay_question".equalsIgnoreCase(questionType))
 				{
 					logger.info(indent + " - Note: This question requires user input.");
 				}
@@ -150,6 +246,12 @@ public class AssessmentContentParserTest
 		}
 	}
 
+	/**
+	 * Utility method to retrieve the number of points possible for each question 
+	 * 
+	 * @param item
+	 * @return 
+	 */
 	private String getPointsPossible(Item item) 
 	{
 		if (item.getItemMetadata() != null && item.getItemMetadata().getQtimetadata() != null && item.getItemMetadata().getQtimetadata().getQtimetadatafield() != null) 
@@ -165,7 +267,3 @@ public class AssessmentContentParserTest
 		return null;
 	}
 }
-
-
-
-
