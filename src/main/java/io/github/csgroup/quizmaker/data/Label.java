@@ -5,12 +5,17 @@ import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.html.HTMLDocument;
 
+import org.w3c.dom.Element;
+
+import io.github.csgroup.quizmaker.qti.export.serializers.LabelSerializer;
+import io.github.csgroup.quizmaker.qti.export.utils.QTISerializable;
+
 /**
  * A label displayed when showing a question or answer<br>
  * 
  * @author Michael Nix
  */
-public class Label
+public class Label implements QTISerializable
 {
 
 	// TODO consider adding Label events that bubble up to whatever data types contain the labels
@@ -163,6 +168,15 @@ public class Label
 		{
 			return mime;
 		}
+	}
+
+	// The serializer for QTI labels
+	private static final LabelSerializer serializer = new LabelSerializer();
+	
+	@Override
+	public Element asQTIElement(org.w3c.dom.Document d) 
+	{
+		return serializer.asElement(d, this);
 	}
 
 	
