@@ -14,6 +14,16 @@ import org.apache.poi.xwpf.usermodel.*;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 
+/**
+ * Utility class for applying metadata placeholders to Word documents.
+ *
+ * <p>This class uses {@link TemplateReplacements} to define which placeholders
+ * to look for in the document (e.g., "(Class)") and {@link QuizMetadata}
+ * to provide the actual values (e.g., "350"). It supports run-aware
+ * replacement while preserving formatting.</p>
+ *
+ * <p>Supported targets include paragraphs, tables, headers, and footers.</p>
+ */
 public class TemplateWriter {
 
 	/**
@@ -24,8 +34,8 @@ public class TemplateWriter {
 	 * @param inputPath The path to the input .docx template
 	 * @param outputPath The destination path for the filled document
 	 * @param replacements A {@link TemplateReplacements} object defining which string each metadata type replaces (e.g., "(Class)")
-	 * @param metadata A {@link QuizMetadata} object containing the values to insert (e.g., "CS-350")
-	 * @throws IOException if reading or writing the document fails
+	 * @param metadata A {@link QuizMetadata} object containing the values to insert (e.g., "350")
+	 * @throws IOException If reading or writing the document fails
 	 */
 	public static void applyMetadata(Path inputPath, Path outputPath, TemplateReplacements replacements, QuizMetadata metadata) throws IOException {
 		Map<String, String> tokenMap = new HashMap<>();

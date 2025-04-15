@@ -96,7 +96,7 @@ public class QuestionWriter
 			case Line -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 				}
 				else
 				{
@@ -106,7 +106,7 @@ public class QuestionWriter
 			case Paragraph -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 					addBlankLines(4); //May not be necessary, would require a lot of code to dynamically allocate lines
 					//Can come back here if needed
 				}
@@ -118,7 +118,7 @@ public class QuestionWriter
 			case Essay -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 				}
 				document.createParagraph().setPageBreak(true);
 			}
@@ -164,14 +164,7 @@ public class QuestionWriter
 				if (answer != null)
 				{
 					String addIndex =  "	Blank " +  index + ": ";
-					if(answer.getAnswer().getType() == Label.Type.html)
-					{
-						labelWriter.write(new Label(addIndex + answer.asText(), Label.Type.html));
-					}
-					else
-					{
-						labelWriter.write(new Label(addIndex + answer.asText()));
-					}
+					labelWriter.write(redLabel(new Label(addIndex + answer.asText())));
 				}
 				index++;
 			}
@@ -180,7 +173,7 @@ public class QuestionWriter
 	
 	/**
 	 * Writes a {@link MultipleChoiceQuestion} to the Word document. If {@code isKey} is true,
-	 * [Correct] will be printed next to the right answers.
+	 * answers will be made red.
 	 * 
 	 * @param q The multiple choice question to be written
 	 * @throws IOException If an error occurs during label writing
@@ -190,22 +183,28 @@ public class QuestionWriter
 		LabelWriter labelWriter = new LabelWriter(document);
 		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
 		
-		for (SimpleAnswer answer : q.getAnswers())
+		List <SimpleAnswer> answerLabels = q.getAnswers();
+		Collections.shuffle(answerLabels); //I dont know if Michael has gotten to randomizing this yet, this is just temp for the requirements meeting
+		for (SimpleAnswer answer : answerLabels)
 		{
-			String prefix = "	- ";
+			String prefix = "\t";
 			if(isKey && q.isCorrect(answer))
 			{
-				prefix += "[Correct] ";
+				var ansLabel = new Label("- " + answer.asText());
+				XWPFParagraph paragraph = document.createParagraph();
+				labelWriter.writeInline(new Label(prefix), paragraph);
+				labelWriter.writeInline(redLabel(ansLabel), paragraph);
+				continue;
 			}
 			
 			if(answer.getLabel().getType() == Label.Type.html)
 			{
-				var ansLabel = new Label(prefix + answer.asText(), Label.Type.html);
+				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html);
 				labelWriter.write(ansLabel);
 			}
 			else
 			{
-				var ansLabel = new Label(prefix + answer.asText());
+				var ansLabel = new Label(prefix + "- " + answer.asText());
 				labelWriter.write(ansLabel);
 			}
 		}
@@ -277,16 +276,20 @@ public class QuestionWriter
 			spacerCell.getCTTc().getTcPr().getTcW().setType(STTblWidth.DXA);
 			XWPFParagraph spacerPara = spacerCell.getParagraphs().get(0);
 			spacerPara.setAlignment(ParagraphAlignment.CENTER);
-			
-			//This can be changed to being a label write if needed
-			XWPFRun run = spacerPara.createRun();
-			String spacerSymbol = isKey ? "→" : "";
-			run.setText(spacerSymbol);
+			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" ");
+			new LabelWriter(document).writeInline(spacerSymbol, spacerPara);
 
 			XWPFTableCell rightCell = row.getCell(2);
 			rightCell.setWidth("3000");
 			XWPFParagraph rightPara = rightCell.getParagraphs().get(0);
-			new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
+			if (isKey)
+			{
+				new LabelWriter(document).writeInline(redLabel(rightLabels.get(i)), rightPara);
+			}
+			else
+			{
+				new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
+			}
 		}
 	}
 	
@@ -306,6 +309,10 @@ public class QuestionWriter
 		borders.addNewInsideV().setVal(STBorder.NONE);
 	}
 	
+	private Label redLabel(Label original)
+	{
+		return new Label("<span style='color:#FF0000'>" + original.asText() + "</span>", Label.Type.html);
+	}
 
 	/**
 	 * Builds a new Label containing the question number, the original label, and point value.
