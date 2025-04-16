@@ -7,8 +7,12 @@ import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Project;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -16,6 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import java.awt.Color;
+import java.awt.Image;
+
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 /**
@@ -36,11 +42,16 @@ public class GUIManager
      * Creates a frame that will host multiple panels and the 
      * file menu for the system
      */      
-    public void createHomeFrame() 
+    public void createHomeFrame()
     {
         // main JFrame that will host all JPanels for the system
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
                
+        Image icon = getIcon();
+        
+        if (icon != null)
+        	homeFrame.setIconImage(icon);
+        
         //size of the JFrame (width, height)
         homeFrame.setSize(705, 560);
             
@@ -105,4 +116,16 @@ public class GUIManager
         // make the JFrame visible
         homeFrame.setVisible(true);  
     }	
+    
+    private Image getIcon() 
+    {
+    	try {
+			return ImageIO.read(GUIManager.class.getResource("/icon.png"));
+		} catch (IOException e) {
+			logger.error("Failed to load window icon");
+			e.printStackTrace();
+			
+			return null;
+		}
+    }
 }
