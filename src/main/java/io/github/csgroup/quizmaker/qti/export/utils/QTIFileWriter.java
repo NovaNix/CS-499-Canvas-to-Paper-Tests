@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -69,6 +70,11 @@ public abstract class QTIFileWriter
 		
 	    Transformer transformer = TransformerFactory.newInstance()
 	    		.newTransformer();
+		
+		// Enable 'INDENT' and set the indent amount for the transformer 
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+		
 
 	    StreamResult result = new StreamResult(p.toFile());
 	    transformer.transform(dom, result);
