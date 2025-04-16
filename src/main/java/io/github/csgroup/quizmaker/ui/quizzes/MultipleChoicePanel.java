@@ -55,6 +55,8 @@ public class MultipleChoicePanel extends JComponent
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
     private JButton addQuestionButton;
+    private JButton addButton;
+    private JButton removeButton;
     private final int numAnswers = 10;
     private QuestionBank questionBank;
     
@@ -271,12 +273,12 @@ public class MultipleChoicePanel extends JComponent
         answersPanel.add(answerButtonPanel, buttonPanelConstraint);
         
         GridBagConstraints addButtonConstraint = new GridBagConstraints();
-        JPanel addButton= addButtonPanel();
+        JPanel buttonPanel = addButtonPanel();
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 11;
         addButtonConstraint.insets = new Insets(0, 175, 0, 0);
-        answersPanel.add(addButton, addButtonConstraint);
+        answersPanel.add(buttonPanel, addButtonConstraint);
                       
         return answersPanel;
     }
@@ -288,8 +290,8 @@ public class MultipleChoicePanel extends JComponent
      */
     public JPanel buttonPanel()
     {
-        JButton addButton = new JButton("+");
-        JButton removeButton = new JButton("-");
+        addButton = new JButton("+");
+        removeButton = new JButton("-");
         
         // contains addButton and removeButton
         JPanel buttonPanel = new JPanel(new GridBagLayout());
@@ -317,8 +319,15 @@ public class MultipleChoicePanel extends JComponent
         
         // listens for when removeButton is selected
         removeButton.addActionListener((ActionEvent e) -> { 
-            // remove the bottom text field and radio button
-            removeAnswerChoices();
+            try
+            {
+                // remove the bottom text field
+                removeAnswerChoice();
+            }
+            catch (IndexOutOfBoundsException n)
+            {
+                removeButton.setEnabled(false);
+            }
         });
                 
         return buttonPanel;
@@ -342,17 +351,27 @@ public class MultipleChoicePanel extends JComponent
         addQuestionButton.addActionListener((ActionEvent e) -> {   
             // the question the user entered
             String questionString = question.getText();
-            // the point value of the question
-            String pointsString = pointsValue.getText();
+            
             // the title of the question
             String questionLabel = questionTitle.getText();
 
             try 
             {
-                float floatPoints = Float.parseFloat(pointsString);                
-                MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
-                mcQuestion.setLabel(new Label(questionString));
-                addMCQuestion(mcQuestion);
+                if (newQuiz != null)
+                {
+                    // the point value of the question
+                    String pointsString = pointsValue.getText();
+                    float floatPoints = Float.parseFloat(pointsString);                
+                    MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
+                    mcQuestion.setLabel(new Label(questionString));
+                    addMCQuestion(mcQuestion);
+                }
+                if (questionBank != null)
+                {
+                    MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel);
+                    mcQuestion.setLabel(new Label(questionString));
+                    addMCQuestion(mcQuestion);
+                }
                 
                 mainFrame.dispose();  
             }  
@@ -375,11 +394,22 @@ public class MultipleChoicePanel extends JComponent
             public void insertUpdate(DocumentEvent e)
             {
                 boolean points = (pointsValue.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((points == false) && (fitbQuestion == false))
+                boolean mcQuestion = (question.getText()).isEmpty();
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((points == false) && (mcQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
+                if (questionBank != null)
+                {
+                    if (mcQuestion == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }         
             }
             
             @Override
@@ -392,40 +422,42 @@ public class MultipleChoicePanel extends JComponent
                 {
                     addQuestionButton.setEnabled(false);
                 }                
-            }
-           
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
-        
-        Document pointsDocument = pointsValue.getDocument();
-        pointsDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) 
-            {
-                boolean title = (questionTitle.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((title == false) && (fitbQuestion == false))
-                {
-                    addQuestionButton.setEnabled(true);
-                }
-            }
-            
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = pointsValue.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the title field is empty
-                if (empty == true)
-                {
-                    addQuestionButton.setEnabled(false);
-                }                
             }           
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
         
+        if (newQuiz != null)
+        {
+            Document pointsDocument = pointsValue.getDocument();
+            pointsDocument.addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) 
+                {
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean mcQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (mcQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+            
+                @Override
+                public void removeUpdate(DocumentEvent e)
+                {
+                    String text = pointsValue.getText();
+                    boolean empty = text.isEmpty();
+                    // disable the button if the title field is empty
+                    if (empty == true)
+                    {
+                        addQuestionButton.setEnabled(false);
+                    }                
+                }           
+                @Override
+                public void changedUpdate(DocumentEvent e) {}                 
+        });
+        }
+                
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
             @Override
@@ -433,9 +465,20 @@ public class MultipleChoicePanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                if ((title == false) && (points == false))
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((title == false) && (points == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }                    
+                }
+                if (questionBank != null)
+                {
+                    if (title == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }  
                 }
             }
             
@@ -486,6 +529,10 @@ public class MultipleChoicePanel extends JComponent
                     rowLayout.show(cardPanels[i], "row " + i);
                     answerButtonPanel.setVisible(true); 
                 }
+                if (i == (numAnswers - 1))
+                {
+                    addButton.setEnabled(false);
+                }
                 break;
             }
         }
@@ -494,7 +541,7 @@ public class MultipleChoicePanel extends JComponent
     /**
      * Removes a text field and radio button from the panel
      */
-    private void removeAnswerChoices()
+    private void removeAnswerChoice()
     {
         // loop until a non-visible radio button is found
         int index = 0;
@@ -541,6 +588,10 @@ public class MultipleChoicePanel extends JComponent
         if (index > 4)
         {
             answerButtonPanel.setVisible(true);
+        }
+        if (index < (numAnswers - 1))
+        {
+            addButton.setEnabled(true);
         }
     }
     
