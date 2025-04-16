@@ -1,6 +1,7 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 
 import java.awt.GridBagLayout;
@@ -59,6 +60,7 @@ public class GenerateDialog
         buttonPanel.add(generateButton);
         
         generateButton.addActionListener((ActionEvent e) -> { 
+            GeneratedQuiz generatedQuiz = new GeneratedQuiz(quiz);
             generateFrame.dispose();
         });
                

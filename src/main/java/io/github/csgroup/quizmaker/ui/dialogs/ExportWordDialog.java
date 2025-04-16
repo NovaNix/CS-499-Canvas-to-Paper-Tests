@@ -1,6 +1,7 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 import io.github.csgroup.quizmaker.word.WordExporter;
 import java.awt.CardLayout;
@@ -17,7 +18,11 @@ import java.awt.Insets;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -47,16 +52,7 @@ public class ExportWordDialog
         quiz = exportQuiz;
         createExportFileFrame();
     }
-          
-    private void setLocation(String path)
-    {
-        locationPath = path;
-    }
-        
-    private String getLocation()
-    {
-        return locationPath;
-    }
+
         
     /**
      * Places the label panel, radio button panel, file attachment panel,
@@ -440,7 +436,6 @@ public class ExportWordDialog
             try 
             {
                 String locationFilePath = locFileChooser.getSelectedFile().getPath(); 
-                setLocation(locationFilePath);
                 locTextField.setText(locationFilePath);    
             } 
             catch (NullPointerException n) {}
@@ -475,20 +470,42 @@ public class ExportWordDialog
         exportButton.addActionListener((ActionEvent e) -> {
             if ((testButton.isSelected() == true) || (keyButton.isSelected() == true))
             {
+                // export the quiz 
                 if (testButton.isSelected() == true)
                 {
-                    String testLocation = getLocation();
-                    if (testLocation.isEmpty() == false)
+                    String templateLocation = templateTextField.getText();
+                    Path templatePath = Paths.get(templateLocation);
+                    
+                    String exportLocation = locationTextField.getText();
+                    Path exportPath = Paths.get(exportLocation);
+
+                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    try
                     {
-                        //exportFile.exportTest(quiz, testLocation);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, false);
+                    }
+                    catch (IOException n )
+                    {
+                        errorDialog();
                     }
                 }
+                // export the answer key
                 if (keyButton.isSelected() == true)
                 {
-                    String keyLocation = getLocation();
-                    if (keyLocation.isEmpty() == false)
+                    String templateLocation = templateTextField.getText();
+                    Path templatePath = Paths.get(templateLocation);
+                    
+                    String exportLocation = locationTextField.getText();
+                    Path exportPath = Paths.get(exportLocation);
+
+                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    try
                     {
-                        //exportFile.exportAnswerKey(quiz, keyLocation);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, true);
+                    }
+                    catch (IOException n )
+                    {
+                        errorDialog();
                     }
                 }
                 exportFrame.dispose();
@@ -496,6 +513,12 @@ public class ExportWordDialog
         }); 
                 
         return exportButtonPanel;
+    }
+    
+    private void errorDialog()
+    {
+        JFrame errorFrame = new JFrame();
+        JOptionPane.showMessageDialog(errorFrame, "Could not export file", "Error", JOptionPane.ERROR_MESSAGE);  
     }
     
     /**

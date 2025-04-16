@@ -213,8 +213,7 @@ public class ImportQTIDialog
     private void errorDialog()
     {
         JFrame errorFrame = new JFrame();
-        JOptionPane.showMessageDialog(errorFrame, "Could not import file", "Error", JOptionPane.ERROR_MESSAGE);
-        
+        JOptionPane.showMessageDialog(errorFrame, "Could not import file", "Error", JOptionPane.ERROR_MESSAGE);        
     }
             
     /**
