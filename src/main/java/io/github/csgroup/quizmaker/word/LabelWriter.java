@@ -7,6 +7,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
@@ -52,7 +54,7 @@ public class LabelWriter
 	{
 		if (label.getType() == Label.Type.html) {
 			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
-			processLabel(doc.body());
+			processLabel(doc.body(), false, null);
 		} else {
 			XWPFParagraph paragraph = document.createParagraph();
 			processPlainText(label.asText(), paragraph);
@@ -73,7 +75,7 @@ public class LabelWriter
 		if(label.getType() == Label.Type.html)
 		{
 			org.jsoup.nodes.Document doc = Jsoup.parse(label.asText());
-			processLabel(doc.body());
+			processLabel(doc.body(), true, paragraph);
 		}
 		else
 		{
@@ -94,11 +96,13 @@ public class LabelWriter
 	 * This method is only called internally by {@link #write(Label)} for labels of type {@code html}.
 	 *
 	 * @param root The root HTML node parsed from the label's HTML content (typically {@code <body>}).
+	 * @param inLine If the label needs to be printed on the same line as the last
+	 * @param paragraph The paragraph that is currently being used
 	 * @throws IOException If an error occurs during processing.
 	 */
-	private void processLabel(Node root) throws IOException {
+	private void processLabel(Node root, boolean inLine, XWPFParagraph paragraph) throws IOException {
 	    List<Node> children = root.childNodes();
-	    XWPFParagraph activeParagraph = null;
+	    XWPFParagraph activeParagraph = paragraph;
 
 	    for (Node node : children) {
 	        if (node instanceof TextNode textNode) {
@@ -106,7 +110,7 @@ public class LabelWriter
 	            {
 	                activeParagraph = document.createParagraph();
 	            }
-	            processHtmlText(textNode.text(), activeParagraph, false, false, false);
+	            processHtmlText(textNode.text(), activeParagraph, false, false, false, null, inLine);
 	        } else if (node instanceof Element element) {
 	            String tag = element.tagName();
 	            if (tag.equals("table") || tag.equals("ul") || tag.equals("ol")) 
@@ -114,7 +118,7 @@ public class LabelWriter
 	                activeParagraph = null;
 	            }
 
-	            processHtmlElement(element, activeParagraph, false, false, false);
+	            processHtmlElement(element, activeParagraph, false, false, false, null, inLine);
 	            if (tag.equals("table") || tag.equals("ul") || tag.equals("ol")) 
 	            {
 	                activeParagraph = null;
@@ -131,14 +135,16 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 * @throws IOException If an error occurs while processing elements.
 	 */
-	private void processElements(List<Node> nodes, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) throws IOException {
+	private void processElements(List<Node> nodes, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) throws IOException {
 		for (Node node : nodes) {
 			if (node instanceof TextNode textNode) {
-				processHtmlText(textNode.text(), paragraph, bold, italic, underline);
+				processHtmlText(textNode.text(), paragraph, bold, italic, underline, color, inLine);
 			} else if (node instanceof Element element) {
-				processHtmlElement(element, paragraph, bold, italic, underline);
+				processHtmlElement(element, paragraph, bold, italic, underline, color, inLine);
 			}
 		}
 	}
@@ -166,8 +172,10 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 */
-	private void processHtmlText(String text, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) {
+	private void processHtmlText(String text, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) {
 		if (paragraph == null) {
 			paragraph = document.createParagraph();
 		}
@@ -175,6 +183,7 @@ public class LabelWriter
 		run.setText(text);
 		run.setBold(bold);
 		run.setItalic(italic);
+		if (color != null) run.setColor(color);
 		if (underline) run.setUnderline(UnderlinePatterns.SINGLE);
 	}
 
@@ -185,25 +194,70 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 * @throws IOException If an error occurs while processing the element.
 	 */
-	private void processHtmlElement(Element element, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline) throws IOException {
+	private void processHtmlElement(Element element, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) throws IOException {
 		switch (element.tagName()) {
-				case "b", "strong" -> processElements(element.childNodes(), paragraph, true, italic, underline);
-				case "i", "em" -> processElements(element.childNodes(), paragraph, bold, true, underline);
-				case "u" -> processElements(element.childNodes(), paragraph, bold, italic, true);
+				case "b", "strong" -> processElements(element.childNodes(), paragraph, true, italic, underline, color, inLine);
+				case "i", "em" -> processElements(element.childNodes(), paragraph, bold, true, underline, color, inLine);
+				case "u" -> processElements(element.childNodes(), paragraph, bold, italic, true, color, inLine);
 				case "br" -> paragraph.createRun().addBreak();
 				case "p" -> {
-					XWPFParagraph newParagraph = document.createParagraph();
-					processElements(element.childNodes(), newParagraph, bold, italic, underline);
+					if(!inLine) 
+					{
+						XWPFParagraph newParagraph = document.createParagraph();
+						processElements(element.childNodes(), newParagraph, bold, italic, underline, color, inLine);
+					}
+					else
+					{
+						processElements(element.childNodes(), paragraph, bold, italic, underline, color, inLine);
+					}
 				}
 				case "ul", "ol" -> processList(element, element.tagName().equals("ol"));
 				case "table" -> processTable(element);
 				case "img" -> processImage(element);
-				default -> processElements(element.childNodes(), paragraph, bold, italic, underline);
+				case "span" -> {
+					String style = element.attr("style").toLowerCase();
+					String newColor = extractColorFromStyle(style);
+					processElements(element.childNodes(), paragraph, bold, italic, underline, newColor, inLine);
+				}
+				default -> processElements(element.childNodes(), paragraph, bold, italic, underline, color, inLine);
 		}
 	}
-
+	
+	/**
+	 * Extracts the color data from inside of a span from HTML
+	 * 
+	 * @param style The HTML text containing the color data
+	 * @return The hex value of the color to be used, or null if none is found
+	 */
+	private String extractColorFromStyle(String style)
+	{
+		if (style == null) return null;
+		
+		Pattern colorPattern = Pattern.compile("color\\s*:\\s*([^;]+)");
+		Matcher matcher = colorPattern.matcher(style);
+		if (matcher.find()) {
+			String color = matcher.group(1).trim();
+			if (color.startsWith("#"))
+			{
+				return color.substring(1);
+			}
+			else if (color.equalsIgnoreCase("red"))
+			{
+				return "FF0000";
+			}
+			else
+			{
+				return "FFFFFF";
+			}
+			//Can add more colors if needed?
+		}
+		return null;
+	}
+	
 	/**
 	 * Processes an unordered/ordered list
 	 * @param listElement The HTML list element.

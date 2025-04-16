@@ -35,7 +35,6 @@ public class QuestionWriter
 	private static final DecimalFormat POINT_FORMAT = new DecimalFormat("#.##");
 	
 	private final XWPFDocument document;
-	
 	private final boolean isKey;
 	
 	/**
@@ -50,30 +49,30 @@ public class QuestionWriter
 	}
 	
 	/**
+	 * Creates a page blank before the next paragraph,
+	 * which is used to separate the questions from the front pages.
+	 */
+	public void insertPageBreak()
+	{
+		XWPFParagraph paragraph = document.createParagraph();
+		paragraph.setPageBreak(true);
+	}
+	
+	/**
 	 * Determines the type of question to be written to the quiz and calls the appropriate writer
 	 * 
 	 * @param q The question to be written
 	 * @param questionNumber Number of the question to write
 	 * @throws IOException If an error occurs during writing the label
 	 */
-	public void pickQuestionType(Question q, int questionNumber) throws IOException 
+	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
-		if(q instanceof WrittenResponseQuestion wrq)
-		{
-			writeWrittenResponse(wrq, questionNumber);
-		} else if(q instanceof FillInTheBlankQuestion filb)
-		{
-			writeFillBlank(filb, questionNumber);
-		} else if(q instanceof MultipleChoiceQuestion mc)
-		{
-			writeMultipleChoice(mc, questionNumber);
-		} else if(q instanceof MatchingQuestion match)
-		{
-			writeMatching(match, questionNumber);
-		}
-		else
-		{
-			logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
+		switch (q) {
+		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
+		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
+		case MatchingQuestion match -> writeMatching(match, questionNumber);
+		case MultipleChoiceQuestion mc -> writeMultipleChoice(mc, questionNumber);
+		default -> logger.error("Unsupported question type: {}", q.getClass().getSimpleName());
 		}
 	}
 	
@@ -92,12 +91,12 @@ public class QuestionWriter
 			XWPFParagraph paragraph = document.createParagraph();
 			paragraph.setPageBreak(true);
 		}
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		switch (q.getResponseLength()) {
 			case Line -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 				}
 				else
 				{
@@ -107,7 +106,7 @@ public class QuestionWriter
 			case Paragraph -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 					addBlankLines(4); //May not be necessary, would require a lot of code to dynamically allocate lines
 					//Can come back here if needed
 				}
@@ -119,7 +118,7 @@ public class QuestionWriter
 			case Essay -> {
 				if(isKey)
 				{
-					labelWriter.write(q.getAnswer());
+					labelWriter.write(redLabel(q.getAnswer()));
 				}
 				document.createParagraph().setPageBreak(true);
 			}
@@ -154,7 +153,7 @@ public class QuestionWriter
 		String tagBlank = q.getLabel().asText();
 		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
 		Label tagBlankLabel = new Label(tagBlank, q.getLabel().getType());
-		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()));
 		
 		if(isKey)
 		{
@@ -164,15 +163,8 @@ public class QuestionWriter
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex =  index + ": ";
-					if(answer.getAnswer().getType() == Label.Type.html)
-					{
-						labelWriter.write(new Label(addIndex + answer.asText(), Label.Type.html));
-					}
-					else
-					{
-						labelWriter.write(new Label(addIndex + answer.asText()));
-					}
+					String addIndex =  "	Blank " +  index + ": ";
+					labelWriter.write(redLabel(new Label(addIndex + answer.asText())));
 				}
 				index++;
 			}
@@ -181,7 +173,7 @@ public class QuestionWriter
 	
 	/**
 	 * Writes a {@link MultipleChoiceQuestion} to the Word document. If {@code isKey} is true,
-	 * [Correct] will be printed next to the right answers.
+	 * answers will be made red.
 	 * 
 	 * @param q The multiple choice question to be written
 	 * @throws IOException If an error occurs during label writing
@@ -189,24 +181,30 @@ public class QuestionWriter
 	public void writeMultipleChoice(MultipleChoiceQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		
-		for (SimpleAnswer answer : q.getAnswers())
+		List <SimpleAnswer> answerLabels = q.getAnswers();
+		Collections.shuffle(answerLabels); //I dont know if Michael has gotten to randomizing this yet, this is just temp for the requirements meeting
+		for (SimpleAnswer answer : answerLabels)
 		{
-			String prefix = "- ";
+			String prefix = "\t";
 			if(isKey && q.isCorrect(answer))
 			{
-				prefix += "[Correct] ";
+				var ansLabel = new Label("- " + answer.asText());
+				XWPFParagraph paragraph = document.createParagraph();
+				labelWriter.writeInline(new Label(prefix), paragraph);
+				labelWriter.writeInline(redLabel(ansLabel), paragraph);
+				continue;
 			}
 			
 			if(answer.getLabel().getType() == Label.Type.html)
 			{
-				var ansLabel = new Label(prefix + answer.asText(), Label.Type.html);
+				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html);
 				labelWriter.write(ansLabel);
 			}
 			else
 			{
-				var ansLabel = new Label(prefix + answer.asText());
+				var ansLabel = new Label(prefix + "- " + answer.asText());
 				labelWriter.write(ansLabel);
 			}
 		}
@@ -224,7 +222,7 @@ public class QuestionWriter
 	public void writeMatching(MatchingQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		writeMatchingTable(q, labelWriter);
 		
 	}
@@ -278,16 +276,20 @@ public class QuestionWriter
 			spacerCell.getCTTc().getTcPr().getTcW().setType(STTblWidth.DXA);
 			XWPFParagraph spacerPara = spacerCell.getParagraphs().get(0);
 			spacerPara.setAlignment(ParagraphAlignment.CENTER);
-			
-			//This can be changed to being a label write if needed
-			XWPFRun run = spacerPara.createRun();
-			String spacerSymbol = isKey ? "→" : "";
-			run.setText(spacerSymbol);
+			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" ");
+			new LabelWriter(document).writeInline(spacerSymbol, spacerPara);
 
 			XWPFTableCell rightCell = row.getCell(2);
 			rightCell.setWidth("3000");
 			XWPFParagraph rightPara = rightCell.getParagraphs().get(0);
-			new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
+			if (isKey)
+			{
+				new LabelWriter(document).writeInline(redLabel(rightLabels.get(i)), rightPara);
+			}
+			else
+			{
+				new LabelWriter(document).writeInline(rightLabels.get(i), rightPara);
+			}
 		}
 	}
 	
@@ -307,6 +309,16 @@ public class QuestionWriter
 		borders.addNewInsideV().setVal(STBorder.NONE);
 	}
 	
+	/**
+	 * Turns a label red to signify an answer for the answer key.
+	 *
+	 * @param original The original label to turn red
+	 * @return A label that is coded in HTML to be red
+	 */
+	private Label redLabel(Label original)
+	{
+		return new Label("<span style='color:#FF0000'>" + original.asText() + "</span>", Label.Type.html);
+	}
 
 	/**
 	 * Builds a new Label containing the question number, the original label, and point value.
@@ -315,18 +327,22 @@ public class QuestionWriter
 	 * @param label The original question label.
 	 * @param number The question number.
 	 * @param points The number of points for this question.
+	 * @param isAbet If the question is ABET or not.
 	 * @return A new Label with numbering and points included.
 	 */
-	private Label buildQuestionLabel(Label label, int number, float points) {
+	private Label buildQuestionLabel(Label label, int number, float points, boolean isAbet) {
 		String prefix = number + ". ";
 		String formattedPoints = POINT_FORMAT.format(points);
+		String abet = isKey && isAbet 
+				? "(ABET)"
+				: "";
 	    if (label.getType() == Label.Type.html) {
 	    	String html = label.asText(); 
-	    	String updated = "<p><b>" + prefix + "</b>" + html + " <i>(Points: " + formattedPoints + ")</i></p>"; // Inject number and points inside the HTML
+	    	String updated = "<p>" + prefix + html + " (Points: " + formattedPoints + ") " + abet + "</p>"; // Inject number and points inside the HTML
 	    	return new Label(updated, Label.Type.html);
 	    } else {
 	    	String text = label.asText();
-	    	String updated = prefix + text + " (Points: " + formattedPoints + ")";
+	    	String updated = prefix + text + " (Points: " + formattedPoints + ") " +  abet;
 	    	return new Label(updated);
 	    }
 	}
