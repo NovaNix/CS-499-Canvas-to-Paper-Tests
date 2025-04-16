@@ -10,67 +10,91 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.xwpf.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 
+/**
+ * Utility class for applying metadata placeholders to Word documents.
+ *
+ * <p>This class uses {@link TemplateReplacements} to define which placeholders
+ * to look for in the document (e.g., "(Class)") and {@link QuizMetadata}
+ * to provide the actual values (e.g., "350"). It supports run-aware
+ * replacement while preserving formatting.</p>
+ *
+ * <p>Supported targets include paragraphs, tables, headers, and footers.</p>
+ * 
+ * @author Samuel Garcia
+ */
 public class TemplateWriter {
 
+	public static final Logger logger = LoggerFactory.getLogger(TemplateWriter.class);
+	
 	/**
 	 * Applies metadata replacements from a {@link QuizMetadata} instance
 	 * to a Word document template, using placeholder strings defined in
-	 * a {@link TemplateReplacements} instance.
+	 * a {@link TemplateReplacements} instance. The modified document is returned.
 	 * 
 	 * @param inputPath The path to the input .docx template
-	 * @param outputPath The destination path for the filled document
 	 * @param replacements A {@link TemplateReplacements} object defining which string each metadata type replaces (e.g., "(Class)")
-	 * @param metadata A {@link QuizMetadata} object containing the values to insert (e.g., "CS-350")
-	 * @throws IOException if reading or writing the document fails
+	 * @param metadata A {@link QuizMetadata} object containing the values to insert (e.g., "350")
+	 * @return A modified {@link XWPFDocument} instance with all replacements applied
+	 * @throws IOException If reading or writing the document fails
 	 */
-	public static void applyMetadata(Path inputPath, Path outputPath, TemplateReplacements replacements, QuizMetadata metadata) throws IOException {
+	public static XWPFDocument applyMetadata(Path inputPath, TemplateReplacements replacements, QuizMetadata metadata) throws IOException {
 		Map<String, String> tokenMap = new HashMap<>();
-		for (MetadataType type : MetadataType.values()) {
+		for (MetadataType type : MetadataType.values()) 
+		{
 			String placeholder = replacements.getReplacementText(type);
 			String value = metadata.getValue(type);
-			if (placeholder != null && !placeholder.isBlank() && value != null && !value.isBlank()) {
+			if (placeholder != null && !placeholder.isBlank() && value != null && !value.isBlank()) 
+			{
 				tokenMap.put(placeholder, value);
 			}
 		}
 
-		try (FileInputStream fis = new FileInputStream(inputPath.toFile());
-				XWPFDocument document = new XWPFDocument(fis)) {
+		try (FileInputStream fis = new FileInputStream(inputPath.toFile())) {
+			XWPFDocument document = new XWPFDocument(fis);
 
-			for (XWPFHeader header : document.getHeaderList()) {
-				for (XWPFParagraph p : header.getParagraphs()) {
+			for (XWPFHeader header : document.getHeaderList()) 
+			{
+				for (XWPFParagraph p : header.getParagraphs()) 
+				{
 					applyToParagraph(p, tokenMap);
 				}
-				for (XWPFTable t : header.getTables()) {
+				for (XWPFTable t : header.getTables()) 
+				{
 					applyToTable(t, tokenMap);
 				}
 			}
 
-			for (XWPFFooter footer : document.getFooterList()) {
-				for (XWPFParagraph p : footer.getParagraphs()) {
+			for (XWPFFooter footer : document.getFooterList()) 
+			{
+				for (XWPFParagraph p : footer.getParagraphs()) 
+				{
 					applyToParagraph(p, tokenMap);
 				}
-				for (XWPFTable t : footer.getTables()) {
+				for (XWPFTable t : footer.getTables()) 
+				{
 					applyToTable(t, tokenMap);
 				}
 			}
 
-			for (XWPFParagraph paragraph : document.getParagraphs()) {
+			for (XWPFParagraph paragraph : document.getParagraphs()) 
+			{
 				applyToParagraph(paragraph, tokenMap);
 			}
-
-			for (XWPFTable table : document.getTables()) {
+			for (XWPFTable table : document.getTables()) 
+			{
 				applyToTable(table, tokenMap);
 			}
 
-			try (FileOutputStream out = new FileOutputStream(outputPath.toFile())) {
-				document.write(out);
-			}
+			return document; //Return the in-memory modified document
 		}
 	}
+
 
 	/**
 	 * Recursively applies all replacements to every paragraph and nested table
@@ -101,7 +125,6 @@ public class TemplateWriter {
 	 */
 	private static void applyToParagraph(XWPFParagraph paragraph, Map<String, String> replacements) {
 		boolean replaced;
-
 		do {
 			replaced = false;
 
@@ -112,12 +135,19 @@ public class TemplateWriter {
 			List<Integer> runCharMap = new ArrayList<>();
 
 			for (int i = 0; i < runs.size(); i++) {
-				String text = runs.get(i).getText(0);
-				if (text != null) {
-					fullText.append(text);
-					for (int j = 0; j < text.length(); j++) {
-						runCharMap.add(i);
+				XWPFRun run = runs.get(i);
+				StringBuilder runText = new StringBuilder();
+
+				for (int j = 0; j < run.getCTR().sizeOfTArray(); j++) {
+					String seg = run.getText(j);
+					if (seg != null) {
+						runText.append(seg);
 					}
+				}
+				String fullRunText = runText.toString();
+				fullText.append(fullRunText);
+				for (int j = 0; j < fullRunText.length(); j++) {
+					runCharMap.add(i);
 				}
 			}
 
@@ -147,7 +177,6 @@ public class TemplateWriter {
 				XWPFRun newRun = paragraph.insertNewRun(startRun);
 				style.applyTo(newRun);
 				newRun.setText(replacement);
-
 				replaced = true;
 				break; // break token loop and reprocess from scratch
 			}
