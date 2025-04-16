@@ -18,6 +18,7 @@ import java.awt.Insets;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 
 /**
@@ -170,7 +172,7 @@ public class ExportWordDialog
      */
     private JPanel fileAttachPanel()
     {
-        JLabel templateLabel = new JLabel("Template:");
+        JLabel templateLabel = new JLabel("Template (Leave blank to create):");
         JLabel locationLabel = new JLabel("Export Location:");
                 
         // contains templateLabel, templateTextField, tempButtonPanel, 
@@ -263,36 +265,6 @@ public class ExportWordDialog
         templateTextField.setPreferredSize(new Dimension(290, 22));
         JPanel tempPanel = new JPanel();
         tempPanel.add(templateTextField);
-        
-        // listens for when text appears in the text field
-        Document templateDocument = templateTextField.getDocument();
-        templateDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e)
-            {
-                // if text is in both the template and location text fields enable 
-                // the export button
-                boolean location = (locationTextField.getText()).isEmpty();
-                if (location == false)
-                {
-                    exportButton.setEnabled(true);
-                }
-            }
-            
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = templateTextField.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the template field is empty
-                if (empty == true)
-                {
-                    exportButton.setEnabled(false);
-                }                
-            }            
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
              
         return tempPanel;
     }
@@ -317,13 +289,9 @@ public class ExportWordDialog
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-                // if text is in both the template and location text fields enable 
+                // if text is in the location field enable
                 // the export button
-                boolean template = (templateTextField.getText()).isEmpty();
-                if (template == false)
-                {
-                    exportButton.setEnabled(true);
-                }
+                exportButton.setEnabled(true);
             }
             
             @Override
@@ -385,31 +353,33 @@ public class ExportWordDialog
      * location
      * @return the template selection button panel
      */
-    private JPanel selectTempButtonPanel(JTextField tempTextField)
-    {
-        JButton selectTempButton = new JButton("Select");
-            
-        // contains selectTempButton
-        JPanel selectTempButtonPanel = new JPanel();        
-        selectTempButtonPanel.add(selectTempButton);
-                
-        // listens for when the user selects selectTempButton
-        selectTempButton.addActionListener((ActionEvent e) -> {
-            JFileChooser tempFileChooser = new JFileChooser();
-            // only allow directories to appear
-            tempFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            tempFileChooser.showOpenDialog(null);
-            // get the file path and display it on tempTextField
-            try
-            {
-                String templateFilePath = tempFileChooser.getSelectedFile().getPath();             
-                tempTextField.setText(templateFilePath);
-            }
-            catch (NullPointerException n) {}
-        });
-                
-        return selectTempButtonPanel;
-    }
+	private JPanel selectTempButtonPanel(JTextField tempTextField) {
+		JButton selectTempButton = new JButton("Select");
+
+		JPanel selectTempButtonPanel = new JPanel();
+		selectTempButtonPanel.add(selectTempButton);
+
+		selectTempButton.addActionListener((ActionEvent e) -> {
+			JFileChooser tempFileChooser = new JFileChooser();
+
+			// Allow files only (not directories)
+			tempFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+			// Filter to only show Word documents (.doc and .docx)
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Word Documents (*.doc, *.docx)", "doc", "docx");
+			tempFileChooser.setFileFilter(filter);
+
+			int result = tempFileChooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = tempFileChooser.getSelectedFile();
+				if (selectedFile != null) {
+					tempTextField.setText(selectedFile.getAbsolutePath());
+				}
+			}
+		});
+		return selectTempButtonPanel;
+	}
+
         
     /**
      * Creates the JPanel that holds the select export location button
@@ -418,31 +388,35 @@ public class ExportWordDialog
      * file path 
      * @return the select export location button panel
      */
-    private JPanel selectLocButtonPanel(JTextField locTextField)
-    {
-        JButton selectLocButton = new JButton("Select");
-            
-        // contains selectLocButton 
-        JPanel selectLocButtonPanel = new JPanel();        
-        selectLocButtonPanel.add(selectLocButton);
-            
-        // listens for when the user selects selectLocButton
-        selectLocButton.addActionListener((ActionEvent e) -> {
-            JFileChooser locFileChooser = new JFileChooser();
-            // only allow directories to appear 
-            locFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            locFileChooser.showOpenDialog(null);
-            // get the file path and display it on locTextField
-            try 
-            {
-                String locationFilePath = locFileChooser.getSelectedFile().getPath(); 
-                locTextField.setText(locationFilePath);    
-            } 
-            catch (NullPointerException n) {}
-        }); 
-                
+	private JPanel selectLocButtonPanel(JTextField locTextField) {
+		JButton selectLocButton = new JButton("Select");
+
+		JPanel selectLocButtonPanel = new JPanel();        
+		selectLocButtonPanel.add(selectLocButton);
+
+		selectLocButton.addActionListener((ActionEvent e) -> {
+			JFileChooser locFileChooser = new JFileChooser();
+
+			// Allow file selection
+			locFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			locFileChooser.setDialogTitle("Select and name your exported document");
+
+			int result = locFileChooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = locFileChooser.getSelectedFile();
+				String path = selectedFile.getAbsolutePath();
+
+				// Check and append file extension if necessary
+				if (!path.toLowerCase().endsWith(".doc") && !path.toLowerCase().endsWith(".docx")) {
+					path += ".docx";
+					selectedFile = new File(path);
+				}
+
+				locTextField.setText(selectedFile.getAbsolutePath());
+			}
+		});
         return selectLocButtonPanel;
-    }
+	}
         
     /**
      * Creates the JPanel that holds the export button and exports the 

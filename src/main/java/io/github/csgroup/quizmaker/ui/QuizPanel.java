@@ -11,7 +11,7 @@ import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
 import io.github.csgroup.quizmaker.ui.dialogs.GenerateDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankFromQuizDialog;
-import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.*;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuizDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
