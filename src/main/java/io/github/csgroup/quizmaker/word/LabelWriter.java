@@ -96,6 +96,8 @@ public class LabelWriter
 	 * This method is only called internally by {@link #write(Label)} for labels of type {@code html}.
 	 *
 	 * @param root The root HTML node parsed from the label's HTML content (typically {@code <body>}).
+	 * @param inLine If the label needs to be printed on the same line as the last
+	 * @param paragraph The paragraph that is currently being used
 	 * @throws IOException If an error occurs during processing.
 	 */
 	private void processLabel(Node root, boolean inLine, XWPFParagraph paragraph) throws IOException {
@@ -133,6 +135,8 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 * @throws IOException If an error occurs while processing elements.
 	 */
 	private void processElements(List<Node> nodes, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) throws IOException {
@@ -168,6 +172,8 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 */
 	private void processHtmlText(String text, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) {
 		if (paragraph == null) {
@@ -188,6 +194,8 @@ public class LabelWriter
 	 * @param bold Whether the text should be bold.
 	 * @param italic Whether the text should be italicized.
 	 * @param underline Whether the text should be underlined.
+	 * @param color The color of the text, null if unmodified
+	 * @param inLine If the text is to be printed on the same line as the last
 	 * @throws IOException If an error occurs while processing the element.
 	 */
 	private void processHtmlElement(Element element, XWPFParagraph paragraph, boolean bold, boolean italic, boolean underline, String color, boolean inLine) throws IOException {
@@ -219,6 +227,12 @@ public class LabelWriter
 		}
 	}
 	
+	/**
+	 * Extracts the color data from inside of a span from HTML
+	 * 
+	 * @param style The HTML text containing the color data
+	 * @return The hex value of the color to be used, or null if none is found
+	 */
 	private String extractColorFromStyle(String style)
 	{
 		if (style == null) return null;

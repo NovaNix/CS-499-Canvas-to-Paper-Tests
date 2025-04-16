@@ -91,7 +91,7 @@ public class QuestionWriter
 			XWPFParagraph paragraph = document.createParagraph();
 			paragraph.setPageBreak(true);
 		}
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		switch (q.getResponseLength()) {
 			case Line -> {
 				if(isKey)
@@ -153,7 +153,7 @@ public class QuestionWriter
 		String tagBlank = q.getLabel().asText();
 		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
 		Label tagBlankLabel = new Label(tagBlank, q.getLabel().getType());
-		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()));
 		
 		if(isKey)
 		{
@@ -181,7 +181,7 @@ public class QuestionWriter
 	public void writeMultipleChoice(MultipleChoiceQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		
 		List <SimpleAnswer> answerLabels = q.getAnswers();
 		Collections.shuffle(answerLabels); //I dont know if Michael has gotten to randomizing this yet, this is just temp for the requirements meeting
@@ -222,7 +222,7 @@ public class QuestionWriter
 	public void writeMatching(MatchingQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints()));
+		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
 		writeMatchingTable(q, labelWriter);
 		
 	}
@@ -309,6 +309,12 @@ public class QuestionWriter
 		borders.addNewInsideV().setVal(STBorder.NONE);
 	}
 	
+	/**
+	 * Turns a label red to signify an answer for the answer key.
+	 *
+	 * @param original The original label to turn red
+	 * @return A label that is coded in HTML to be red
+	 */
 	private Label redLabel(Label original)
 	{
 		return new Label("<span style='color:#FF0000'>" + original.asText() + "</span>", Label.Type.html);
@@ -321,18 +327,22 @@ public class QuestionWriter
 	 * @param label The original question label.
 	 * @param number The question number.
 	 * @param points The number of points for this question.
+	 * @param isAbet If the question is ABET or not.
 	 * @return A new Label with numbering and points included.
 	 */
-	private Label buildQuestionLabel(Label label, int number, float points) {
+	private Label buildQuestionLabel(Label label, int number, float points, boolean isAbet) {
 		String prefix = number + ". ";
 		String formattedPoints = POINT_FORMAT.format(points);
+		String abet = isKey && isAbet 
+				? "(ABET)"
+				: "";
 	    if (label.getType() == Label.Type.html) {
 	    	String html = label.asText(); 
-	    	String updated = "<p><b>" + prefix + "</b>" + html + " <i>(Points: " + formattedPoints + ")</i></p>"; // Inject number and points inside the HTML
+	    	String updated = "<p>" + prefix + html + " (Points: " + formattedPoints + ") " + abet + "</p>"; // Inject number and points inside the HTML
 	    	return new Label(updated, Label.Type.html);
 	    } else {
 	    	String text = label.asText();
-	    	String updated = prefix + text + " (Points: " + formattedPoints + ")";
+	    	String updated = prefix + text + " (Points: " + formattedPoints + ") " +  abet;
 	    	return new Label(updated);
 	    }
 	}
