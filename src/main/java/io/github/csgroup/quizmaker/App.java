@@ -20,7 +20,6 @@ public class App
 
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 
-	@SuppressWarnings("unused")
 	private static GUIManager ui;
 	
 	private static Project project;
