@@ -30,9 +30,9 @@ public class GeneratedQuiz
 	 * Generates a new quiz with a random seed
 	 * @param quiz
 	 */
-	public GeneratedQuiz(Quiz quiz)
+	public GeneratedQuiz(Quiz quiz, QuizMetadata metadata)
 	{
-		this(quiz, new Random());
+		this(quiz, metadata, new Random());
 	}
 	
 	/**
@@ -41,7 +41,7 @@ public class GeneratedQuiz
 	 * @param random the source of randomness
 	 */
 	
-	public GeneratedQuiz(Quiz quiz, Random random)
+	public GeneratedQuiz(Quiz quiz, QuizMetadata metadata, Random random)
 	{
 		this.quiz = quiz;
 		
@@ -73,7 +73,7 @@ public class GeneratedQuiz
 		Collections.shuffle(questions, random);
 		
 		// Generate the metadata
-		this.metadata = quiz.getMetadata().clone();
+		this.metadata = metadata;
 		metadata.setDynamicValues(this);
 	}
 	
