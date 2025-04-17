@@ -134,6 +134,7 @@ public class BankPanel extends JComponent
                 int index = (project.getBankCount()) - 1;
                 bankList.setSelectedIndex(index);
                 bankTable.setVisible(true);
+                bankLabelPanel.setVisible(true);
             }
             @Override
             public void intervalRemoved(ListDataEvent e) {}
@@ -187,7 +188,7 @@ public class BankPanel extends JComponent
         // listens for when addBankButton is clicked 
         addBankButton.addActionListener((ActionEvent e) -> {
             // display the frame that prompts the user to enter a bank name
-            CreateBankDialog addbank = new CreateBankDialog(project);
+            CreateBankDialog addbank = new CreateBankDialog(project, bankTablePanel);
             addbank.show();
         });    
                 
@@ -201,12 +202,15 @@ public class BankPanel extends JComponent
                 removeBankButton.setEnabled(true);           
                 bankTable.clearTable();
             
-                int index = bankList.getSelectedIndex();
-                populateBankTable(index); 
+                int index = bankList.getSelectedIndex();                
+                if ((index <= (project.getBankCount() - 1)) && index != -1)
+                {
+                    populateBankTable(index); 
                 
-                QuestionBank bank = project.getBank(index);
-                String bankName = bank.getTitle();
-                nameField.setText(bankName);
+                    QuestionBank bank = project.getBank(index);
+                    String bankName = bank.getTitle();
+                    nameField.setText(bankName);
+                }
             }      
         });
                                                 

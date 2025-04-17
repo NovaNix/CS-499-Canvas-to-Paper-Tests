@@ -34,7 +34,7 @@ public class RemoveBankFromQuizDialog
         removeButton = button;
         removeBankFrame();
     }
-      
+         
     private void removeBankFrame()
     {
         removeFrame = new JFrame();
@@ -106,9 +106,8 @@ public class RemoveBankFromQuizDialog
             if (size == 0)
             {
                 removeButton.setEnabled(false);
-            }
-            
-            removeFrame.dispose();
+            }          
+                removeFrame.dispose();
         });
         
         // listens for when exportButton is clicked
@@ -119,7 +118,7 @@ public class RemoveBankFromQuizDialog
         
         return buttonPanel;
     }   
-    
+     
     /**
      * Controls when and where the frame appears
      * 

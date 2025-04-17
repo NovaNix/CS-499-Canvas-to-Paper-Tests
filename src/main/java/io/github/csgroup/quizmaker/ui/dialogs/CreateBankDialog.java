@@ -33,9 +33,11 @@ public class CreateBankDialog
     private JFrame newBankFrame;
     private final Project project;
     private JButton addButton;
+    private final JPanel tablePanel;
     
-    public CreateBankDialog(Project currentProject)
+    public CreateBankDialog(Project currentProject, JPanel panel)
     {
+        tablePanel = panel;
         project = currentProject;
         createAddBankFrame();
     }
@@ -126,7 +128,7 @@ public class CreateBankDialog
         addButton.addActionListener((ActionEvent e) -> {
             // get the question bank name from bankTextField
             String name = bankField.getText();
-            addBank(name);                 
+            addBank(name);               
         });     
         
         bindEnterKey(addButton, bankField);
@@ -169,6 +171,7 @@ public class CreateBankDialog
         boolean emptyName = bankName.isEmpty();
         if (emptyName == false)
         {
+            tablePanel.setVisible(true);
             // create a QuestionBank object for bankName
             QuestionBank newBank = new QuestionBank(bankName);
             // add the QuesionBank object to the QuestionBank list                    

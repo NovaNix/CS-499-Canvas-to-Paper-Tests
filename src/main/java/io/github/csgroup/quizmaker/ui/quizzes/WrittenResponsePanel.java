@@ -246,12 +246,18 @@ public class WrittenResponsePanel extends JComponent
                 @Override
                 public void insertUpdate(DocumentEvent e) 
                 {
-                    boolean title = (questionTitle.getText()).isEmpty();
-                    boolean wrQuestion = (question.getText()).isEmpty();
-                    if ((title == false) && (wrQuestion == false))
+                    try
                     {
-                        addQuestionButton.setEnabled(true);
+                        String text = pointsValue.getText();
+                        Float.valueOf(text);
+                        boolean title = (questionTitle.getText()).isEmpty();
+                        boolean wrQuestion = (question.getText()).isEmpty();
+                        if ((title == false) && (wrQuestion == false))
+                        {
+                            addQuestionButton.setEnabled(true);
+                        }
                     }
+                    catch (NumberFormatException n) {}
                 }
             
                 @Override

@@ -23,6 +23,9 @@ import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 /**
  * Creates a frame that allows the user to select what bank questions to add/remove 
@@ -41,6 +44,7 @@ public class BankToQuizDialog
     private final Quiz quiz;
     private BankSelection selectedBank;
     private JTextField pointsTextField;
+    private JButton addButton;
     
     private JScrollPane tableScrollPane;
     
@@ -105,12 +109,8 @@ public class BankToQuizDialog
         bankList = new JComboBox(bankNames.toArray());
         bankList.setPreferredSize(new Dimension(180, 20));
         
-        float initPoints = getPoints(0);
-        
         JLabel pointsLabel = new JLabel ("Points per question:");
-        pointsTextField = new JTextField();
-        pointsTextField.setText(Float.toString(initPoints));
-        pointsTextField.setPreferredSize(new Dimension(50, 20));
+        pointsTextField();
         
         JPanel textFieldPanel = new JPanel();
         textFieldPanel.add(pointsTextField);
@@ -152,14 +152,48 @@ public class BankToQuizDialog
         bankList.addActionListener((ActionEvent e) -> {
             // display the total points of the bank
             int index = bankList.getSelectedIndex();
-            float bankPoints = getPoints(index);
-            pointsTextField.setText(Float.toString(bankPoints));
             
             clearTable();
             populateTable(index); 
         });
                              
         return bankInfoPanel;
+    }
+    
+    /**
+     * Creates the text field for the points per question and its event listener
+     */
+    private void pointsTextField()
+    {
+        pointsTextField = new JTextField();
+        pointsTextField.setText("0.0");
+        pointsTextField.setPreferredSize(new Dimension(50, 20));
+        
+        Document textFieldDocument = pointsTextField.getDocument();
+        textFieldDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                try
+                {
+                    String text = pointsTextField.getText();
+                    Float.valueOf(text);
+                    addButton.setEnabled(true);
+                }
+                catch (NumberFormatException n) {
+                    addButton.setEnabled(false);
+                }
+            }            
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                String text = pointsTextField.getText();
+                if (text.isEmpty() == true)
+                {
+                    addButton.setEnabled(false);
+                }
+            }           
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
     }
     
     /**
@@ -172,17 +206,18 @@ public class BankToQuizDialog
         QuestionBank bank = project.getBank(index);
         int size = bank.getQuestionCount();
         int rowCount = questionTable.getRowCount();
-        
+                
         // remove unused rows from the table
         if (rowCount > size)
         {
-            for (int i = 0; i < size; i++)
+            // this is not working
+            for (int i = 0; i < rowCount - size; i++)
             {
                 bankModel.removeRow(0);
             }
         }
         // add rows to the table
-        else if (rowCount < size)
+        if (rowCount < size)
         {
             int addedRows = size - rowCount;
             for (int i = 0; i < addedRows; i++)
@@ -198,21 +233,6 @@ public class BankToQuizDialog
             questionTable.setValueAt(question, i, 1);
             questionTable.setValueAt(false, i, 0);
         }
-    }
-     
-    private float getPoints(int index)
-    {
-        int total = 0;
-        QuestionBank bank = project.getBank(index);
-        int size = bank.getQuestionCount();
-        for (int i = 0; i < size; i++)
-        {
-            Question question = bank.get(i);
-            float points = question.getPoints();
-            total += points;
-        }
-        
-        return total;
     }
     
     /**
@@ -294,7 +314,6 @@ public class BankToQuizDialog
      */
     private int excludedQuestionInfo()
     {
-        int rows = questionTable.getRowCount();
         float points = Float.parseFloat(pointsTextField.getText());
         
         // add the bank to the quiz
@@ -302,6 +321,7 @@ public class BankToQuizDialog
         selectedBank = new BankSelection(bank, bank.getQuestionCount(), points);
         quiz.addBank(selectedBank);
         
+        int rows = bank.getQuestionCount();
         for (int i = 0; i < rows; i++)
         {
             // if the checkbox was selected add it to the array list 
@@ -355,23 +375,24 @@ public class BankToQuizDialog
      */
     private JPanel buttonPanel()
     {
-        JButton addButton = new JButton("Add");        
+        addButton = new JButton("Add");        
         JPanel buttonPanel = new JPanel();                        
         buttonPanel.add(addButton);
         
         // listens for when addButton is clicked
-        addButton.addActionListener((ActionEvent e) -> {  
-            // get the number of excluded questions
-            int questions = excludedQuestionInfo();
+        addButton.addActionListener((ActionEvent e) -> { 
+            excludedQuestionInfo();
             List<BankSelection> quizQuestionBanks = quiz.getBankSelections();
             // get the number of bank questions
             int numBanks = quizQuestionBanks.size();
             
             for (int i = 0; i < numBanks; i++)
-            {
-                QuestionBank bank = quizQuestionBanks.get(i).getBank();
+            {  
+                BankSelection bankSelection = quizQuestionBanks.get(i);
+                QuestionBank bank = bankSelection.getBank();
                 int size = bank.getQuestionCount();
-                float points = selectedBank.getPointsPerQuestion() * (size - questions);               
+                int questions = bankSelection.getBlockedQuestions().size();
+                float points = bankSelection.getPointsPerQuestion() * (size - questions);               
                 if (i <= (table.getRows() - 1))
                 {                   
                     table.setValue(bank, i, 0);
