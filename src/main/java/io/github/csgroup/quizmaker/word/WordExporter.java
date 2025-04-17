@@ -49,10 +49,15 @@ public class WordExporter
 	 * @param isKey         Whether this export represents an answer key (applies special styling).
 	 * @throws IOException  If any file path is invalid, unreadable, unwritable, or export fails.
 	 */
-	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, TemplateReplacements replacements, boolean isKey) throws IOException
+	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, TemplateReplacements replacements, Path referenceAppendPath, boolean isKey) throws IOException
 	{
 		
 		String filename = destination.toString();
+		if(quiz == null)
+		{
+			logger.error("Quiz has not been generated!");
+			throw new IOException("Quiz has not been generated!");
+		}
 		if (isKey)
 		{
 			int dotIndex = filename.lastIndexOf(".");
@@ -107,12 +112,39 @@ public class WordExporter
 				questionWriter.writeQuestion(generatedQuiz.get(i), i+1);
 			}
 		}
+		
+		if (referenceAppendPath != null && Files.exists(referenceAppendPath)) {
+		    try (FileInputStream refIn = new FileInputStream(referenceAppendPath.toFile());
+		         XWPFDocument referenceDoc = new XWPFDocument(refIn)) {
+
+		        logger.info("Appending reference material from: {}", referenceAppendPath.getFileName());
+
+		        XWPFParagraph breakPara = document.createParagraph();
+		        breakPara.setPageBreak(true);
+		        // Append each paragraph
+		        for (IBodyElement element : referenceDoc.getBodyElements()) {
+		            if (element instanceof XWPFParagraph refPara) {
+		                XWPFParagraph newPara = document.createParagraph();
+		                newPara.getCTP().set(refPara.getCTP().copy());
+
+		            } else if (element instanceof XWPFTable refTable) {
+		                XWPFTable newTable = document.createTable();
+		                newTable.getCTTbl().set(refTable.getCTTbl().copy());
+		            }
+		        }
+
+		    } catch (IOException e) {
+		        logger.error("Failed to append reference document: {}", e.getMessage());
+		        throw new IOException("Failed to append reference material.", e);
+		    }
+		}
+
 	        
 		try (FileOutputStream out = new FileOutputStream(destination.toFile())) {
 			document.write(out);
 		} catch (IOException e) {
 			logger.error("Failed to export document to: {}", e.getMessage());
-			throw e; //This should throw up to the UI
+			throw new IOException("Failed to export document."); //This should throw up to the UI
 		}
 		logger.info("Export completed: {}", destination.toAbsolutePath());
 	}
