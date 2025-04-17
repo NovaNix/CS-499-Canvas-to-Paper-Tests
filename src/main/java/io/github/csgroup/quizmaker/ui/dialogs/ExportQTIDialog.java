@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.transform.TransformerException;
 
 /**
  * Creates a frame that will allow the user to export the QTI file from 
@@ -183,7 +184,13 @@ public class ExportQTIDialog
                     // close the frame
                     exportQTIFrame.dispose();
                 }
-                catch (IOException n) {}
+                catch (IOException n) {} catch (TransformerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             }
         });
         
