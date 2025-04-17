@@ -119,6 +119,10 @@ public class QuestionsDialog
             wrPanel = new WrittenResponsePanel(questionFrame, question, points, bank, table, title);
         }
         
+        multipleChoiceContainer = new JPanel();
+        multipleChoiceContainer.add(mcPanel);
+        cardPanel.add(multipleChoiceContainer, "Multiple Choice");
+        
         fitbContainer = new JPanel();
         fitbContainer.add(fitbPanel);
         cardPanel.add(fitbContainer, "Fill in the Blank");
@@ -126,10 +130,6 @@ public class QuestionsDialog
         matchingContainer = new JPanel();
         matchingContainer.add(matchingPanel);
         cardPanel.add(matchingContainer, "Matching");
-        
-        multipleChoiceContainer = new JPanel();
-        multipleChoiceContainer.add(mcPanel);
-        cardPanel.add(multipleChoiceContainer, "Multiple Choice");
         
         writtenResponseContainer = new JPanel();
         writtenResponseContainer.add(wrPanel);
@@ -188,7 +188,7 @@ public class QuestionsDialog
         JPanel titlePanel = new JPanel();
         titlePanel.add(title);
         
-        String [] questionTypes = {"Multiple Choice", "Matching", "Fill in the Blank", "Written Response"};
+        String [] questionTypes = {"Multiple Choice", "Fill in the Blank", "Matching", "Written Response"};
         JComboBox questionTypesList = new JComboBox(questionTypes);
         
         JLabel pointsLabel = new JLabel("Points: ");

@@ -79,7 +79,9 @@ public class WrittenResponseQuestion extends Question
 	@Override
 	public String getAnswerString() 
 	{
-		return answer.asText();
+		return (answer != null && !answer.asText().isBlank())
+		? answer.asText()
+		: "This question requires user input.";
 	}
 	
 	public static enum ResponseLength
@@ -103,7 +105,11 @@ public class WrittenResponseQuestion extends Question
 		c.setAbet(isAbet());
 		
 		c.setResponseLength(length);
-		c.setAnswer(getAnswer().clone());
+		
+		if (getAnswer() != null)
+		{
+			c.setAnswer(getAnswer().clone());
+		}
 		
 		return c;
 	}

@@ -125,6 +125,8 @@ public class MultipleChoiceQuestion extends Question
 			s.append("<b>");
 			s.append(answer.asText());
 			s.append("</b>");
+			
+			added = true;
 		}
 		
 		for (var answer : incorrectAnswers)
@@ -135,6 +137,8 @@ public class MultipleChoiceQuestion extends Question
 			}
 			
 			s.append(answer.asText());
+			
+			added = true;
 		}
 		
 		s.append("</html>");
