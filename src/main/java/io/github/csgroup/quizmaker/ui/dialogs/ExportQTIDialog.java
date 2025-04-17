@@ -7,6 +7,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.JButton;
@@ -174,11 +175,15 @@ public class ExportQTIDialog
             String exportFilePath = getPath();
             if (exportFilePath != null)
             {
-                Path path = Paths.get(exportFilePath);
-                QTIWriter writer = new QTIWriter();
-                writer.writeProject(project, path);                             
-                // close the frame
-                exportQTIFrame.dispose();
+                try
+                {
+                    Path path = Paths.get(exportFilePath);
+                    QTIWriter writer = new QTIWriter();
+                    writer.writeProject(project, path);                             
+                    // close the frame
+                    exportQTIFrame.dispose();
+                }
+                catch (IOException n) {}
             }
         });
         
