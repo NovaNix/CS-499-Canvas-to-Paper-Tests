@@ -4,6 +4,7 @@ import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.word.TemplateReplacements;
 
 import java.awt.GridBagLayout;
 import javax.swing.JFrame;
@@ -22,11 +23,26 @@ public class GenerateDialog
 {
     private JFrame generateFrame;
     private final Quiz quiz;
+    private final boolean isTemplateMode;
+    private final TemplateReplacements replacements;
+    private final QuizMetadata metadata;
     private GeneratePanel generatePanel;
     
     public GenerateDialog(Quiz currentQuiz)
     {
-        quiz = currentQuiz;
+        this.quiz = currentQuiz;
+        this.metadata = currentQuiz.getMetadata();
+        this.replacements = null;
+        this.isTemplateMode = false;
+        generateDialog();
+    }
+    
+    public GenerateDialog(TemplateReplacements replacements)
+    {
+        this.quiz = null;
+        this.metadata = null;
+        this.replacements = replacements;
+        this.isTemplateMode = true;
         generateDialog();
     }
     
@@ -44,8 +60,13 @@ public class GenerateDialog
         GridBagConstraints buttonConstraint = new GridBagConstraints();
         
         // places generatePanel at the top of dialogPanel
-        QuizMetadata data = new QuizMetadata();
-        generatePanel = new GeneratePanel(205, data);
+        if(isTemplateMode)
+        {
+        	generatePanel = new GeneratePanel(205, replacements);
+        } else
+        {
+        	generatePanel = new GeneratePanel(205, metadata);
+        }
         generateConstraint.fill = GridBagConstraints.HORIZONTAL;
         generateConstraint.gridx = 0;
         generateConstraint.gridy = 0;
@@ -76,8 +97,11 @@ public class GenerateDialog
         
         // listens for when generateButton is selected
         generateButton.addActionListener((ActionEvent e) -> { 
-            GeneratedQuiz generatedQuiz = new GeneratedQuiz(quiz); 
             generatePanel.collectData();
+            if(!isTemplateMode && quiz != null) 
+            {
+            	quiz.regenerate();
+            }
             generateFrame.dispose();
         });
                

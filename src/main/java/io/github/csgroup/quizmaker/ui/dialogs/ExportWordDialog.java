@@ -4,6 +4,7 @@ import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
 import java.awt.CardLayout;
 
@@ -40,7 +41,6 @@ import javax.swing.text.Document;
 public class ExportWordDialog 
 {
     private JFrame exportFrame;
-    private String locationPath;
     private JRadioButton keyButton;
     private JRadioButton testButton;
     private JTextField templateTextField;
@@ -48,7 +48,9 @@ public class ExportWordDialog
     private JButton exportButton;
     private JPanel replacementPanel;
     private JPanel cardPanel;
+    private Path lastUsedDirectory = Paths.get(System.getProperty("user.home"));
     private Quiz quiz;
+    private TemplateReplacements replacements;
     
     public ExportWordDialog(Quiz exportQuiz)
     {
@@ -373,6 +375,7 @@ public class ExportWordDialog
 			int result = tempFileChooser.showOpenDialog(null);
 			if (result == JFileChooser.APPROVE_OPTION) {
 				File selectedFile = tempFileChooser.getSelectedFile();
+				lastUsedDirectory = selectedFile.toPath().getParent();
 				if (selectedFile != null) {
 					tempTextField.setText(selectedFile.getAbsolutePath());
 				}
@@ -397,7 +400,7 @@ public class ExportWordDialog
 
 		selectLocButton.addActionListener((ActionEvent e) -> {
 			JFileChooser locFileChooser = new JFileChooser();
-
+			locFileChooser.setCurrentDirectory(lastUsedDirectory.toFile());
 			// Allow file selection
 			locFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			locFileChooser.setDialogTitle("Select and name your exported document");
@@ -414,6 +417,7 @@ public class ExportWordDialog
 				}
 
 				locTextField.setText(selectedFile.getAbsolutePath());
+				lastUsedDirectory = selectedFile.toPath().getParent();
 			}
 		});
         return selectLocButtonPanel;
@@ -457,7 +461,7 @@ public class ExportWordDialog
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, false);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, false);
                     }
                     catch (IOException n)
                     {
@@ -476,7 +480,7 @@ public class ExportWordDialog
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, true);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, true);
                     }
                     catch (IOException n)
                     {
@@ -561,8 +565,8 @@ public class ExportWordDialog
      */
     private JPanel replacementPanel()
     {
-        QuizMetadata data = new QuizMetadata();
-        GeneratePanel generate = new GeneratePanel(180, data);
+        replacements = new TemplateReplacements();
+        GeneratePanel generate = new GeneratePanel(180, replacements);
         JButton applyButton = new JButton("Apply");
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(applyButton);
