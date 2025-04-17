@@ -108,6 +108,11 @@ public class GeneratedQuiz
 		pointTotal += q.getPoints();
 	}
 	
+	public boolean contains(Question q)
+	{
+		return questions.contains(q);
+	}
+	
 	public List<Question> getQuestions()
 	{
 		return new ArrayList<Question>(questions);

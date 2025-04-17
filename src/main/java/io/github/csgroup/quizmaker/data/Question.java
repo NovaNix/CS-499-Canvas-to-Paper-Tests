@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.csgroup.quizmaker.data.events.QuestionListener;
 import io.github.csgroup.quizmaker.data.events.question.QuestionEvent;
@@ -165,6 +166,24 @@ public abstract class Question
 	public String toString()
 	{
 		return label.asText();
+	}
+
+	@Override
+	public int hashCode() 
+	{
+		return Objects.hash(id); // TODO make this an actual hash function
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Question other = (Question) obj;
+		return other.id.equals(this.id); // TODO make this an actual equality function
 	}
 	
 }

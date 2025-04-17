@@ -322,6 +322,17 @@ public class Project
 	}
 	
 	/**
+	 * @param q
+	 * @return a list of GeneratedQuizzes containing the question Q
+	 */
+	public List<GeneratedQuiz> getGeneratedQuizzesWith(Question q)
+	{
+		return generatedQuizzes.stream()
+				.filter((quiz) -> quiz.contains(q))
+				.toList();
+	}
+	
+	/**
 	 * @return the number of {@link Quiz Quizzes} in this Project
 	 */
 	public int getGeneratedQuizCount()
