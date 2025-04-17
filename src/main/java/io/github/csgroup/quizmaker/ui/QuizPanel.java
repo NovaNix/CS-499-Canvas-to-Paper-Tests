@@ -861,14 +861,17 @@ public class QuizPanel extends JComponent
             }
             
             List<BankSelection> selectedBanks = quiz.getBankSelections();
-            float points = selectedBanks.get(i).getPointsPerQuestion();
-            QuestionBank bank = selectedBanks.get(i).getBank();
-            int totalQuestions = bank.getQuestionCount();
-                                
+            BankSelection selectedBank = selectedBanks.get(i);
+            QuestionBank bank = selectedBank.getBank();
+            
+            int excludedQuestions = selectedBank.getBlockedQuestions().size();
+            int totalQuestions = bank.getQuestionCount();            
+            float points = selectedBank.getPointsPerQuestion() * (totalQuestions - excludedQuestions);
+                                    
             bankTable.setValue(bank, i, 0);
             bankTable.setValue(points, i, 1);
             bankTable.setValue(totalQuestions, i, 2); 
-            bankTable.setValue(selectedBanks.size(), i, 3);            
+            bankTable.setValue(excludedQuestions, i, 3);            
         }
         
         // if there are no banks disable removeBankButton

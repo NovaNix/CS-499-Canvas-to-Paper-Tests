@@ -33,7 +33,7 @@ public class CreateBankDialog
     private JFrame newBankFrame;
     private final Project project;
     private JButton addButton;
-    private JPanel tablePanel;
+    private final JPanel tablePanel;
     
     public CreateBankDialog(Project currentProject, JPanel panel)
     {
