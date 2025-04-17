@@ -1,6 +1,8 @@
 package io.github.csgroup.quizmaker.ui.components;
 
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
+import io.github.csgroup.quizmaker.word.TemplateReplacements;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,11 +11,16 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 import javax.swing.JTextField;
 
 
 /**
  * Creates the panel that allows the user to enter in the generated quiz's information
+ * or replacement text
  * 
  * @author Emily Palmer
  */
@@ -24,16 +31,43 @@ public class GeneratePanel extends JComponent
     private JLabel[] panelLabels;
     private GridBagConstraints[] fieldPanelConstraint;
     private GridBagConstraints[] labelConstraint;
-    private QuizMetadata quizData;
+    private final Map<QuizMetadata.MetadataType, String> initialValues = new LinkedHashMap<>();
+    private final BiConsumer<QuizMetadata.MetadataType, String> onSubmit;
+    private final boolean includeDynamicTypes;
     private final int width;
     
-    public GeneratePanel(int setWidth, QuizMetadata data)
+    public GeneratePanel(int setWidth, QuizMetadata metadata)
     {
-        width = setWidth;
-        quizData = data;
-        generateDialog();
+        this(setWidth, metadata, metadata::setValue, false);
     }
     
+    public GeneratePanel(int setWidth, TemplateReplacements replacements)
+    {
+        this(setWidth, replacements, (type, value) -> replacements.setReplacementString(type, value), true);
+    }
+    
+    private GeneratePanel(int setWidth, Object dataSource, BiConsumer<QuizMetadata.MetadataType, String> onSubmit, boolean includeDynamics)
+    {
+    	this.width = setWidth;
+    	this.onSubmit = onSubmit;
+    	this.includeDynamicTypes = includeDynamics;
+    	
+    	for(QuizMetadata.MetadataType type : QuizMetadata.MetadataType.values())
+    	{
+    		if(!type.isDynamic() || includeDynamics)
+    		{
+    			if(dataSource instanceof QuizMetadata meta)
+    			{
+    				String safe = meta.getStore(type) != null ? meta.getStore(type).get() : "";
+    				initialValues.put(type, safe);
+    			} else if (dataSource instanceof TemplateReplacements tr)
+    			{
+    				initialValues.put(type, tr.getReplacementText(type));
+    			}
+    		}
+    	}
+    	generateDialog();
+    }
     /**
      * Adds generatePanel to the component
      */
@@ -69,36 +103,33 @@ public class GeneratePanel extends JComponent
      */
     private void createLabels()
     {
-        int size = getDataSize();
+        int size = initialValues.size();
         panelLabels = new JLabel[size];
         int i = 0;
-        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
+        for (QuizMetadata.MetadataType type : initialValues.keySet())
         {
-            if (i < size)
-            {
-                if (name.isDynamic() == false)
-                {
-                    panelLabels[i] = new JLabel(name.getDisplayName() + ":");
-                    i++;
-                }
-            }
+        	panelLabels[i] = new JLabel(type.getDisplayName() + ":");
+        	i++;
         }
     }
+            
     
     /**
      * Creates the text fields for the panel
      */
     private void createTextFields()
     {
-        int size = getDataSize();
+        int size = initialValues.size();
         textFields = new JTextField[size];
         fieldPanels = new JPanel[size];
-        for (int i = 0; i < size; i++)
+        int i = 0;
+        for (String initial : initialValues.values())
         {
-            textFields[i] = new JTextField();
+            textFields[i] = new JTextField(initial != null ? initial : "");
             textFields[i].setPreferredSize(new Dimension(width, 25));
             fieldPanels[i] = new JPanel();
             fieldPanels[i].add(textFields[i]);
+            i++;
         }
     }
     
@@ -195,19 +226,11 @@ public class GeneratePanel extends JComponent
     public void collectData()
     {
         int i = 0;
-        int size = getDataSize();
-        
-        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
+        for (QuizMetadata.MetadataType type : initialValues.keySet())
         {
-            if (i < size)
-            {
-                if (name.isDynamic() == false)
-                {
-                    quizData.setValue(name, textFields[i].getText());
-                    System.out.println(textFields[i].getText());
-                    i++;
-                }
-            }
+        	String value = textFields[i].getText();
+        	onSubmit.accept(type, value);
+        	i++;
         }
     }
 }
