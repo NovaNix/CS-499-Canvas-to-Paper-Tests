@@ -40,9 +40,10 @@ public class GUIManager
     {
         // main JFrame that will host all JPanels for the system
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
+        homeFrame.setResizable(false);
                
         //size of the JFrame (width, height)
-        homeFrame.setSize(770, 625);
+        homeFrame.setSize(775, 625);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();

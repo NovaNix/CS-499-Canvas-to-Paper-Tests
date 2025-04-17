@@ -173,6 +173,11 @@ public class MultipleChoicePanel extends JComponent
         {
             radioButtons[i] = new JRadioButton();
             group.add(radioButtons[i]);
+            
+            // by default set the first question to be correct
+            if (i == 0)
+            	radioButtons[i].setSelected(true);
+            
             // only display the first four radio buttons upon initialization
             if (i > 3)
             {
