@@ -240,6 +240,10 @@ public class QuestionMapper
 			String finalAnswer = String.join(" or ", displayParts);
 			question.setAnswer(finalAnswer);
 		}
+		else 
+		{
+			question.setAnswer(AnswerMapper.mapEssayAnswer(item));
+		}
 
 		return question;
 	}

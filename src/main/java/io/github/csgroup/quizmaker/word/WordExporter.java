@@ -49,59 +49,23 @@ public class WordExporter
 	 * @param isKey         Whether this export represents an answer key (applies special styling).
 	 * @throws IOException  If any file path is invalid, unreadable, unwritable, or export fails.
 	 */
-	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, boolean isKey) throws IOException
+	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, TemplateReplacements replacements, boolean isKey) throws IOException
 	{
-		// Here are some example questions and metadata to test the code with
-		// These should be removed or moved to a test file eventually
-		Quiz testQuiz = new Quiz("test");
-		// Written Response Question
-		var writtenResponse = new WrittenResponseQuestion("Written Test", 1);
-		writtenResponse.setLabel(new Label("This is a written response"));
-		writtenResponse.setAnswer("And this should be the answer!");
-		writtenResponse.setResponseLength(ResponseLength.Line);
 		
-		// Fill in the Blank Question
-		FillInTheBlankQuestion fitb = new FillInTheBlankQuestion("Java was created by [0].", 5);
-		fitb.setAnswer("0", new BlankAnswer(1, "James Gosling"));
-		        
-		// Matching Question
-		MatchingQuestion match = new MatchingQuestion("Q4", "Match Concepts", 4);
-		match.setLabel(new Label("Match the programming concepts to their definitions:"));
-		match.addAnswer(new MatchingAnswer(1, "Encapsulation", "Bundling data with methods"));
-		match.addAnswer(new MatchingAnswer(2, "Inheritance", "Acquiring properties from a parent class"));
-		match.addAnswer(new MatchingAnswer(3, "Abstraction", "Hiding implementation details"));
-		        
-		// Multiple Choice Question
-		MultipleChoiceQuestion mc = new MultipleChoiceQuestion("Q3", "Java Collection Types", 4);
-		mc.setLabel(new Label("Which of the following are part of the Java Collections Framework?"));
-		mc.addAnswer(new SimpleAnswer(1, "HashMap"), true);
-		mc.addAnswer(new SimpleAnswer(2, "ArrayList"), true);
-		mc.addAnswer(new SimpleAnswer(3, "Thread"), false);
-		mc.addAnswer(new SimpleAnswer(4, "File"), false);
-		        
-		testQuiz.addQuestion(writtenResponse);
-		testQuiz.addQuestion(fitb);
-		testQuiz.addQuestion(match);
-		testQuiz.addQuestion(mc);
-		testQuiz.regenerate();
-		quiz = testQuiz.getGenerated();
-		QuizMetadata metadata = buildTestMetadata(quiz);
-		TemplateReplacements test  = new TemplateReplacements();
-		test.setReplacementString(QuizMetadata.MetadataType.ClassNum, "(Class)");
-		test.setReplacementString(QuizMetadata.MetadataType.SectionNum, "(Section)");
-		test.setReplacementString(QuizMetadata.MetadataType.Points, "(Points)");
-		test.setReplacementString(QuizMetadata.MetadataType.Minutes, "(Minutes)");
-		test.setReplacementString(QuizMetadata.MetadataType.Professor, "(Professor)");
-		test.setReplacementString(QuizMetadata.MetadataType.Date, "(Date)");
-		test.setReplacementString(QuizMetadata.MetadataType.TestNum, "(Test)");
-		    	
-
-		String filename = "Output Template";
+		String filename = destination.toString();
 		if (isKey)
 		{
-			filename += "_KEY";
+			int dotIndex = filename.lastIndexOf(".");
+			if (dotIndex != -1) 
+			{
+				filename = filename.substring(0, dotIndex) + "_KEY" + filename.substring(dotIndex);
+			}
+			else
+			{
+				throw new IOException("How did we get here?");
+			}
 		}
-		destination = Paths.get(filename + ".docx");
+		destination = Paths.get(filename);
 		if(destination == null || destination.toString().isBlank())
 		{
 			logger.error("Destination path cannot be null or blank.");
@@ -115,10 +79,10 @@ public class WordExporter
 		    	logger.error("invalid template file: {}", template);
 		        throw new IOException("Invalid template file: " + template);
 		    }
-		    document = TemplateWriter.applyMetadata(template, test, metadata);
+		    document = TemplateWriter.applyMetadata(template, replacements, quiz.getQuizMetadata());
 		} else {
 		    document = new XWPFDocument();
-		    TemplateCreator.createDocument(document, destination, metadata);
+		    TemplateCreator.createDocument(document, destination, quiz.getQuizMetadata());
 		}
 
 		QuestionWriter questionWriter = new QuestionWriter(document, isKey);
@@ -249,22 +213,5 @@ public class WordExporter
 			if (text == null || text.isBlank()) return para;
 		}
 		return null;
-	}
-	
-	/**
-	 * Builds a mock QuizMetadata instance for testing purposes.
-	 */
-	private QuizMetadata buildTestMetadata(GeneratedQuiz quiz) {
-		QuizMetadata metadata = new QuizMetadata();
-
-		metadata.setValue(QuizMetadata.MetadataType.ClassNum, "499");
-		metadata.setValue(QuizMetadata.MetadataType.SectionNum, "01");
-		metadata.setValue(QuizMetadata.MetadataType.TestNum, "2");
-		metadata.setValue(QuizMetadata.MetadataType.Date, "April 17, 2025");
-		metadata.setValue(QuizMetadata.MetadataType.Professor, "Mr. Example");
-		metadata.setValue(QuizMetadata.MetadataType.Minutes, "75");
-		metadata.setDynamicValues(quiz);
-
-		return metadata;
 	}
 }

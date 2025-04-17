@@ -202,7 +202,7 @@ public class ImportQTIDialog
         } 
         catch (Exception ex) 
         {
-            errorDialog();
+            errorDialog(ex.getMessage());
         }
     }
     
@@ -210,11 +210,10 @@ public class ImportQTIDialog
      * Shows a JOptionPane to let the user know if an error has occurred importing 
      * their file
      */
-    private void errorDialog()
+    private void errorDialog(String error)
     {
         JFrame errorFrame = new JFrame();
-        JOptionPane.showMessageDialog(errorFrame, "Could not import file", "Error", JOptionPane.ERROR_MESSAGE);
-        
+        JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);        
     }
             
     /**

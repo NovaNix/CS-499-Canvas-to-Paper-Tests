@@ -42,7 +42,7 @@ public class GUIManager
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
                
         //size of the JFrame (width, height)
-        homeFrame.setSize(705, 560);
+        homeFrame.setSize(770, 625);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();
@@ -73,8 +73,8 @@ public class GUIManager
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Question Banks", bankPanel);
         tabs.addTab("Quizzes", quizPanel);
+        tabs.addTab("Question Banks", bankPanel);
         // setting the looks and feel of the tabs
         tabs.setBackgroundAt(0, new Color(237, 237, 237));
         tabs.setBackgroundAt(1, new Color(237, 237, 237));

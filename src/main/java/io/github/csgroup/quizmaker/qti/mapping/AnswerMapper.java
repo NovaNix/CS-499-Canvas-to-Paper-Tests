@@ -446,4 +446,18 @@ public class AnswerMapper
 		}
 		return map;
 	}
+	
+	/**
+	 * Maps a default answer for essay or written response questions.
+	 * <p>
+	 * This method provides a safe fallback to avoid null errors.
+	 *
+	 * @param item the QTI item
+	 * @return a non-null Label to assign as the answer
+	 */
+	public static Label mapEssayAnswer(Item item)
+	{
+		return new Label(""); // Or use: return new Label("This question requires user input.");
+	}
+	
 }

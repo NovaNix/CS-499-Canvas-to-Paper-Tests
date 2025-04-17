@@ -1,7 +1,12 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
+import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
+import java.awt.CardLayout;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -15,9 +20,16 @@ import java.awt.Insets;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Document;
 
 /**
@@ -29,29 +41,23 @@ import javax.swing.text.Document;
 public class ExportWordDialog 
 {
     private JFrame exportFrame;
-    private String locationPath;
     private JRadioButton keyButton;
     private JRadioButton testButton;
     private JTextField templateTextField;
     private JTextField locationTextField;
     private JButton exportButton;
+    private JPanel replacementPanel;
+    private JPanel cardPanel;
+    private Path lastUsedDirectory = Paths.get(System.getProperty("user.home"));
     private Quiz quiz;
+    private TemplateReplacements replacements;
     
     public ExportWordDialog(Quiz exportQuiz)
     {
         quiz = exportQuiz;
         createExportFileFrame();
     }
-          
-    private void setLocation(String path)
-    {
-        locationPath = path;
-    }
-        
-    private String getLocation()
-    {
-        return locationPath;
-    }
+
         
     /**
      * Places the label panel, radio button panel, file attachment panel,
@@ -61,10 +67,11 @@ public class ExportWordDialog
     private void createExportFileFrame()
     {
         exportFrame = new JFrame("Export File");
-        exportFrame.setSize(410, 280);
+        exportFrame.setSize(435, 340);
                 
         // contains labelPanel, radioButtonPanel, filePanel, and exportButtonPanel
-        JPanel exportPanel = new JPanel(new GridBagLayout());                
+        JPanel exportPanel = new JPanel(new GridBagLayout());
+        JScrollPane scrollPane = new JScrollPane(exportPanel);       
         GridBagConstraints buttonConstraint = new GridBagConstraints();
         GridBagConstraints labelConstraint = new GridBagConstraints();
         GridBagConstraints fileConstraint = new GridBagConstraints();
@@ -75,7 +82,7 @@ public class ExportWordDialog
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 0, 0, 285);
+        labelConstraint.insets = new Insets(0, 0, 0, 75);
         exportPanel.add(labelPanel, labelConstraint);
                 
         // places radioButtonPanel below labelPanel on exportPanel
@@ -83,7 +90,7 @@ public class ExportWordDialog
         buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonConstraint.gridx = 0;
         buttonConstraint.gridy = 2;
-        buttonConstraint.insets = new Insets(0, 0, 5, 210);
+        buttonConstraint.insets = new Insets(0, 0, 5, 200);
         exportPanel.add(radioButtonPanel, buttonConstraint);
                 
         // places filePanel below radioButtonPanel on exportPanel
@@ -100,7 +107,7 @@ public class ExportWordDialog
         exportButtonConstraint.gridy = 4;
         exportPanel.add(expButtonPanel, exportButtonConstraint);
                 
-        exportFrame.add(exportPanel);                                                
+        exportFrame.add(scrollPane);                                                
     }
         
     /**
@@ -113,6 +120,30 @@ public class ExportWordDialog
     {
         JLabel quizName = new JLabel("Exporting Quiz:");
         JLabel typeLabel = new JLabel("Type:");
+        
+        JTextField nameField = new JTextField(quiz.getTitle());
+        nameField.setFocusable(false);
+        nameField.setPreferredSize(new Dimension(200, 22));
+        JPanel namePanel = new JPanel();
+        namePanel.add(nameField);
+        
+        // contains quizName and namePanel
+        JPanel exportPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints labelConstraint = new GridBagConstraints();
+        GridBagConstraints textFieldConstraint = new GridBagConstraints();
+        
+        // places quizName on the left side of exportPanel
+        labelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        labelConstraint.gridx = 0;
+        labelConstraint.gridy = 0;
+        exportPanel.add(quizName, labelConstraint);
+        
+        // places namePanel on the right side of exportPanel
+        textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
+        textFieldConstraint.gridx = 1;
+        textFieldConstraint.gridy = 0;
+        textFieldConstraint.insets = new Insets(0, 10, 5, 0);
+        exportPanel.add(namePanel, textFieldConstraint);
                 
         // contains quizName and typeLabel
         JPanel exportLabelPanel = new JPanel(new GridBagLayout());
@@ -123,14 +154,14 @@ public class ExportWordDialog
         quizNameConstraint.fill = GridBagConstraints.HORIZONTAL;
         quizNameConstraint.gridx = 0;
         quizNameConstraint.gridy = 0;
-        quizNameConstraint.insets = new Insets(0, 0, 5, 0);
-        exportLabelPanel.add(quizName, quizNameConstraint);
+        quizNameConstraint.insets = new Insets(0, 10, 5, 0);
+        exportLabelPanel.add(exportPanel, quizNameConstraint);
                 
         // places typeLabel at the bottom of exportLabelPanel
         typeLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         typeLabelConstraint.gridx = 0;
         typeLabelConstraint.gridy = 1;
-        typeLabelConstraint.insets = new Insets(0, 0, 5, 0);
+        typeLabelConstraint.insets = new Insets(0, 10, 5, 0);
         exportLabelPanel.add(typeLabel, typeLabelConstraint);
                                 
         return exportLabelPanel;
@@ -144,8 +175,8 @@ public class ExportWordDialog
      */
     private JPanel fileAttachPanel()
     {
-        JLabel templateLabel = new JLabel("Template:");
-        JLabel locationLabel = new JLabel("Export Location:");;
+        JLabel templateLabel = new JLabel("Template (Leave blank to create):");
+        JLabel locationLabel = new JLabel("Export Location:");
                 
         // contains templateLabel, templateTextField, tempButtonPanel, 
         // locationLabel, locationTextField, and locationButtonPanel
@@ -156,11 +187,14 @@ public class ExportWordDialog
         GridBagConstraints locTextFieldConstraint = new GridBagConstraints();
         GridBagConstraints tempButtonConstraint = new GridBagConstraints();
         GridBagConstraints locButtonConstraint = new GridBagConstraints();
+        GridBagConstraints buttonPanelConstraint = new GridBagConstraints();
+        GridBagConstraints panelConstraint = new GridBagConstraints();
                 
         // places templateLabel at the top of fileAttachPanel
         templateConstraint.fill = GridBagConstraints.HORIZONTAL;
         templateConstraint.gridx = 0;
         templateConstraint.gridy = 0;
+        templateConstraint.insets = new Insets(0, 5, 0, 0);
         fileAttachPanel.add(templateLabel, templateConstraint);
                 
         // places templateTextField below templateLabel on fileAttachPanel
@@ -176,21 +210,37 @@ public class ExportWordDialog
         tempButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         tempButtonConstraint.gridx = 2;
         tempButtonConstraint.gridy = 1;
-        tempButtonConstraint.insets = new Insets(0, 0, 5, 0);
+        tempButtonConstraint.insets = new Insets(0, 0, 3, 0);
         fileAttachPanel.add(tempButtonPanel, tempButtonConstraint);
-                
-        // places locationLabel below templateTextField on fileAttachPanel
+        
+        // places buttonPanel below tempPanel
+        JPanel buttonPanel = replacementButtonPanel();
+        buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonPanelConstraint.gridx = 0;
+        buttonPanelConstraint.gridy = 2;
+        buttonPanelConstraint.insets = new Insets(0, 0, 8, 167);
+        fileAttachPanel.add(buttonPanel, buttonPanelConstraint);
+        
+        // places replacementPanel below buttonPanel
+        JPanel replacement = replacementPanel();
+        panelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        panelConstraint.gridx = 0;
+        panelConstraint.gridy = 3;
+        panelConstraint.insets = new Insets(0, 35, 0, 0);
+        fileAttachPanel.add(replacement, panelConstraint);
+                       
+        // places locationLabel below replacementPanel on fileAttachPanel
         locationConstraint.fill = GridBagConstraints.HORIZONTAL;
         locationConstraint.gridx = 0;
-        locationConstraint.gridy = 2;
-        locationConstraint.insets = new Insets(0, 2, 0, 0);
+        locationConstraint.gridy = 4;
+        locationConstraint.insets = new Insets(0, 6, 0, 0);
         fileAttachPanel.add(locationLabel, locationConstraint);
                 
         // places locationTextField below locationLabel on fileAttachPanel
         JPanel locationPanel = locationTextField();
         locTextFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         locTextFieldConstraint.gridx = 0;
-        locTextFieldConstraint.gridy = 3;
+        locTextFieldConstraint.gridy = 5;
         locTextFieldConstraint.insets = new Insets(0, 0, 15, 0);
         fileAttachPanel.add(locationPanel, locTextFieldConstraint);
                 
@@ -198,7 +248,7 @@ public class ExportWordDialog
         JPanel locationButtonPanel = selectLocButtonPanel(locationTextField);
         locButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         locButtonConstraint.gridx = 2;
-        locButtonConstraint.gridy = 3;
+        locButtonConstraint.gridy = 5;
         locButtonConstraint.insets = new Insets(0, 0, 15, 0);
         fileAttachPanel.add(locationButtonPanel, locButtonConstraint);
                                 
@@ -215,39 +265,9 @@ public class ExportWordDialog
     {
         templateTextField = new JTextField();
         templateTextField.setFocusable(false);
-        templateTextField.setPreferredSize(new Dimension(280, 22));
+        templateTextField.setPreferredSize(new Dimension(290, 22));
         JPanel tempPanel = new JPanel();
         tempPanel.add(templateTextField);
-        
-        // listens for when text appears in the text field
-        Document templateDocument = templateTextField.getDocument();
-        templateDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e)
-            {
-                // if text is in both the template and location text fields enable 
-                // the export button
-                boolean location = (locationTextField.getText()).isEmpty();
-                if (location == false)
-                {
-                    exportButton.setEnabled(true);
-                }
-            }
-            
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = templateTextField.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the template field is empty
-                if (empty == true)
-                {
-                    exportButton.setEnabled(false);
-                }                
-            }            
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
              
         return tempPanel;
     }
@@ -261,7 +281,7 @@ public class ExportWordDialog
     private JPanel locationTextField()
     {
         locationTextField = new JTextField();
-        locationTextField.setPreferredSize(new Dimension(280, 22));
+        locationTextField.setPreferredSize(new Dimension(290, 22));
         locationTextField.setFocusable(false);
         JPanel locationPanel = new JPanel();
         locationPanel.add(locationTextField);
@@ -272,13 +292,9 @@ public class ExportWordDialog
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-                // if text is in both the template and location text fields enable 
+                // if text is in the location field enable
                 // the export button
-                boolean template = (templateTextField.getText()).isEmpty();
-                if (template == false)
-                {
-                    exportButton.setEnabled(true);
-                }
+                exportButton.setEnabled(true);
             }
             
             @Override
@@ -340,31 +356,34 @@ public class ExportWordDialog
      * location
      * @return the template selection button panel
      */
-    private JPanel selectTempButtonPanel(JTextField tempTextField)
-    {
-        JButton selectTempButton = new JButton("Select");
-            
-        // contains selectTempButton
-        JPanel selectTempButtonPanel = new JPanel();        
-        selectTempButtonPanel.add(selectTempButton);
-                
-        // listens for when the user selects selectTempButton
-        selectTempButton.addActionListener((ActionEvent e) -> {
-            JFileChooser tempFileChooser = new JFileChooser();
-            // only allow directories to appear
-            tempFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            tempFileChooser.showOpenDialog(null);
-            // get the file path and display it on tempTextField
-            try
-            {
-                String templateFilePath = tempFileChooser.getSelectedFile().getPath();             
-                tempTextField.setText(templateFilePath);
-            }
-            catch (NullPointerException n) {}
-        });
-                
-        return selectTempButtonPanel;
-    }
+	private JPanel selectTempButtonPanel(JTextField tempTextField) {
+		JButton selectTempButton = new JButton("Select");
+
+		JPanel selectTempButtonPanel = new JPanel();
+		selectTempButtonPanel.add(selectTempButton);
+
+		selectTempButton.addActionListener((ActionEvent e) -> {
+			JFileChooser tempFileChooser = new JFileChooser();
+
+			// Allow files only (not directories)
+			tempFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+			// Filter to only show Word documents (.doc and .docx)
+			FileNameExtensionFilter filter = new FileNameExtensionFilter("Word Documents (*.doc, *.docx)", "doc", "docx");
+			tempFileChooser.setFileFilter(filter);
+
+			int result = tempFileChooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = tempFileChooser.getSelectedFile();
+				lastUsedDirectory = selectedFile.toPath().getParent();
+				if (selectedFile != null) {
+					tempTextField.setText(selectedFile.getAbsolutePath());
+				}
+			}
+		});
+		return selectTempButtonPanel;
+	}
+
         
     /**
      * Creates the JPanel that holds the select export location button
@@ -373,32 +392,36 @@ public class ExportWordDialog
      * file path 
      * @return the select export location button panel
      */
-    private JPanel selectLocButtonPanel(JTextField locTextField)
-    {
-        JButton selectLocButton = new JButton("Select");
-            
-        // contains selectLocButton 
-        JPanel selectLocButtonPanel = new JPanel();        
-        selectLocButtonPanel.add(selectLocButton);
-            
-        // listens for when the user selects selectLocButton
-        selectLocButton.addActionListener((ActionEvent e) -> {
-            JFileChooser locFileChooser = new JFileChooser();
-            // only allow directories to appear 
-            locFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            locFileChooser.showOpenDialog(null);
-            // get the file path and display it on locTextField
-            try 
-            {
-                String locationFilePath = locFileChooser.getSelectedFile().getPath(); 
-                setLocation(locationFilePath);
-                locTextField.setText(locationFilePath);    
-            } 
-            catch (NullPointerException n) {}
-        }); 
-                
+	private JPanel selectLocButtonPanel(JTextField locTextField) {
+		JButton selectLocButton = new JButton("Select");
+
+		JPanel selectLocButtonPanel = new JPanel();        
+		selectLocButtonPanel.add(selectLocButton);
+
+		selectLocButton.addActionListener((ActionEvent e) -> {
+			JFileChooser locFileChooser = new JFileChooser();
+			locFileChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			// Allow file selection
+			locFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			locFileChooser.setDialogTitle("Select and name your exported document");
+
+			int result = locFileChooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = locFileChooser.getSelectedFile();
+				String path = selectedFile.getAbsolutePath();
+
+				// Check and append file extension if necessary
+				if (!path.toLowerCase().endsWith(".doc") && !path.toLowerCase().endsWith(".docx")) {
+					path += ".docx";
+					selectedFile = new File(path);
+				}
+
+				locTextField.setText(selectedFile.getAbsolutePath());
+				lastUsedDirectory = selectedFile.toPath().getParent();
+			}
+		});
         return selectLocButtonPanel;
-    }
+	}
         
     /**
      * Creates the JPanel that holds the export button and exports the 
@@ -420,27 +443,49 @@ public class ExportWordDialog
         exportButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         exportButtonConstraint.gridx = 0;
         exportButtonConstraint.gridy = 0;
-        exportButtonConstraint.insets = new Insets(0, 0, 0, 0);
         exportButtonPanel.add(exportButton, exportButtonConstraint);
                 
         // listens for when the user selects exportButton
         exportButton.addActionListener((ActionEvent e) -> {
             if ((testButton.isSelected() == true) || (keyButton.isSelected() == true))
             {
+                // export the quiz 
                 if (testButton.isSelected() == true)
                 {
-                    String testLocation = getLocation();
-                    if (testLocation.isEmpty() == false)
+                    String templateLocation = templateTextField.getText();
+                    Path templatePath = Paths.get(templateLocation);
+                    
+                    String exportLocation = locationTextField.getText();
+                    Path exportPath = Paths.get(exportLocation);
+
+                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    try
                     {
-                        //exportFile.exportTest(quiz, testLocation);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, false);
+                    }
+                    catch (IOException n)
+                    {
+                        errorDialog(n.getMessage());
                     }
                 }
+                // export the answer key
                 if (keyButton.isSelected() == true)
                 {
-                    String keyLocation = getLocation();
-                    if (keyLocation.isEmpty() == false)
+                    String templateLocation = templateTextField.getText();
+                    Path templatePath = Paths.get(templateLocation);
+                    
+                    String exportLocation = locationTextField.getText();
+                    Path exportPath = Paths.get(exportLocation);
+
+                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    try
                     {
-                        //exportFile.exportAnswerKey(quiz, keyLocation);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, true);
+                    }
+                    catch (IOException n)
+                    {
+                        
+                        errorDialog(n.getMessage());
                     }
                 }
                 exportFrame.dispose();
@@ -449,7 +494,114 @@ public class ExportWordDialog
                 
         return exportButtonPanel;
     }
+    
+    private void errorDialog(String error)
+    {
+        JFrame errorFrame = new JFrame();
+        JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);  
+    }
+    
+    /**
+     * Creates the button panel that allows the user to expand/collapse the 
+     * text replacement panel
+     * 
+     * @return replacement button panel
+     */
+    private JPanel replacementButtonPanel()
+    {
+        JLabel replacementLabel = new JLabel("Replacements");
         
+        JButton showButton = new JButton("˅");
+        JButton hideButton = new JButton("˄");
+             
+        cardPanel = new JPanel(new CardLayout());
+        
+        JPanel showButtonPanel = new JPanel();
+        showButtonPanel.add(showButton);
+        cardPanel.add(showButtonPanel, "Show");
+        
+        JPanel hideButtonPanel = new JPanel();
+        hideButtonPanel.add(hideButton);
+        cardPanel.add(hideButtonPanel, "Hide");
+        
+        // contains replacementLabel and cardPanel
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints labelConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints(); 
+        
+        // place cardPanel on the left side of buttonPanel
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 0;
+        buttonPanel.add(cardPanel, buttonConstraint);
+        
+        // place replacementLabel on the right side of buttonPanel
+        labelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        labelConstraint.gridx = 1;
+        labelConstraint.gridy = 0;
+        buttonPanel.add(replacementLabel, labelConstraint);
+        
+        CardLayout layout = (CardLayout) (cardPanel.getLayout());
+        layout.show(cardPanel, "Show");
+        
+        // listens for when showButton is clicked
+        showButton.addActionListener((ActionEvent e) -> {
+            // show the generatePanel and hideButton
+            replacementPanel.setVisible(true);
+            layout.show(cardPanel, "Hide");
+        }); 
+            
+        hideButton.addActionListener((ActionEvent e) -> {
+            // hide the generatePanel and show the showButton
+            replacementPanel.setVisible(false);
+            layout.show(cardPanel, "Show");
+        }); 
+        return buttonPanel;
+    }
+    
+    /**
+     * Creates the panel that allows the user to enter in text replacement information
+     * @return 
+     */
+    private JPanel replacementPanel()
+    {
+        replacements = new TemplateReplacements();
+        GeneratePanel generate = new GeneratePanel(180, replacements);
+        JButton applyButton = new JButton("Apply");
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(applyButton);
+        
+        // contains generate and buttonPanel
+        replacementPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints generateConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints();
+        
+        // places generate at the top of replacementPanel
+        generateConstraint.fill = GridBagConstraints.HORIZONTAL;
+        generateConstraint.gridx = 0;
+        generateConstraint.gridy = 0;
+        replacementPanel.add(generate, generateConstraint);
+        
+        // places buttonPanel below generate
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 1;
+        replacementPanel.add(buttonPanel, buttonConstraint);
+        
+        replacementPanel.setVisible(false);
+        
+        // listens for when applyButton is clicked
+        applyButton.addActionListener((ActionEvent e) -> {
+            // hide replacementPanel and show showButton
+            CardLayout layout = (CardLayout) (cardPanel.getLayout());
+            replacementPanel.setVisible(false);
+            layout.show(cardPanel, "Show");
+            generate.collectData();
+        }); 
+               
+        return replacementPanel;
+    }
+    
     /**
      * Controls when and where the frame appears
      * 
