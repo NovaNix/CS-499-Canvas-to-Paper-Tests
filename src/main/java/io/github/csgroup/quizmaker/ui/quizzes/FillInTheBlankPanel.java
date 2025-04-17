@@ -53,6 +53,8 @@ public class FillInTheBlankPanel extends JComponent
     private final JTextField questionTitle;
     private QuestionBank questionBank;
     private JButton addQuestionButton;
+    private JButton addButton;
+    private JButton removeButton;
     private final int numAnswers = 10;
     
     public FillInTheBlankPanel(JFrame frame, JTextArea fitbQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -246,12 +248,12 @@ public class FillInTheBlankPanel extends JComponent
         answersPanel.add(answerButtonPanel, buttonPanelConstraint);
         
         GridBagConstraints addButtonConstraint = new GridBagConstraints();
-        JPanel addButton= addButtonPanel();
+        JPanel buttonPanel = addButtonPanel();
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 11;
         addButtonConstraint.insets = new Insets(0, 100, 0, 0);
-        answersPanel.add(addButton, addButtonConstraint);
+        answersPanel.add(buttonPanel, addButtonConstraint);
                       
         return answersPanel;
     }
@@ -263,8 +265,8 @@ public class FillInTheBlankPanel extends JComponent
      */
     public JPanel buttonPanel()
     {
-        JButton addButton = new JButton("+");
-        JButton removeButton = new JButton("-");
+        addButton = new JButton("+");
+        removeButton = new JButton("-");
         
         // contains addButton and removeButton
         JPanel buttonPanel = new JPanel(new GridBagLayout());
@@ -293,8 +295,15 @@ public class FillInTheBlankPanel extends JComponent
         
         // listens for when removeButton is selected
         removeButton.addActionListener((ActionEvent e) -> {
-            // remove the bottom text field
-            removeAnswer();
+            try
+            {
+                // remove the bottom text field
+                removeAnswer();
+            }
+            catch (IndexOutOfBoundsException n)
+            {
+                removeButton.setEnabled(false);
+            }
         });
                 
         return buttonPanel;
@@ -318,17 +327,26 @@ public class FillInTheBlankPanel extends JComponent
         addQuestionButton.addActionListener((ActionEvent e) -> { 
             // the question the user entered
             String questionString = question.getText();
-            // the point value of the question
-            String pointsString = pointsValue.getText();
             // the title of the question
             String questionLabel = questionTitle.getText();
 
             try
             {
-                float floatPoints = Float.parseFloat(pointsString);               
-                FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
-                fitbQuestion.setLabel(new Label(questionString));
-                addFITBQuestion(fitbQuestion, questionString);
+                if (newQuiz != null)
+                {
+                    // the point value of the question
+                    String pointsString = pointsValue.getText();
+                    float floatPoints = Float.parseFloat(pointsString);               
+                    FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
+                    fitbQuestion.setLabel(new Label(questionString));
+                    addFITBQuestion(fitbQuestion, questionString);
+                }
+                if (questionBank != null)
+                {
+                    FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel);
+                    fitbQuestion.setLabel(new Label(questionString));
+                    addFITBQuestion(fitbQuestion, questionString);
+                }
 
                 mainFrame.dispose();
             }
@@ -353,9 +371,20 @@ public class FillInTheBlankPanel extends JComponent
             {
                 boolean points = (pointsValue.getText()).isEmpty();
                 boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((points == false) && (fitbQuestion == false))
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((points == false) && (fitbQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                if (questionBank != null)
+                {
+                    if (fitbQuestion == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
             }
             
@@ -374,33 +403,36 @@ public class FillInTheBlankPanel extends JComponent
             public void changedUpdate(DocumentEvent e) {}                 
         });
         
-        Document pointsDocument = pointsValue.getDocument();
-        pointsDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) 
-            {
-                boolean title = (questionTitle.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((title == false) && (fitbQuestion == false))
+        if (newQuiz != null)
+        {
+            Document pointsDocument = pointsValue.getDocument();
+            pointsDocument.addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) 
                 {
-                    addQuestionButton.setEnabled(true);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean fitbQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (fitbQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
-            }
             
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = pointsValue.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the points text field is empty 
-                if (empty == true)
+                @Override
+                public void removeUpdate(DocumentEvent e)
                 {
-                    addQuestionButton.setEnabled(false);
-                }                
+                    String text = pointsValue.getText();
+                    boolean empty = text.isEmpty();
+                    // disable the button if the points text field is empty 
+                    if (empty == true)
+                    {
+                        addQuestionButton.setEnabled(false);
+                    }                
             }           
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
+                @Override
+                public void changedUpdate(DocumentEvent e) {}                 
+            });
+        }
         
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
@@ -409,9 +441,20 @@ public class FillInTheBlankPanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                if ((title == false) && (points == false))
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((title == false) && (points == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                if (questionBank != null)
+                {
+                    if (title == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
             }
             
@@ -460,6 +503,10 @@ public class FillInTheBlankPanel extends JComponent
                     rowLayout.show(cardPanels[i], "row " + i);
                     answerButtonPanel.setVisible(true);                        
                 }
+                if (i == (numAnswers - 1))
+                {
+                    addButton.setEnabled(false);
+                }
                 break;
             }
         }            
@@ -473,7 +520,7 @@ public class FillInTheBlankPanel extends JComponent
         // loop until a non-visible text field is found
         int index = 0;
         for (int i = 0; i < numAnswers; i++)
-        {
+        {            
             if ((answerPanels[i].isVisible() == false))
             {
                 index = i - 1;
@@ -490,7 +537,7 @@ public class FillInTheBlankPanel extends JComponent
             
         // make this components non-visible
         answerPanels[index].setVisible(false);
-        answerFields[index].setText(null);
+        answerFields[index].setText(null);        
         if (index < 4)
         {
             answerButtonPanel.setVisible(false);
@@ -512,6 +559,10 @@ public class FillInTheBlankPanel extends JComponent
         if (index > 4)
         {
             answerButtonPanel.setVisible(true);
+        }
+        if (index < (numAnswers - 1))
+        {
+            addButton.setEnabled(true);
         }
     }
     

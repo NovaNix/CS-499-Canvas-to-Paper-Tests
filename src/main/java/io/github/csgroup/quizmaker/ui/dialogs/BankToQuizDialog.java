@@ -366,13 +366,12 @@ public class BankToQuizDialog
             List<BankSelection> quizQuestionBanks = quiz.getBankSelections();
             // get the number of bank questions
             int numBanks = quizQuestionBanks.size();
-            // get the number of points per question
-            float points = selectedBank.getPointsPerQuestion();
             
             for (int i = 0; i < numBanks; i++)
             {
                 QuestionBank bank = quizQuestionBanks.get(i).getBank();
                 int size = bank.getQuestionCount();
+                float points = selectedBank.getPointsPerQuestion() * (size - questions);               
                 if (i <= (table.getRows() - 1))
                 {                   
                     table.setValue(bank, i, 0);

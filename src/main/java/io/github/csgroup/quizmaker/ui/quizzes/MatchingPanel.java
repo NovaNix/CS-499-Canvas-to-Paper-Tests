@@ -55,6 +55,8 @@ public class MatchingPanel extends JComponent
     private final JTextField questionTitle;
     private QuestionBank questionBank;
     private JButton addQuestionButton;
+    private JButton addButton;
+    private JButton removeButton;
     private final int numAnswers = 15;
     
     public MatchingPanel(JFrame frame, JTextArea matchQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -258,11 +260,11 @@ public class MatchingPanel extends JComponent
         buttonPanelConstraint.gridy = 15;
         answersPanel.add(answerButtonPanel, buttonPanelConstraint);
         
-        JPanel addButton = addButtonPanel();
+        JPanel buttonPanel = addButtonPanel();
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 16;
-        answersPanel.add(addButton, addButtonConstraint);
+        answersPanel.add(buttonPanel, addButtonConstraint);
                       
         return answersPanel;
     }
@@ -274,8 +276,8 @@ public class MatchingPanel extends JComponent
      */
     public JPanel buttonPanel()
     {
-        JButton addButton = new JButton("+");
-        JButton removeButton = new JButton("-");
+        addButton = new JButton("+");
+        removeButton = new JButton("-");
         
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints addConstraint = new GridBagConstraints();
@@ -297,7 +299,15 @@ public class MatchingPanel extends JComponent
         });
         
         removeButton.addActionListener((ActionEvent e) -> { 
-            removeAnswer();
+            try
+            {
+                // remove the bottom text field
+                removeAnswer();
+            }
+            catch (IndexOutOfBoundsException n)
+            {
+                removeButton.setEnabled(false);
+            }
         });
                 
         return buttonPanel;
@@ -321,17 +331,26 @@ public class MatchingPanel extends JComponent
         addQuestionButton.addActionListener((ActionEvent e) -> { 
             // the question the user entered
             String questionString = question.getText();
-            // the point value of the question
-            String pointsString = pointsValue.getText();
             // the title of the question
             String questionLabel = questionTitle.getText();
 
             try
             {
-                float floatPoints = Float.parseFloat(pointsString);
-                MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel, floatPoints);
-                matchingQuestion.setLabel(new Label(questionString));
-                addMatchingQuestion(matchingQuestion);
+                if (newQuiz != null)
+                {
+                    // the point value of the question
+                    String pointsString = pointsValue.getText();
+                    float floatPoints = Float.parseFloat(pointsString);
+                    MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel, floatPoints);
+                    matchingQuestion.setLabel(new Label(questionString));
+                    addMatchingQuestion(matchingQuestion);
+                }
+                if (questionBank != null)
+                {
+                    MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel);
+                    matchingQuestion.setLabel(new Label(questionString));
+                    addMatchingQuestion(matchingQuestion);
+                }
                     
                 mainFrame.dispose();
             }
@@ -353,11 +372,22 @@ public class MatchingPanel extends JComponent
             public void insertUpdate(DocumentEvent e)
             {
                 boolean points = (pointsValue.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((points == false) && (fitbQuestion == false))
+                boolean matchQuestion = (question.getText()).isEmpty();
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((points == false) && (matchQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }                    
                 }
+                if (questionBank != null)
+                {
+                    if (matchQuestion == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    } 
+                }               
             }
             
             @Override
@@ -370,41 +400,42 @@ public class MatchingPanel extends JComponent
                 {
                     addQuestionButton.setEnabled(false);
                 }                
-            }
-            
+            }            
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
         
-        Document pointsDocument = pointsValue.getDocument();
-        pointsDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) 
-            {
-                boolean title = (questionTitle.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((title == false) && (fitbQuestion == false))
+        if (newQuiz != null)
+        {
+            Document pointsDocument = pointsValue.getDocument();
+            pointsDocument.addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) 
                 {
-                    addQuestionButton.setEnabled(true);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean matchQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (matchQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
-            }
             
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = pointsValue.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the title field is empty
-                if (empty == true)
+                @Override
+                public void removeUpdate(DocumentEvent e)
                 {
-                    addQuestionButton.setEnabled(false);
-                }                
-            }
-            
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
-        
+                    String text = pointsValue.getText();
+                    boolean empty = text.isEmpty();
+                    // disable the button if the title field is empty
+                    if (empty == true)
+                    {
+                        addQuestionButton.setEnabled(false);
+                    }                
+                }               
+                @Override
+                public void changedUpdate(DocumentEvent e) {}                 
+            });
+        }
+                
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
             @Override
@@ -412,9 +443,20 @@ public class MatchingPanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                if ((title == false) && (points == false))
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((title == false) && (points == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                if (questionBank != null)
+                {
+                    if (title == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
             }
             
@@ -428,8 +470,7 @@ public class MatchingPanel extends JComponent
                 {
                     addQuestionButton.setEnabled(false);
                 }                
-            }
-            
+            }            
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
@@ -464,6 +505,10 @@ public class MatchingPanel extends JComponent
                     CardLayout rowLayout = (CardLayout) (cardPanels[i].getLayout());
                     rowLayout.show(cardPanels[i], "row " + i);
                     answerButtonPanel.setVisible(true); 
+                }
+                if (i == (numAnswers - 1))
+                {
+                    addButton.setEnabled(false);
                 }
                 break;
             }
@@ -521,6 +566,10 @@ public class MatchingPanel extends JComponent
         if (index > 4)
         {
             answerButtonPanel.setVisible(true);
+        }
+        if (index < (numAnswers - 1))
+        {
+            addButton.setEnabled(true);
         }
     }
     

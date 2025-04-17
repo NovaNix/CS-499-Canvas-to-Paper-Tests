@@ -2,7 +2,6 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Project;
-import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,15 +24,13 @@ public class RemoveBankDialog
     private JFrame removeFrame;
     private final Project project;
     private final JList bankList;
-    private final JButton removeButton;
-    private final QuestionTable bankTable;
+    private final JPanel tablePanel;
     
-    public RemoveBankDialog(QuestionBank bankName, Project currentProject, JList list, JButton button, QuestionTable table)
+    public RemoveBankDialog(QuestionBank bankName, Project currentProject, JList list, JPanel panel)
     {
         bankList = list;
         project = currentProject;
-        removeButton = button;
-        bankTable = table;
+        tablePanel = panel;
         createRemoveBankFrame(bankName);
     }
           
@@ -122,8 +119,7 @@ public class RemoveBankDialog
             
             if (bankCount == 0)
             {
-                removeButton.setEnabled(false);
-                bankTable.setVisible(false);
+                tablePanel.setVisible(false);
             }
             
             // close removeFrame

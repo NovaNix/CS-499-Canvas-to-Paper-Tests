@@ -160,24 +160,28 @@ public class WrittenResponsePanel extends JComponent
             String questionString = question.getText();
             // the answer the user entered
             String answerString = answerArea.getText();
-            // the point value of the question
-            String pointsString = pointsValue.getText();
             // get the title of the question
             String questionLabel = questionTitle.getText();
  
             try
-            {
-                float floatPoints = Float.parseFloat(pointsString);
-                WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
-                wrQuestion.setLabel(new Label(questionString));
-                wrQuestion.setAnswer(answerString);
-               
+            {  
                 if (newQuiz != null)
                 {
+                    // the point value of the question
+                    String pointsString = pointsValue.getText();
+                    float floatPoints = Float.parseFloat(pointsString);
+                    WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
+                    wrQuestion.setLabel(new Label(questionString));
+                    wrQuestion.setAnswer(answerString);
+                    
                     newQuiz.addQuestion(wrQuestion);
                 }
                 if (questionBank != null)
                 {
+                    WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel); 
+                    wrQuestion.setLabel(new Label(questionString));
+                    wrQuestion.setAnswer(answerString);
+                    
                     questionBank.add(wrQuestion);
                 }
                 populateTable();
@@ -202,10 +206,21 @@ public class WrittenResponsePanel extends JComponent
             public void insertUpdate(DocumentEvent e)
             {
                 boolean points = (pointsValue.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((points == false) && (fitbQuestion == false))
+                boolean wrQuestion = (question.getText()).isEmpty();
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((points == false) && (wrQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                if (questionBank != null)
+                {
+                    if (wrQuestion == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
             }
             
@@ -224,33 +239,36 @@ public class WrittenResponsePanel extends JComponent
             public void changedUpdate(DocumentEvent e) {}                 
         });
         
-        Document pointsDocument = pointsValue.getDocument();
-        pointsDocument.addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) 
-            {
-                boolean title = (questionTitle.getText()).isEmpty();
-                boolean fitbQuestion = (question.getText()).isEmpty();
-                if ((title == false) && (fitbQuestion == false))
+        if (newQuiz != null)
+        {
+            Document pointsDocument = pointsValue.getDocument();
+            pointsDocument.addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) 
                 {
-                    addQuestionButton.setEnabled(true);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean wrQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (wrQuestion == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
-            }
             
-            @Override
-            public void removeUpdate(DocumentEvent e)
-            {
-                String text = pointsValue.getText();
-                boolean empty = text.isEmpty();
-                // disable the button if the title field is empty
-                if (empty == true)
+                @Override
+                public void removeUpdate(DocumentEvent e)
                 {
-                    addQuestionButton.setEnabled(false);
-                }                
-            }          
-            @Override
-            public void changedUpdate(DocumentEvent e) {}                 
-        });
+                    String text = pointsValue.getText();
+                    boolean empty = text.isEmpty();
+                    // disable the button if the title field is empty
+                    if (empty == true)
+                    {
+                        addQuestionButton.setEnabled(false);
+                    }                
+                }          
+                @Override
+                public void changedUpdate(DocumentEvent e) {}                 
+            });
+        }
         
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
@@ -259,9 +277,20 @@ public class WrittenResponsePanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                if ((title == false) && (points == false))
+                
+                if (newQuiz != null)
                 {
-                    addQuestionButton.setEnabled(true);
+                    if ((title == false) && (points == false))
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                if (questionBank != null)
+                {
+                    if (title == false)
+                    {
+                        addQuestionButton.setEnabled(true);
+                    }
                 }
             }
             

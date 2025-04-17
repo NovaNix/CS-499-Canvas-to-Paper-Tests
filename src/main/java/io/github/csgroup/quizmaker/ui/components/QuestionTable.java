@@ -8,7 +8,6 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.JComponent;
 import java.awt.Dimension;
-import java.awt.Color;
 
 /**
  * Creates a JPanel that contains a table 
@@ -60,7 +59,6 @@ public class QuestionTable extends JComponent
         
         // JScrollPane for the JTable dataTable
         tableScrollPane = new JScrollPane(dataTable);
-        tableScrollPane.getViewport().setBackground(Color.WHITE);
                 
         this.setLayout(new GridBagLayout());
         GridBagConstraints tableConstraint = new GridBagConstraints();
@@ -139,6 +137,22 @@ public class QuestionTable extends JComponent
         dataTable.setValueAt(value, row, column);
     }
     
+    /**
+     * Gets a cell value in the table
+     * 
+     * @param row specified row in the table
+     * @param column specified column in the table
+     * @return the value at the cell
+     */
+    public Object getValue(int row, int column)
+    {
+        Object value = model.getValueAt(row, column);
+        return value;
+    }
+    
+    /**
+     * Adds an empty row to the table
+     */
     public void addEmptyRow()
     {
         model.addRow(new Object[]{null, null, null, null});

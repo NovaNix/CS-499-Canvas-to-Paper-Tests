@@ -9,8 +9,9 @@ import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.quiz.BankSelection;
-import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.ui.dialogs.GenerateDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankFromQuizDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.*;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuizDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
@@ -37,12 +38,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.ListModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.text.Document;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
+
+//ANYTHING THAT USES THE NEW QUIZ DIALOG NEEDS TO BE CHECKED
+
 
 /**
  * Creates the panel that allows the user to add/delete quizzes, their questions, 
@@ -144,7 +151,7 @@ public class QuizPanel extends JComponent
         quizNames();
         quizList();
         JScrollPane quizScrollPane = new JScrollPane(quizList);
-        quizScrollPane.setPreferredSize(new Dimension(190, 418));
+        quizScrollPane.setPreferredSize(new Dimension(215, 480));
             
         // contains quizLabel and quizScrollPane
         JPanel listPanel = new JPanel(new GridBagLayout());
@@ -268,7 +275,7 @@ public class QuizPanel extends JComponent
                 Quiz quiz = project.getQuiz(index);
                 String quizName = quiz.getTitle();
                 nameTextField.setText(quizName);  
-
+                
                 // display the quiz's instructions 
                 Label description = quiz.getDescription();
                 String stringDescription = description.asText();
@@ -306,16 +313,16 @@ public class QuizPanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 0;
-        addButtonConstraint.ipadx = 55;
-        addButtonConstraint.ipady = 2;
+        addButtonConstraint.ipadx = 67;
+        addButtonConstraint.ipady = 3;
         listButtonPanel.add(addQuizButton, addButtonConstraint); 
         
         // places removeQuizButton on the right side of bankButtonPanel
         removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeButtonConstraint.gridx = 1;
         removeButtonConstraint.gridy = 0;
-        removeButtonConstraint.ipadx = 55;
-        removeButtonConstraint.ipady = 2;
+        removeButtonConstraint.ipadx = 67;
+        removeButtonConstraint.ipady = 3;
         listButtonPanel.add(removeQuizButton, removeButtonConstraint); 
                        
         return listButtonPanel;
@@ -381,7 +388,7 @@ public class QuizPanel extends JComponent
         nameFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         nameFieldConstraint.gridx = 0;
         nameFieldConstraint.gridy = 0;
-        nameFieldConstraint.insets = new Insets(0, 0, 3, 180);
+        nameFieldConstraint.insets = new Insets(0, 0, 5, 222);
         descriptPanel.add(nameFieldPanel, nameFieldConstraint); 
         
         // places descriptionLabel below nameFieldPanel
@@ -395,7 +402,7 @@ public class QuizPanel extends JComponent
         textAreaConstraint.fill = GridBagConstraints.HORIZONTAL;
         textAreaConstraint.gridx = 0;
         textAreaConstraint.gridy = 2;
-        textAreaConstraint.insets = new Insets(0, 5, 0, 0);
+        textAreaConstraint.insets = new Insets(0, 5, 5, 0);
         descriptPanel.add(textScrollPane, textAreaConstraint); 
         
         descriptPanel.setVisible(false);
@@ -443,7 +450,7 @@ public class QuizPanel extends JComponent
         descriptionTextArea.setLineWrap(true);
         descriptionTextArea.setWrapStyleWord(true);
         textScrollPane = new JScrollPane(descriptionTextArea);
-        textScrollPane.setPreferredSize(new Dimension(360, 150));
+        textScrollPane.setPreferredSize(new Dimension(390, 160));
         
         // update the quiz description as the user is typing it in the text area
         Document textAreaDocument = descriptionTextArea.getDocument();
@@ -476,13 +483,14 @@ public class QuizPanel extends JComponent
     {   
         JLabel banksLabel = new JLabel("Banks");
        
-        String [] columnHeaders = {"Name", "Points", "Questions", "Questions Excluded"};  
-        int numRows = 7;
+        String [] columnHeaders = {"Name", "Points", "Questions", "Questions Excluded "};  
+        int numRows = 9;
         bankTable = new QuestionTable(columnHeaders, numRows);
-        bankTable.setTableSize(450, 135);
-        bankTable.setColumnWidth(0, 100);
-        bankTable.setColumnWidth(1, 30);
-        bankTable.setColumnWidth(2, 30);
+        bankTable.setTableSize(495, 167);
+        bankTable.setColumnWidth(0, 170);
+        bankTable.setColumnWidth(1, 90);
+        bankTable.setColumnWidth(2, 90);
+        bankTable.setColumnWidth(3, 135);
         
         // contains banksLabel and tableScrollPane
         tablePanel = new JPanel(new GridBagLayout());
@@ -550,6 +558,7 @@ public class QuizPanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 0;
+        addButtonConstraint.insets = new Insets(0, 45, 0, 0);
         bankButtonPanel.add(addBankButton, addButtonConstraint);
         
         // places removeButton on the right side of tableButtonPanel
@@ -651,8 +660,9 @@ public class QuizPanel extends JComponent
         exportGenConstraint.gridy = 3;
         detailsPanel.add(exportGenButtons, exportGenConstraint);
 
-        detailsPanel.setPreferredSize(new Dimension(486, 440));
-        containerPanel.setPreferredSize(new Dimension(486, 440));
+        // 486, 440
+        detailsPanel.setPreferredSize(new Dimension(531, 507));
+        containerPanel.setPreferredSize(new Dimension(531, 507));
         containerPanel.add(detailsPanel);
                                
         return containerPanel;
@@ -703,16 +713,9 @@ public class QuizPanel extends JComponent
         generateButton.addActionListener((ActionEvent e) -> { 
             int index = quizList.getSelectedIndex();
             Quiz quiz = project.getQuiz(index);
-            // generate the quiz
-            if (quiz.isGenerated() == false)
-            {
-                GeneratedQuiz generateQuiz = new GeneratedQuiz(quiz);
-            }
-            if (quiz.isGenerated() == true)
-            {
-                quiz.regenerate();
-            }
             
+            GenerateDialog generate = new GenerateDialog(quiz);
+            generate.show();
         });
                 
         return quizButtonPanel;
@@ -726,34 +729,108 @@ public class QuizPanel extends JComponent
     private JPanel questionsPanel()
     {        
         String[] quizTableHeaders = {"Questions", "Answers"};
-        int numRows = 24;
+        int numRows = 30;
 
         quizTable = new QuestionTable(quizTableHeaders, numRows);
-        quizTable.setTableSize(485, 431);      
-        quizTable.setTableRowHeight(17);
+        quizTable.setTableSize(524, 503);      
+        quizTable.setTableRowHeight(16);
         quizTable.setVisible(false);
         
         JPanel quizTablePanel = new JPanel();
         quizTablePanel.add(quizTable);
-        quizTablePanel.setPreferredSize(new Dimension(486, 440));
+        quizTablePanel.setPreferredSize(new Dimension(531, 507));
         
         JTable table = quizTable.getTable();  
-        // listens for when the user double clicks a row in quizTable
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e)
             { 
+                int index = quizList.getSelectedIndex();
+                Quiz quiz = project.getQuiz(index);
+                int row = table.getSelectedRow();
+                
+                // if the user double clicks the table show the dialog that allows them 
+                // to add a question
                 if (e.getClickCount() == 2)
                 {
-                    // show the question editing frame
-                    QuestionsDialog questionDialog = new QuestionsDialog(newQuiz, quizTable);
+                    QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable);
                     questionDialog.show();
-                }        
+                }   
+                // if the user right clicks the table allow them to add or delete
+                // a question
+                if (SwingUtilities.isRightMouseButton(e))
+                {
+                    if (row >= 0)
+                    {
+                        try
+                        {
+                            Question question = quiz.getQuestion(row);                        
+                            JPopupMenu menu = quizPopUpMenu(quiz, question, row);
+                            menu.show(e.getComponent(), e.getX(), e.getY());                            
+                        }
+                        catch(IndexOutOfBoundsException n)
+                        {
+                            JPopupMenu menu = quizPopUpMenu(quiz, null, row);
+                            menu.show(e.getComponent(), e.getX(), e.getY());  
+                        }
+                    }                        
+                }
             }        
         });
 
         return quizTablePanel;
     } 
+    
+    /**
+     * Creates the pop up menu that allows the user to add or delete a bank question
+     * 
+     * @param bank the selected question bank
+     * @param question the question to be removed
+     * @param row the selected row 
+     * @return the pop up menu
+     */
+    private JPopupMenu quizPopUpMenu(Quiz quiz, Question question, int row)
+    {
+        JPopupMenu quizMenu = new JPopupMenu();
+        
+        JMenuItem addQuestionItem = new JMenuItem("Add question");
+        JMenuItem removeQuestionItem = new JMenuItem("Remove question");
+        removeQuestionItem.setEnabled(false);
+        
+        quizMenu.add(addQuestionItem);
+        quizMenu.add(removeQuestionItem);
+                
+        Object value = quizTable.getValue(row, 0);
+        // if the user selects an empty row allow them to add a question
+        if (quiz.getQuestionCount() > 0 && (value != null))
+        {
+            removeQuestionItem.setEnabled(true);
+            addQuestionItem.setEnabled(false);
+        }
+        // if the user selects a row with a question allow them to delete it 
+        if (quiz.getQuestionCount() > 0 && (value == null))
+        {
+            removeQuestionItem.setEnabled(false);
+            addQuestionItem.setEnabled(true);
+        }
+        
+        // listens for when the "Add question" menu item is clicked
+        addQuestionItem.addActionListener((ActionEvent e) -> {
+            // display the frame that allows the user to add a quiz question
+            QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable);
+            questionDialog.show();
+        });
+        
+        // listens for when the "Remove question" menu item is clicked
+        removeQuestionItem.addActionListener((ActionEvent e) -> {
+            DefaultTableModel tableModel = quizTable.getModel();
+            // display the frame that allows the user to delete a quiz question
+            RemoveQuestionDialog remove = new RemoveQuestionDialog(quiz, question, tableModel);
+            remove.show();
+        });
+        
+        return quizMenu;
+    }
     
     /**
      * Sets the visibility of the quiz information components
