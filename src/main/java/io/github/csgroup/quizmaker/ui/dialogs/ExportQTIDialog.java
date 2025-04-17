@@ -1,10 +1,14 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.qti.QTIWriter;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -24,9 +28,11 @@ public class ExportQTIDialog
     private JFrame exportQTIFrame;
     private String filePath;
     private JButton exportButton;
+    private Project project;
     
-    public ExportQTIDialog()
+    public ExportQTIDialog(Project currentProject)
     {
+        currentProject = project;
         exportFileFrame();
     }
         
@@ -168,6 +174,9 @@ public class ExportQTIDialog
             String exportFilePath = getPath();
             if (exportFilePath != null)
             {
+                Path path = Paths.get(exportFilePath);
+                QTIWriter writer = new QTIWriter();
+                writer.writeProject(project, path);                             
                 // close the frame
                 exportQTIFrame.dispose();
             }

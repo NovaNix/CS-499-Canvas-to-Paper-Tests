@@ -94,7 +94,7 @@ public class GUIManager
         
         // listens for when the user selects exportFileItem
         exportFileItem.addActionListener((ActionEvent e) -> {
-            ExportQTIDialog exportQTIFrame = new ExportQTIDialog();
+            ExportQTIDialog exportQTIFrame = new ExportQTIDialog(project);
             // display the frame that lets the user export their QTI files
             exportQTIFrame.show();            
         });

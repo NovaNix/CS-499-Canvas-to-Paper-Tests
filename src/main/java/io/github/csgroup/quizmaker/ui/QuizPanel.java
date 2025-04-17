@@ -825,7 +825,7 @@ public class QuizPanel extends JComponent
             RemoveQuestionDialog remove = new RemoveQuestionDialog(quiz, question, tableModel);
             remove.show();
         });
-        
+                
         return quizMenu;
     }
     
