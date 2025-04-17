@@ -48,9 +48,6 @@ import javax.swing.text.Document;
 import javax.swing.JPopupMenu;
 import javax.swing.JMenuItem;
 
-//ANYTHING THAT USES THE NEW QUIZ DIALOG NEEDS TO BE CHECKED
-
-
 /**
  * Creates the panel that allows the user to add/delete quizzes, their questions, 
  * and question banks
@@ -87,7 +84,7 @@ public class QuizPanel extends JComponent
         project = currentProject;
         quizzesPanel();
     }
-            
+                
     /**
      * Creates the panel that contains the list of quizzes, "Details" tab, and 
      * "Quizzes" tab
@@ -239,7 +236,7 @@ public class QuizPanel extends JComponent
             }
 
             @Override
-            public void intervalRemoved(ListDataEvent e) {
+            public void intervalRemoved(ListDataEvent e) {                    
                 // if there are no question banks disable the add/remove buttons
                 int bankCount = project.getBankCount();
                 if (bankCount == 0)

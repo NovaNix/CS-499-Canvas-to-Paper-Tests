@@ -179,6 +179,7 @@ public class MultipleChoicePanel extends JComponent
                 radioButtons[i].setVisible(false);
             }            
         }
+        radioButtons[0].setSelected(true);
     }
     
     /**
