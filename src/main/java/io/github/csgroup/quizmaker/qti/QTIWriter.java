@@ -6,6 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.qti.export.ManifestWriter;
+import io.github.csgroup.quizmaker.qti.export.MetaWriter;
+import io.github.csgroup.quizmaker.qti.export.utils.QTIExportZipper;
+import java.io.IOException;
+import java.nio.file.Files;
+import javax.xml.transform.TransformerException;
 
 /**
  * An object responsible for writing Projects to QTI files
@@ -21,24 +28,38 @@ public class QTIWriter
 		
 	}
 	
-	public void writeProject(Project project, Path destination)
+	public void writeProject(Project project, Path destination) throws IOException, TransformerException, Exception
 	{
-		// TODO implement
-		
-		// Create a temporary directory for all of the files
-		
-		
-		// Write the manifest file
-		
-		
-		// Write the assessment folders
-		
-			// Write the meta file
-		
-			// Write the assessment file
-		
-		
-		// Zip the contents of the folder to the destination
+		// Create a temporary directory
+		Path tempDir = Files.createTempDirectory("qti-export");
+
+		logger.info("Created temporary QTI export directory: {}", tempDir.toAbsolutePath());
+
+		// Write imsmanifest.xml at the root
+		String manifestId = "manifest-" + System.currentTimeMillis();
+		ManifestWriter manifestWriter = new ManifestWriter(project, manifestId);
+		manifestWriter.save(tempDir.resolve("imsmanifest.xml"));
+		logger.info("Manifest file written.");
+
+		// Write one folder per quiz with its metadata
+		for (Quiz quiz : project.getQuizzes())
+		{
+			String quizId = quiz.getId();
+			Path quizFolder = tempDir.resolve(quizId);
+			Files.createDirectories(quizFolder);
+
+			// Write assessment_meta.xml into the quiz folder
+			MetaWriter metaWriter = new MetaWriter(quiz);
+			metaWriter.save(quizFolder.resolve("assessment_meta.xml"));
+
+			logger.info("Meta file written for quiz [{}]", quizId);
+
+			// NOTE: assessment content file is not yet implemented
+		}
+
+		// Zip the full folder into the final destination
+		QTIExportZipper.zipFolder(tempDir, destination);
+		logger.info("QTI export zipped to: {}", destination.toAbsolutePath());
 	}
 	
 }
