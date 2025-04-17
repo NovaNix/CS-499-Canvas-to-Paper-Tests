@@ -8,6 +8,7 @@ import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.ArrayList;
 import javax.swing.JTextField;
 
 
@@ -23,11 +24,13 @@ public class GeneratePanel extends JComponent
     private JLabel[] panelLabels;
     private GridBagConstraints[] fieldPanelConstraint;
     private GridBagConstraints[] labelConstraint;
+    private QuizMetadata quizData;
     private final int width;
     
-    public GeneratePanel(int setWidth)
+    public GeneratePanel(int setWidth, QuizMetadata data)
     {
         width = setWidth;
+        quizData = data;
         generateDialog();
     }
     
@@ -43,13 +46,54 @@ public class GeneratePanel extends JComponent
     }
     
     /**
+     * Gets the number of non-dynamic quiz metadata types
+     * 
+     * @return the number of non-dynamic quiz metadata types
+     */
+    private int getDataSize()
+    {
+        int size = 0;
+        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
+        {
+           if (name.isDynamic() == false)
+           {
+               size++;
+           }
+        }
+        
+        return size;
+    }
+    
+    /**
+     * Creates the labels for each text field
+     */
+    private void createLabels()
+    {
+        int size = getDataSize();
+        panelLabels = new JLabel[size];
+        int i = 0;
+        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
+        {
+            if (i < size)
+            {
+                if (name.isDynamic() == false)
+                {
+                    panelLabels[i] = new JLabel(name.getDisplayName() + ":");
+                    i++;
+                }
+            }
+        }
+    }
+    
+    /**
      * Creates the text fields for the panel
      */
     private void createTextFields()
     {
-        textFields = new JTextField[7];
-        fieldPanels = new JPanel[7];
-        for (int i = 0; i < 7; i++)
+        int size = getDataSize();
+        textFields = new JTextField[size];
+        fieldPanels = new JPanel[size];
+        for (int i = 0; i < size; i++)
         {
             textFields[i] = new JTextField();
             textFields[i].setPreferredSize(new Dimension(width, 25));
@@ -59,7 +103,7 @@ public class GeneratePanel extends JComponent
     }
     
     /**
-     * Organizes the 7 text fields on a panel with GridBagLayout
+     * Organizes the text fields on a panel with GridBagLayout
      * 
      * @return the text field panel
      */
@@ -67,9 +111,10 @@ public class GeneratePanel extends JComponent
     {
         createTextFields();
         
+        int size = getDataSize();
         JPanel textFieldPanel = new JPanel(new GridBagLayout());
-        fieldPanelConstraint = new GridBagConstraints[7];
-        for (int i = 0; i < 7; i++)
+        fieldPanelConstraint = new GridBagConstraints[size];
+        for (int i = 0; i < size; i++)
         {
             fieldPanelConstraint[i] = new GridBagConstraints();
             fieldPanelConstraint[i].fill = GridBagConstraints.HORIZONTAL;
@@ -82,21 +127,7 @@ public class GeneratePanel extends JComponent
     }
     
     /**
-     * Creates the labels for each text field
-     */
-    private void createLabels()
-    {
-        panelLabels = new JLabel[7];
-        int i = 0;
-        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
-        {
-            panelLabels[i] = new JLabel(name.getDisplayName() + ":");
-            i++;
-        }
-    }
-    
-    /**
-     * Organizes the 7 labels on a panel using GridBagLayout
+     * Organizes the labels on a panel using GridBagLayout
      * 
      * @return the label panel
      */
@@ -104,9 +135,10 @@ public class GeneratePanel extends JComponent
     {
         createLabels();
         
+        int size = getDataSize();
         JPanel labelPanel = new JPanel(new GridBagLayout());
-        labelConstraint = new GridBagConstraints[7];
-        for (int i = 0; i < 7; i++)
+        labelConstraint = new GridBagConstraints[size];
+        for (int i = 0; i < size; i++)
         {
             labelConstraint[i] = new GridBagConstraints();
             labelConstraint[i].fill = GridBagConstraints.HORIZONTAL;
@@ -129,7 +161,7 @@ public class GeneratePanel extends JComponent
     }
     
     /**
-     * Creates a panel containing both the 7 text fields and labels
+     * Creates a panel containing both the text fields and labels
      * 
      * @return the panel with the labels and text fields
      */
@@ -155,5 +187,27 @@ public class GeneratePanel extends JComponent
         generatePanel.add(textFieldPanel, textFieldConstraint); 
                     
         return generatePanel;
+    }
+    
+    /**
+     * Collects the data entered from the user and passes it to the QuizMetadata class
+     */
+    public void collectData()
+    {
+        int i = 0;
+        int size = getDataSize();
+        
+        for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
+        {
+            if (i < size)
+            {
+                if (name.isDynamic() == false)
+                {
+                    quizData.setValue(name, textFields[i].getText());
+                    System.out.println(textFields[i].getText());
+                    i++;
+                }
+            }
+        }
     }
 }

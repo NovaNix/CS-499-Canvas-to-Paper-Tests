@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 import io.github.csgroup.quizmaker.word.WordExporter;
 import java.awt.CardLayout;
@@ -458,9 +459,9 @@ public class ExportWordDialog
                     {
                         exportFile.exportTest(generatedQuiz, templatePath, exportPath, false);
                     }
-                    catch (IOException n )
+                    catch (IOException n)
                     {
-                        errorDialog();
+                        errorDialog(n.getMessage());
                     }
                 }
                 // export the answer key
@@ -477,9 +478,10 @@ public class ExportWordDialog
                     {
                         exportFile.exportTest(generatedQuiz, templatePath, exportPath, true);
                     }
-                    catch (IOException n )
+                    catch (IOException n)
                     {
-                        errorDialog();
+                        
+                        errorDialog(n.getMessage());
                     }
                 }
                 exportFrame.dispose();
@@ -489,10 +491,10 @@ public class ExportWordDialog
         return exportButtonPanel;
     }
     
-    private void errorDialog()
+    private void errorDialog(String error)
     {
         JFrame errorFrame = new JFrame();
-        JOptionPane.showMessageDialog(errorFrame, "Could not export file", "Error", JOptionPane.ERROR_MESSAGE);  
+        JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);  
     }
     
     /**
@@ -559,7 +561,8 @@ public class ExportWordDialog
      */
     private JPanel replacementPanel()
     {
-        GeneratePanel generate = new GeneratePanel(180);
+        QuizMetadata data = new QuizMetadata();
+        GeneratePanel generate = new GeneratePanel(180, data);
         JButton applyButton = new JButton("Apply");
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(applyButton);
@@ -589,6 +592,7 @@ public class ExportWordDialog
             CardLayout layout = (CardLayout) (cardPanel.getLayout());
             replacementPanel.setVisible(false);
             layout.show(cardPanel, "Show");
+            generate.collectData();
         }); 
                
         return replacementPanel;
