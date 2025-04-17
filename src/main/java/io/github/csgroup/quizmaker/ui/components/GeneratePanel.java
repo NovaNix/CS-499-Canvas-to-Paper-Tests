@@ -1,6 +1,7 @@
 package io.github.csgroup.quizmaker.ui.components;
 
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 
 import java.awt.Dimension;
@@ -12,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -31,9 +33,10 @@ public class GeneratePanel extends JComponent
     private JLabel[] panelLabels;
     private GridBagConstraints[] fieldPanelConstraint;
     private GridBagConstraints[] labelConstraint;
+    private List<QuizMetadata.MetadataType> metadataOrder;
     private final Map<QuizMetadata.MetadataType, String> initialValues = new LinkedHashMap<>();
     private final BiConsumer<QuizMetadata.MetadataType, String> onSubmit;
-    private final boolean includeDynamicTypes;
+    private final boolean includeDynamics;
     private final int width;
     
     public GeneratePanel(int setWidth, QuizMetadata metadata)
@@ -50,7 +53,8 @@ public class GeneratePanel extends JComponent
     {
     	this.width = setWidth;
     	this.onSubmit = onSubmit;
-    	this.includeDynamicTypes = includeDynamics;
+    	this.includeDynamics = includeDynamics;
+    	metadataOrder = new ArrayList<>();
     	
     	for(QuizMetadata.MetadataType type : QuizMetadata.MetadataType.values())
     	{
@@ -64,6 +68,7 @@ public class GeneratePanel extends JComponent
     			{
     				initialValues.put(type, tr.getReplacementText(type));
     			}
+    			metadataOrder.add(type);
     		}
     	}
     	generateDialog();
@@ -89,7 +94,7 @@ public class GeneratePanel extends JComponent
         int size = 0;
         for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
         {
-           if (name.isDynamic() == false)
+           if (name.isDynamic() == false || includeDynamics)
            {
                size++;
            }
@@ -103,13 +108,12 @@ public class GeneratePanel extends JComponent
      */
     private void createLabels()
     {
-        int size = initialValues.size();
+        int size = metadataOrder.size();
         panelLabels = new JLabel[size];
-        int i = 0;
-        for (QuizMetadata.MetadataType type : initialValues.keySet())
+        for (int i = 0; i < size; i++)
         {
+        	MetadataType type = metadataOrder.get(i);
         	panelLabels[i] = new JLabel(type.getDisplayName() + ":");
-        	i++;
         }
     }
             
@@ -119,17 +123,17 @@ public class GeneratePanel extends JComponent
      */
     private void createTextFields()
     {
-        int size = initialValues.size();
+        int size = metadataOrder.size();
         textFields = new JTextField[size];
         fieldPanels = new JPanel[size];
-        int i = 0;
-        for (String initial : initialValues.values())
+        for (int i = 0; i < size; i++)
         {
+        	MetadataType type = metadataOrder.get(i);
+        	String initial = initialValues.get(type);
             textFields[i] = new JTextField(initial != null ? initial : "");
             textFields[i].setPreferredSize(new Dimension(width, 25));
             fieldPanels[i] = new JPanel();
             fieldPanels[i].add(textFields[i]);
-            i++;
         }
     }
     
