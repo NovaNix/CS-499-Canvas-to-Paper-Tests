@@ -435,12 +435,18 @@ public class MultipleChoicePanel extends JComponent
                 @Override
                 public void insertUpdate(DocumentEvent e) 
                 {
-                    boolean title = (questionTitle.getText()).isEmpty();
-                    boolean mcQuestion = (question.getText()).isEmpty();
-                    if ((title == false) && (mcQuestion == false))
+                    try
                     {
-                        addQuestionButton.setEnabled(true);
+                        String text = pointsValue.getText();
+                        Float.valueOf(text);
+                        boolean title = (questionTitle.getText()).isEmpty();
+                        boolean mcQuestion = (question.getText()).isEmpty();
+                        if ((title == false) && (mcQuestion == false))
+                        {
+                            addQuestionButton.setEnabled(true);
+                        }
                     }
+                    catch (NumberFormatException n) {}
                 }
             
                 @Override

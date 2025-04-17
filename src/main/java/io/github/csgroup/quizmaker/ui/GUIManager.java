@@ -49,8 +49,8 @@ public class GUIManager
         // "File" menu
         JMenu fileMenu = new JMenu("File");
         // items for the user to select in the "File" menu
-        JMenuItem importFileItem = new JMenuItem("Import QTI Files");
-        JMenuItem exportFileItem = new JMenuItem("Export QTI Files");           
+        JMenuItem importFileItem = new JMenuItem("<html>DISCLAIMER: Banks cannot be imported from Canvas<br>Import QTI File</html>");
+        JMenuItem exportFileItem = new JMenuItem("Export QTI File");           
         // add items to the JMenu fileMenu
         fileMenu.add(importFileItem);
         fileMenu.add(exportFileItem);       
