@@ -56,7 +56,7 @@ public class ImportQTIDialog
         importFrame = new JFrame("Import File");
         importFrame.setSize(380, 220);
                 
-        JLabel fileLabel = new JLabel("File (DISCLAIMER Question banks cannot be imported from Canvas: ");
+        JLabel fileLabel = new JLabel("File (DISCLAIMER Question banks cannot be imported from Canvas): ");
                        
         // contains importButtonPanel and importFilePanel
         JPanel importPanel = new JPanel(new GridBagLayout());
