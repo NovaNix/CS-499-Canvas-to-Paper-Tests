@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
@@ -100,7 +101,9 @@ public class GenerateDialog
             generatePanel.collectData();
             if(!isTemplateMode && quiz != null) 
             {
-            	quiz.regenerate();
+            	// TODO THIS IS HACKY, FIX LATER
+            	var generated = quiz.regenerate();
+            	App.getCurrentProject().addGeneratedQuiz(generated);
             }
             generateFrame.dispose();
         });
