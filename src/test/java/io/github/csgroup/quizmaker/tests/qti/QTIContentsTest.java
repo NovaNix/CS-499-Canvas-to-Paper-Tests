@@ -1,4 +1,4 @@
-package io.github.csgroup.quizmaker.tests.qti;
+ package io.github.csgroup.quizmaker.tests.qti;
 
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.qti.QTIContents;
@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -42,7 +41,7 @@ public class QTIContentsTest
 
 		qtiReader = new QTIReader();
 
-		URL resourceUrl = getClass().getClassLoader().getResource("QTI_final_test.zip");
+		URL resourceUrl = getClass().getClassLoader().getResource("QTI_numerial_questions.zip");
 		assertNotNull(resourceUrl, "ERROR!! QTI ZIP file is missing.");
 
 		testQtiZipFile = new File(resourceUrl.getPath());
@@ -86,6 +85,7 @@ public class QTIContentsTest
 				logger.info("\tQuestion {}:", number++);
 				logger.info("\t - Type: {}", question.getClass().getSimpleName());
 				logger.info("\t - Title: {}", question.getTitle());
+				System.out.println("\t - Points: " + question.getPoints());
 				logger.info("\t - Prompt: {}", question.getLabel().asText());
 
 				if (question instanceof io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion mcq)
