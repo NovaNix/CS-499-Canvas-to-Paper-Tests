@@ -156,8 +156,8 @@ public class Item
 					List<String> ids = extractAnswerIdsFromConditionVar(condition.getConditionVar());
 					for (String id : ids) 
 					{
-						String display = idToText.getOrDefault(id, "(Literal Answer) " + id);
-						correctAnswers.add(id + ": " + display);
+						String display = idToText.getOrDefault(id, id);
+						correctAnswers.add(display);
 					}
 				}
 			}

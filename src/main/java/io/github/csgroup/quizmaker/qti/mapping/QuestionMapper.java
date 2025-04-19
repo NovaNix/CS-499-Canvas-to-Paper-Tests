@@ -69,9 +69,11 @@ public class QuestionMapper
 			case "true_false_question":
 			case "multiple_answers_question":
 				return mapMultipleChoice(item);
+			
+			case "short_answer_question":
+				return mapShortAnswer(item);
 
 			case "fill_in_the_blank_question":
-			case "short_answer_question":
 			case "fill_in_multiple_blanks_question":
 			case "multiple_dropdowns_question":
 				return mapBlank(item);
@@ -116,6 +118,34 @@ public class QuestionMapper
 		{
 			boolean correct = correctIds.contains(String.valueOf(answer.getId()));
 			question.addAnswer(answer, correct);
+		}
+
+		return question;
+	}
+	
+	/**
+	 * Maps a QTI {@code short_answer_question} item to a {@link WrittenResponseQuestion}.
+	 * 
+	 * @param item the parsed QTI {@code <item>}
+	 * @return a {@link WrittenResponseQuestion} with prompt and associated blank answers
+	 */
+	private static WrittenResponseQuestion mapShortAnswer(Item item)
+	{
+		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
+		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
+		
+		WrittenResponseQuestion question = new WrittenResponseQuestion("", (float) points);
+		applyMetadata(question, item, prompt);
+
+		List<String> correctAnswers = item.getCorrectAnswers();
+		if (!correctAnswers.isEmpty())
+		{
+			String joined = String.join(" or ", correctAnswers);
+			question.setAnswer(joined);
+		}
+		else
+		{
+			logger.warn("Short answer question {} has no recognized correct answers", item.getIdent());
 		}
 
 		return question;
