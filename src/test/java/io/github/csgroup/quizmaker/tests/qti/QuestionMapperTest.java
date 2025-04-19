@@ -50,11 +50,25 @@ public class QuestionMapperTest
 		assertEquals(4, mcq.getAnswers().size());
 		assertEquals(1.0f, mcq.getPoints(), 0.01f);
 	}
+	
+	@Test
+	void testShortAnswerMapping() throws Exception
+	{
+		Item item = getItemByIndex(2); // short answer: no [tag], just text input
+
+		Question q = QuestionMapper.mapQuestion(item);
+		assertNotNull(q);
+		assertTrue(q instanceof WrittenResponseQuestion);
+
+		WrittenResponseQuestion wrq = (WrittenResponseQuestion) q;
+		assertFalse(wrq.getAnswer().asText().isBlank());
+		assertEquals(1.0f, wrq.getPoints(), 0.01f);
+	}
 
 	@Test
 	void testBlankMapping() throws Exception
 	{
-		Item item = getItemByIndex(2); // short answer or fill in the blank
+		Item item = getItemByIndex(3); // short answer or fill in the blank
 
 		Question q = QuestionMapper.mapQuestion(item);
 		assertNotNull(q);

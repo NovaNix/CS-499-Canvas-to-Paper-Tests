@@ -85,7 +85,7 @@ public class QTIContentsTest
 				logger.info("\tQuestion {}:", number++);
 				logger.info("\t - Type: {}", question.getClass().getSimpleName());
 				logger.info("\t - Title: {}", question.getTitle());
-				System.out.println("\t - Points: " + question.getPoints());
+				logger.info("\t - Points: {}", question.getPoints());
 				logger.info("\t - Prompt: {}", question.getLabel().asText());
 
 				if (question instanceof io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion mcq)
