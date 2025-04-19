@@ -108,7 +108,8 @@ public class QuestionMapper
 			correctIds.add(id);
 		}
 		
-		MultipleChoiceQuestion question = new MultipleChoiceQuestion(prompt.asText());
+		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
+		MultipleChoiceQuestion question = new MultipleChoiceQuestion(prompt.asText(), (float) points);
 		applyMetadata(question, item, prompt);
 
 		for (SimpleAnswer answer : answers)
@@ -134,7 +135,8 @@ public class QuestionMapper
 		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
 		Map<String, BlankAnswer> blanks = AnswerMapper.mapBlankAnswers(item);
 
-		FillInTheBlankQuestion question = new FillInTheBlankQuestion("");
+		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
+		FillInTheBlankQuestion question = new FillInTheBlankQuestion("", (float) points);
 		applyMetadata(question, item, prompt);
 
 		List<String> tags = question.getTags();
@@ -194,7 +196,8 @@ public class QuestionMapper
 		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
 		List<MatchingAnswer> matches = AnswerMapper.mapMatchingAnswers(item);
 
-		MatchingQuestion question = new MatchingQuestion("");
+		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
+		MatchingQuestion question = new MatchingQuestion("", (float) points);
 		applyMetadata(question, item, prompt);
 
 		for (MatchingAnswer answer : matches)
@@ -215,7 +218,8 @@ public class QuestionMapper
 	{
 		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
 
-		WrittenResponseQuestion question = new WrittenResponseQuestion("");
+		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
+		WrittenResponseQuestion question = new WrittenResponseQuestion("", (float) points);
 		applyMetadata(question, item, prompt);
 		
 		// For numerical question -> extract answer type: exact answers 
