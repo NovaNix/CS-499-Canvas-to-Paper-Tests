@@ -118,19 +118,21 @@ public class ManifestWriter extends QTIFileWriter
 			String folder = quizId + "/";
 			
 			// Resource for quiz content (e.g., quizId.xml)
+			String assessmentFileName = quizId + ".xml";
+			
 			Element resource = d.createElement("resource");
 			resource.setAttribute("identifier", quizId);
 			resource.setAttribute("type", "imsqti_xmlv1p2");
-			resource.setAttribute("href", folder + quizId + ".xml");
-			
+			resource.setAttribute("href", folder + assessmentFileName);
+
 			Element file = d.createElement("file");
-			file.setAttribute("href", folder + quizId + ".xml");
+			file.setAttribute("href", folder + assessmentFileName);
 			resource.appendChild(file);
-			
+
 			Element dependency = d.createElement("dependency");
 			dependency.setAttribute("identifierref", quizId + "-meta");
 			resource.appendChild(dependency);
-			
+
 			resources.appendChild(resource);
 			
 			// Resource for quiz metadata (assessment_meta.xml)

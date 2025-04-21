@@ -7,6 +7,8 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.ui.GUIManager;
 import io.github.csgroup.quizmaker.word.WordExporter;
@@ -20,7 +22,6 @@ public class App
 
 	public static final Logger logger = LoggerFactory.getLogger(App.class);
 
-	@SuppressWarnings("unused")
 	private static GUIManager ui;
 	
 	private static Project project;
@@ -34,6 +35,9 @@ public class App
 		project = new Project();        
 
 		// Initiate the UI code
+		
+		FlatLightLaf.setup();
+		
 		SwingUtilities.invokeLater(() -> {
             // The UI needs to be started on the event threads
             ui = new GUIManager();

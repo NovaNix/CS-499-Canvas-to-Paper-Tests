@@ -48,12 +48,27 @@ public class QuestionMapperTest
 		assertEquals("<div><p>What color is an apple?</p></div>", decoded);
 		assertEquals("Question 1", mcq.getTitle());
 		assertEquals(4, mcq.getAnswers().size());
+		assertEquals(1.0f, mcq.getPoints(), 0.01f);
+	}
+	
+	@Test
+	void testShortAnswerMapping() throws Exception
+	{
+		Item item = getItemByIndex(2); // short answer: no [tag], just text input
+
+		Question q = QuestionMapper.mapQuestion(item);
+		assertNotNull(q);
+		assertTrue(q instanceof WrittenResponseQuestion);
+
+		WrittenResponseQuestion wrq = (WrittenResponseQuestion) q;
+		assertFalse(wrq.getAnswer().asText().isBlank());
+		assertEquals(1.0f, wrq.getPoints(), 0.01f);
 	}
 
 	@Test
 	void testBlankMapping() throws Exception
 	{
-		Item item = getItemByIndex(2); // short answer or fill in the blank
+		Item item = getItemByIndex(3); // short answer or fill in the blank
 
 		Question q = QuestionMapper.mapQuestion(item);
 		assertNotNull(q);
@@ -69,6 +84,7 @@ public class QuestionMapperTest
 		}
 
 		assertTrue(tags.isEmpty() || tags.size() > 0);
+		assertEquals(1.0f, fbq.getPoints(), 0.01f);
 	}
 
 	@Test
@@ -87,6 +103,7 @@ public class QuestionMapperTest
 			assertNotNull(a.getLeft());
 			assertNotNull(a.getRight());
 		}
+		assertEquals(1.0f, mq.getPoints(), 0.01f);
 	}
 
 	@Test
@@ -101,6 +118,7 @@ public class QuestionMapperTest
 		WrittenResponseQuestion wrq = (WrittenResponseQuestion) q;
 		assertFalse(wrq.getLabel().asText().isBlank());
 		assertNotNull(wrq.getTitle());
+		assertEquals(1.0f, wrq.getPoints(), 0.01f);
 	}
 
 	// Utility: load and return the nth <item> from the first section

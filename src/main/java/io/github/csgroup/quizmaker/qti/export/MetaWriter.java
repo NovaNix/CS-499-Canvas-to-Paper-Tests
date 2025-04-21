@@ -1,10 +1,13 @@
 package io.github.csgroup.quizmaker.qti.export;
 
+import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
 import org.w3c.dom.Document;
 
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.qti.export.utils.QTIFileWriter;
+import io.github.csgroup.quizmaker.utils.stores.writable.WritableStore;
+import java.util.Locale;
 import java.util.UUID;
 import org.w3c.dom.Element;
 
@@ -74,8 +77,14 @@ public class MetaWriter extends QTIFileWriter
 		quiz.appendChild(quizType);
 
 		// <points_possible>: Total quiz points
+		float totalPoints = 0f;
+		for (Question question : q.getQuestions())
+		{
+			totalPoints += question.getPoints();
+		}
+
 		Element points = d.createElement("points_possible");
-		points.setTextContent(String.valueOf(q.getMetadata().getValue(QuizMetadata.MetadataType.Points)));
+		points.setTextContent(String.format(Locale.US, "%.2f", totalPoints));
 		quiz.appendChild(points);
 
 		// Lockdown Browser Fields (default to false/empty)
@@ -94,7 +103,8 @@ public class MetaWriter extends QTIFileWriter
 		appendBoolean(d, quiz, "could_be_locked", false);
 		
 		// <time_limit>: Included only if defined in metadata
-		String minutesStr = q.getMetadata().getValue(QuizMetadata.MetadataType.Minutes);
+		WritableStore<String> minutesStore = q.getMetadata().getStore(QuizMetadata.MetadataType.Minutes);
+		String minutesStr = (minutesStore != null) ? minutesStore.get() : null;
 		if (minutesStr != null && !minutesStr.isBlank())
 		{
 			Element timeLimit = d.createElement("time_limit");
@@ -157,7 +167,7 @@ public class MetaWriter extends QTIFileWriter
 
 		// Grading & Submission Configuration
 		Element assignPoints = d.createElement("points_possible");
-		assignPoints.setTextContent(String.valueOf(q.getMetadata().getValue(QuizMetadata.MetadataType.Points)));
+		assignPoints.setTextContent(String.format(Locale.US, "%.2f", totalPoints));
 		assignment.appendChild(assignPoints);
 
 		Element grading = d.createElement("grading_type");
@@ -227,5 +237,4 @@ public class MetaWriter extends QTIFileWriter
 		e.setTextContent(Boolean.toString(value));
 		parent.appendChild(e);
 	}
-
 }

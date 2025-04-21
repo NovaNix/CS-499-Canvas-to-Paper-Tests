@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.qti.export.AssessmentWriter;
 import io.github.csgroup.quizmaker.qti.export.ManifestWriter;
 import io.github.csgroup.quizmaker.qti.export.MetaWriter;
 import io.github.csgroup.quizmaker.qti.export.utils.QTIExportZipper;
@@ -51,15 +52,16 @@ public class QTIWriter
 			// Write assessment_meta.xml into the quiz folder
 			MetaWriter metaWriter = new MetaWriter(quiz);
 			metaWriter.save(quizFolder.resolve("assessment_meta.xml"));
-
 			logger.info("Meta file written for quiz [{}]", quizId);
 
-			// NOTE: assessment content file is not yet implemented
+			// Write assessment.xml into the quiz folder
+			AssessmentWriter assessmentWriter = new AssessmentWriter(quiz);
+			assessmentWriter.save(quizFolder.resolve(quizId + ".xml"));
+			logger.info("Assessment file written for quiz [{}]", quizId);
 		}
 
 		// Zip the full folder into the final destination
 		QTIExportZipper.zipFolder(tempDir, destination);
 		logger.info("QTI export zipped to: {}", destination.toAbsolutePath());
 	}
-	
 }
