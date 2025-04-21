@@ -1,10 +1,15 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
+import io.github.csgroup.quizmaker.data.Project;
+import io.github.csgroup.quizmaker.qti.QTIWriter;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -12,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.transform.TransformerException;
 
 /**
  * Creates a frame that will allow the user to export the QTI file from 
@@ -24,9 +30,11 @@ public class ExportQTIDialog
     private JFrame exportQTIFrame;
     private String filePath;
     private JButton exportButton;
+    private Project project;
     
-    public ExportQTIDialog()
+    public ExportQTIDialog(Project currentProject)
     {
+        this.project = currentProject;
         exportFileFrame();
     }
         
@@ -168,8 +176,21 @@ public class ExportQTIDialog
             String exportFilePath = getPath();
             if (exportFilePath != null)
             {
-                // close the frame
-                exportQTIFrame.dispose();
+                try
+                {
+                    Path path = Paths.get(exportFilePath);
+                    QTIWriter writer = new QTIWriter();
+                    writer.writeProject(project, path);                             
+                    // close the frame
+                    exportQTIFrame.dispose();
+                }
+                catch (IOException n) {} catch (TransformerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             }
         });
         

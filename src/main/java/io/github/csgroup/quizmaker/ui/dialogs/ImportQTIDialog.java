@@ -54,9 +54,9 @@ public class ImportQTIDialog
     private void importFileFrame()
     {            
         importFrame = new JFrame("Import File");
-        importFrame.setSize(380, 220);
+        importFrame.setSize(430, 220);
                 
-        JLabel fileLabel = new JLabel("File: ");
+        JLabel fileLabel = new JLabel("File (DISCLAIMER Question banks cannot be imported from Canvas): ");
                        
         // contains importButtonPanel and importFilePanel
         JPanel importPanel = new JPanel(new GridBagLayout());
@@ -98,7 +98,7 @@ public class ImportQTIDialog
     private JPanel importFilePanel()
     {
         JTextField fileTextField = new JTextField();
-        fileTextField.setPreferredSize(new Dimension(250, 22));
+        fileTextField.setPreferredSize(new Dimension(280, 22));
         fileTextField.setFocusable(false);
         JPanel textPanel = new JPanel();
         textPanel.add(fileTextField);
@@ -119,7 +119,7 @@ public class ImportQTIDialog
         attachButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         attachButtonConstraint.gridx = 1;
         attachButtonConstraint.gridy = 0;
-        attachButtonConstraint.insets = new Insets(0, 5, 0, 0);
+        attachButtonConstraint.insets = new Insets(0, 5, 0, 30);
         importFilePanel.add(attachFileButton, attachButtonConstraint);
         
         return importFilePanel;

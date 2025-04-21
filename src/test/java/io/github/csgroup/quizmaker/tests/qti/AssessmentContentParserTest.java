@@ -1,7 +1,6 @@
 package io.github.csgroup.quizmaker.tests.qti;
 
 import io.github.csgroup.quizmaker.qti.mapping.AnswerMapper.NumericRange;
-import io.github.csgroup.quizmaker.qti.model.assessment.metadata.QTIMetadataField;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.MatText;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.Material;
 import io.github.csgroup.quizmaker.qti.model.assessment.presentation.Presentation;
@@ -51,7 +50,7 @@ public class AssessmentContentParserTest
 	{
 		
 		// Load quiz content file
-		URL resource = getClass().getClassLoader().getResource("g9951ec51c6f36aca6d6092ce983e753c.xml");
+		URL resource = getClass().getClassLoader().getResource("g22f4cec28e64e3cad0f8e9ab185267d5.xml");
 		assertNotNull(resource, "Assessment content XML file not found in test resources.");
 
 		File assessmentFile = new File(resource.toURI());
@@ -103,7 +102,7 @@ public class AssessmentContentParserTest
 				String questionType = item.getQuestionType();
 				logger.info(indent + " - Question Type: {}", questionType);
 
-				String points = getPointsPossible(item);
+				Double points = item.getPointsPossible();
 				logger.info(indent + " - Points: {}", (points != null ? points : "N/A"));
 
 				// Identify and process prompt
@@ -244,26 +243,5 @@ public class AssessmentContentParserTest
 				}
 			}
 		}
-	}
-
-	/**
-	 * Utility method to retrieve the number of points possible for each question 
-	 * 
-	 * @param item
-	 * @return 
-	 */
-	private String getPointsPossible(Item item) 
-	{
-		if (item.getItemMetadata() != null && item.getItemMetadata().getQtimetadata() != null && item.getItemMetadata().getQtimetadata().getQtimetadatafield() != null) 
-		{
-			for (QTIMetadataField field : item.getItemMetadata().getQtimetadata().getQtimetadatafield()) 
-			{
-				if ("points_possible".equalsIgnoreCase(field.getFieldlabel())) 
-				{
-					return field.getFieldentry();
-				}
-			}
-		}
-		return null;
 	}
 }

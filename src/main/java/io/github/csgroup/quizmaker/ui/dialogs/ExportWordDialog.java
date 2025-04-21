@@ -45,6 +45,7 @@ public class ExportWordDialog
     private JRadioButton testButton;
     private JTextField templateTextField;
     private JTextField locationTextField;
+    private JTextField referenceTextField;
     private JButton exportButton;
     private JPanel replacementPanel;
     private JPanel cardPanel;
@@ -251,6 +252,31 @@ public class ExportWordDialog
         locButtonConstraint.gridy = 5;
         locButtonConstraint.insets = new Insets(0, 0, 15, 0);
         fileAttachPanel.add(locationButtonPanel, locButtonConstraint);
+        
+        JLabel referenceLabel = new JLabel("Reference File:");
+        GridBagConstraints referenceLabelConstraint = new GridBagConstraints();
+        referenceLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        referenceLabelConstraint.gridx = 0;
+        referenceLabelConstraint.gridy = 6;
+        referenceLabelConstraint.insets = new Insets(0, 6, 5, 0);
+        fileAttachPanel.add(referenceLabel, referenceLabelConstraint);
+
+        // Reference text field
+        JPanel referencePanel = referenceTextField();
+        GridBagConstraints referenceTextConstraint = new GridBagConstraints();
+        referenceTextConstraint.fill = GridBagConstraints.HORIZONTAL;
+        referenceTextConstraint.gridx = 0;
+        referenceTextConstraint.gridy = 7;
+        fileAttachPanel.add(referencePanel, referenceTextConstraint);
+
+        // Select button for reference
+        JPanel referenceButtonPanel = selectReferenceButtonPanel(referenceTextField);
+        GridBagConstraints referenceButtonConstraint = new GridBagConstraints();
+        referenceButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        referenceButtonConstraint.gridx = 2;
+        referenceButtonConstraint.gridy = 7;
+        fileAttachPanel.add(referenceButtonPanel, referenceButtonConstraint);
+
                                 
         return fileAttachPanel;            
     }
@@ -268,6 +294,21 @@ public class ExportWordDialog
         templateTextField.setPreferredSize(new Dimension(290, 22));
         JPanel tempPanel = new JPanel();
         tempPanel.add(templateTextField);
+             
+        return tempPanel;
+    }
+    
+    /**
+     * Reference text field panel to hold file path of the reference file
+     * @return
+     */
+    private JPanel referenceTextField()
+    {
+        referenceTextField = new JTextField();
+        referenceTextField.setFocusable(false);
+        referenceTextField.setPreferredSize(new Dimension(290, 22));
+        JPanel tempPanel = new JPanel();
+        tempPanel.add(referenceTextField);
              
         return tempPanel;
     }
@@ -422,6 +463,34 @@ public class ExportWordDialog
 		});
         return selectLocButtonPanel;
 	}
+	
+	
+	/**
+	 * Panel that opens a file dialog to select a reference file
+	 * @param refTextField Reference file to use
+	 * @return
+	 */
+	private JPanel selectReferenceButtonPanel(JTextField refTextField) {
+		JButton selectRefButton = new JButton("Select");
+		JPanel selectRefButtonPanel = new JPanel();
+		selectRefButtonPanel.add(selectRefButton);
+
+		selectRefButton.addActionListener((ActionEvent e) -> {
+			JFileChooser refChooser = new JFileChooser();
+			refChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			refChooser.setDialogTitle("Select Reference Material");
+			refChooser.setFileFilter(new FileNameExtensionFilter("Word Documents (*.doc, *.docx)", "doc", "docx"));
+			int result = refChooser.showOpenDialog(null);
+			if (result == JFileChooser.APPROVE_OPTION) {
+				File selectedFile = refChooser.getSelectedFile();
+				lastUsedDirectory = selectedFile.toPath().getParent();
+				refTextField.setText(selectedFile.getAbsolutePath());
+			}
+		});
+
+		return selectRefButtonPanel;
+	}
+
         
     /**
      * Creates the JPanel that holds the export button and exports the 
@@ -457,11 +526,16 @@ public class ExportWordDialog
                     
                     String exportLocation = locationTextField.getText();
                     Path exportPath = Paths.get(exportLocation);
+                    
+                    String referenceLocation = referenceTextField.getText();
+                    Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
+                        ? Paths.get(referenceLocation)
+                        : null;
 
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, false);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, false);
                     }
                     catch (IOException n)
                     {
@@ -476,11 +550,16 @@ public class ExportWordDialog
                     
                     String exportLocation = locationTextField.getText();
                     Path exportPath = Paths.get(exportLocation);
+                    
+                    String referenceLocation = referenceTextField.getText();
+                    Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
+                        ? Paths.get(referenceLocation)
+                        : null;
 
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, true);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {

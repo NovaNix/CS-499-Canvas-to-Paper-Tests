@@ -7,8 +7,12 @@ import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Project;
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -16,6 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import java.awt.Color;
+import java.awt.Image;
+
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 /**
@@ -36,21 +42,27 @@ public class GUIManager
      * Creates a frame that will host multiple panels and the 
      * file menu for the system
      */      
-    public void createHomeFrame() 
+    public void createHomeFrame()
     {
         // main JFrame that will host all JPanels for the system
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
+        homeFrame.setResizable(false);
                
+        Image icon = getIcon();
+        
+        if (icon != null)
+        	homeFrame.setIconImage(icon);
+        
         //size of the JFrame (width, height)
-        homeFrame.setSize(770, 625);
+        homeFrame.setSize(775, 625);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();
         // "File" menu
         JMenu fileMenu = new JMenu("File");
         // items for the user to select in the "File" menu
-        JMenuItem importFileItem = new JMenuItem("Import QTI Files");
-        JMenuItem exportFileItem = new JMenuItem("Export QTI Files");           
+        JMenuItem importFileItem = new JMenuItem("Import QTI File");
+        JMenuItem exportFileItem = new JMenuItem("Export QTI File");           
         // add items to the JMenu fileMenu
         fileMenu.add(importFileItem);
         fileMenu.add(exportFileItem);       
@@ -93,7 +105,7 @@ public class GUIManager
         
         // listens for when the user selects exportFileItem
         exportFileItem.addActionListener((ActionEvent e) -> {
-            ExportQTIDialog exportQTIFrame = new ExportQTIDialog();
+            ExportQTIDialog exportQTIFrame = new ExportQTIDialog(project);
             // display the frame that lets the user export their QTI files
             exportQTIFrame.show();            
         });
@@ -105,4 +117,16 @@ public class GUIManager
         // make the JFrame visible
         homeFrame.setVisible(true);  
     }	
+    
+    private Image getIcon() 
+    {
+    	try {
+			return ImageIO.read(GUIManager.class.getResource("/icon.png"));
+		} catch (IOException e) {
+			logger.error("Failed to load window icon");
+			e.printStackTrace();
+			
+			return null;
+		}
+    }
 }

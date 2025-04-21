@@ -156,8 +156,8 @@ public class Item
 					List<String> ids = extractAnswerIdsFromConditionVar(condition.getConditionVar());
 					for (String id : ids) 
 					{
-						String display = idToText.getOrDefault(id, "(Literal Answer) " + id);
-						correctAnswers.add(id + ": " + display);
+						String display = idToText.getOrDefault(id, id);
+						correctAnswers.add(display);
 					}
 				}
 			}
@@ -519,6 +519,33 @@ public class Item
 			}
 		}
 		return map;
+	}
+	
+	/**
+	 * Retrieves the number of points possible for a question. 
+	 * <p>
+	 * If this element is not present or invalid, it will return as 0.0 as a fallback method.
+	 * 
+	 * @return points possible as a double (defaults to 0.0) 
+	 */
+	public Double getPointsPossible()
+	{
+		if (itemMetadata != null && itemMetadata.getQtimetadata() != null && itemMetadata.getQtimetadata().getQtimetadatafield() != null)
+		{
+			for (QTIMetadataField field : itemMetadata.getQtimetadata().getQtimetadatafield())
+			{
+				if ("points_possible".equalsIgnoreCase(field.getFieldlabel()))
+				{
+					String value = field.getFieldentry();
+					if (value != null && !value.trim().isEmpty())
+					{
+						return Double.parseDouble(value.trim());
+					}
+				}
+			}	
+		}
+		
+		return null;
 	}
 	
 	// TODO: implement logic for identifying bank-sourced questions.
