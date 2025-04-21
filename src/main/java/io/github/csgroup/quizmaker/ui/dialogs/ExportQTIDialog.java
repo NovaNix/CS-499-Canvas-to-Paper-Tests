@@ -34,7 +34,7 @@ public class ExportQTIDialog
     
     public ExportQTIDialog(Project currentProject)
     {
-        currentProject = project;
+        this.project = currentProject;
         exportFileFrame();
     }
         
