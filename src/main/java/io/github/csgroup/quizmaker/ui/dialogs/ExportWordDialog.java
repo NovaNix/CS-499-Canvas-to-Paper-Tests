@@ -535,7 +535,7 @@ public class ExportWordDialog
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, false);
+                        exportFile.exportTest(quiz, generatedQuiz, templatePath, exportPath, replacements, referencePath, false);
                     }
                     catch (IOException n)
                     {
@@ -559,7 +559,7 @@ public class ExportWordDialog
                     GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
+                        exportFile.exportTest(quiz, generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {

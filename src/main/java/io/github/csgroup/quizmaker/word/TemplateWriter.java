@@ -13,6 +13,8 @@ import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 
@@ -43,7 +45,7 @@ public class TemplateWriter {
 	 * @return A modified {@link XWPFDocument} instance with all replacements applied
 	 * @throws IOException If reading or writing the document fails
 	 */
-	public static XWPFDocument applyMetadata(Path inputPath, TemplateReplacements replacements, QuizMetadata metadata) throws IOException {
+	public static XWPFDocument applyMetadata(Path inputPath, TemplateReplacements replacements, QuizMetadata metadata, Quiz quiz) throws IOException {
 		Map<String, String> tokenMap = new HashMap<>();
 		for (MetadataType type : MetadataType.values()) 
 		{
@@ -51,12 +53,33 @@ public class TemplateWriter {
 			String value = metadata.getValue(type);
 			if (placeholder != null && !placeholder.isBlank() && value != null && !value.isBlank()) 
 			{
-				tokenMap.put(placeholder, value);
+				tokenMap.put(placeholder, value); //Change test to take the title value
 			}
 		}
-
 		try (FileInputStream fis = new FileInputStream(inputPath.toFile())) {
 			XWPFDocument document = new XWPFDocument(fis);
+			
+			LabelWriter labelWriter = new LabelWriter(document);
+		    if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
+		    {
+		    	List<XWPFParagraph> paragraphs = document.getParagraphs();
+		    	for (int i = 0; i < paragraphs.size(); i++) {
+		    		XWPFParagraph paragraph = paragraphs.get(i);
+
+		    		// Found the first paragraph with actual content
+		    		if (!paragraph.getText().isBlank()) {
+		    			XWPFParagraph insertHere;
+					
+		    			if (i + 1 < paragraphs.size() && paragraphs.get(i + 1).isEmpty()) {
+		    				insertHere = document.insertNewParagraph(paragraphs.get(i + 1).getCTP().newCursor());
+		    				labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), insertHere);
+		    			} 
+		    		}
+		    	}
+		    	// Fallback: if no non-blank paragraph found, append at the end
+				XWPFParagraph fallbackParagraph = document.createParagraph();
+				labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+		    }
 
 			for (XWPFHeader header : document.getHeaderList()) 
 			{
@@ -234,3 +257,5 @@ public class TemplateWriter {
 		}
 	}
 }
+
+

@@ -91,7 +91,8 @@ public class QuestionWriter
 			XWPFParagraph paragraph = document.createParagraph();
 			paragraph.setPageBreak(true);
 		}
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), paragraph);
 		switch (q.getResponseLength()) {
 			case Line -> {
 				if(isKey)
@@ -153,7 +154,8 @@ public class QuestionWriter
 		String tagBlank = q.getLabel().asText();
 		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
 		Label tagBlankLabel = new Label(tagBlank, q.getLabel().getType());
-		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()),  paragraph);
 		
 		if(isKey)
 		{
@@ -163,7 +165,7 @@ public class QuestionWriter
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex =  "	Blank " +  index + ": ";
+					String addIndex =  "	Blank " +  index + ": "; 
 					labelWriter.write(redLabel(new Label(addIndex + answer.asText())));
 				}
 				index++;
@@ -181,16 +183,17 @@ public class QuestionWriter
 	public void writeMultipleChoice(MultipleChoiceQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph questionParagraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), questionParagraph);
 		
 		List <SimpleAnswer> answerLabels = q.getAnswers();
-		Collections.shuffle(answerLabels); //I dont know if Michael has gotten to randomizing this yet, this is just temp for the requirements meeting
+		Collections.shuffle(answerLabels); 
 		for (SimpleAnswer answer : answerLabels)
 		{
 			String prefix = "\t";
 			if(isKey && q.isCorrect(answer))
 			{
-				var ansLabel = new Label("- " + answer.asText());
+				var ansLabel = new Label("- " + answer.asText()); //Change this to lettered list format and grid if small
 				XWPFParagraph paragraph = document.createParagraph();
 				labelWriter.writeInline(new Label(prefix), paragraph);
 				labelWriter.writeInline(redLabel(ansLabel), paragraph);
@@ -199,7 +202,7 @@ public class QuestionWriter
 			
 			if(answer.getLabel().getType() == Label.Type.html)
 			{
-				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html);
+				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html); 
 				labelWriter.write(ansLabel);
 			}
 			else
@@ -222,7 +225,8 @@ public class QuestionWriter
 	public void writeMatching(MatchingQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), paragraph);
 		writeMatchingTable(q, labelWriter);
 		
 	}
@@ -276,7 +280,7 @@ public class QuestionWriter
 			spacerCell.getCTTc().getTcPr().getTcW().setType(STTblWidth.DXA);
 			XWPFParagraph spacerPara = spacerCell.getParagraphs().get(0);
 			spacerPara.setAlignment(ParagraphAlignment.CENTER);
-			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" ");
+			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" "); //Change to dots that span screen
 			new LabelWriter(document).writeInline(spacerSymbol, spacerPara);
 
 			XWPFTableCell rightCell = row.getCell(2);
@@ -336,14 +340,8 @@ public class QuestionWriter
 		String abet = isKey && isAbet 
 				? "(ABET)"
 				: "";
-	    if (label.getType() == Label.Type.html) {
-	    	String html = label.asText(); 
-	    	String updated = "<p>" + prefix + html + " (Points: " + formattedPoints + ") " + abet + "</p>"; // Inject number and points inside the HTML
-	    	return new Label(updated, Label.Type.html);
-	    } else {
-	    	String text = label.asText();
-	    	String updated = prefix + text + " (Points: " + formattedPoints + ") " +  abet;
-	    	return new Label(updated);
-	    }
+	    String html = label.asText(); 
+	    String updated = prefix + html + " (Points: " + formattedPoints + ") " + abet;
+	    return new Label(updated, Label.Type.html);
 	}
 }
