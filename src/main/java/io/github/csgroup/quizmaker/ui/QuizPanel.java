@@ -745,14 +745,20 @@ public class QuizPanel extends JComponent
                 int index = quizList.getSelectedIndex();
                 Quiz quiz = project.getQuiz(index);
                 int row = table.getSelectedRow();
+                Object value = quizTable.getValue(row, 0);
                 
                 // if the user double clicks the table show the dialog that allows them 
                 // to add a question
-                if (e.getClickCount() == 2)
+                if ((e.getClickCount() == 2) && (value != null))
                 {
-                    QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable);
+                    QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable, true, row);
                     questionDialog.show();
                 }   
+                if ((e.getClickCount() == 2) && (value == null))
+                {
+                    QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable, false, row);
+                    questionDialog.show();
+                } 
                 // if the user right clicks the table allow them to add or delete
                 // a question
                 if (SwingUtilities.isRightMouseButton(e))
@@ -793,28 +799,40 @@ public class QuizPanel extends JComponent
         JMenuItem addQuestionItem = new JMenuItem("Add question");
         JMenuItem removeQuestionItem = new JMenuItem("Remove question");
         removeQuestionItem.setEnabled(false);
+        JMenuItem editQuestionItem = new JMenuItem("Edit question");
+        editQuestionItem.setEnabled(false);
         
         quizMenu.add(addQuestionItem);
+        quizMenu.add(editQuestionItem); 
         quizMenu.add(removeQuestionItem);
-                
+        
         Object value = quizTable.getValue(row, 0);
-        // if the user selects an empty row allow them to add a question
+        // if the user selects a row with a question allow them to delete it 
         if (quiz.getQuestionCount() > 0 && (value != null))
         {
             removeQuestionItem.setEnabled(true);
             addQuestionItem.setEnabled(false);
+            editQuestionItem.setEnabled(true);
         }
-        // if the user selects a row with a question allow them to delete it 
+        // if the user selects an empty row allow them to add a question
         if (quiz.getQuestionCount() > 0 && (value == null))
         {
             removeQuestionItem.setEnabled(false);
             addQuestionItem.setEnabled(true);
+            editQuestionItem.setEnabled(false);
         }
         
         // listens for when the "Add question" menu item is clicked
         addQuestionItem.addActionListener((ActionEvent e) -> {
             // display the frame that allows the user to add a quiz question
-            QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable);
+            QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable, false, row);
+            questionDialog.show();
+        });
+        
+        // listens for when the "Add question" menu item is clicked
+        editQuestionItem.addActionListener((ActionEvent e) -> {
+            // display the frame that allows the user to add a quiz question
+            QuestionsDialog questionDialog = new QuestionsDialog(quiz, quizTable, true, row);
             questionDialog.show();
         });
         

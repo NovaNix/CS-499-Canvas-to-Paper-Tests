@@ -42,6 +42,8 @@ public class WrittenResponsePanel extends JComponent
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
     private JButton addQuestionButton;
+    private boolean edit;
+    private JCheckBox abetCheckBox;
     private QuestionBank questionBank;
     
     public WrittenResponsePanel(JFrame frame, JTextArea wrQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -64,6 +66,22 @@ public class WrittenResponsePanel extends JComponent
         questionTable = table;
         questionTitle = title;
         writtenResponsePanel();          
+    }
+    
+    /**
+     * Determines if a question is being edited
+     * 
+     * @param result determines where or not the question is being edited
+     * @param row the row where the question is located 
+     */
+    public void isEditable(boolean result, int row)
+    {
+        edit = result;
+        if (edit == true)
+        {
+            // populate the dialog with the question's information
+            editQuestion(row);
+        }
     }
     
     /**
@@ -116,7 +134,7 @@ public class WrittenResponsePanel extends JComponent
     private JPanel labelsPanel()
     {
         JLabel answerLabel = new JLabel("Answer");
-        JCheckBox abetCheckBox = new JCheckBox("ABET Question");
+        abetCheckBox = new JCheckBox("ABET Question");
         
         // contains answerLabel and abetCheckBox
         JPanel labelsPanel = new JPanel(new GridBagLayout());
@@ -175,6 +193,18 @@ public class WrittenResponsePanel extends JComponent
                     wrQuestion.setAnswer(answerString);
                     
                     newQuiz.addQuestion(wrQuestion);
+                    int index = newQuiz.getQuestionIndex(wrQuestion);
+                    Question newQuestion = newQuiz.getQuestion(index);
+                    // if the abetCheckBox is selected mark the question as an abet question
+                    if (abetCheckBox.isSelected() == true)
+                    {
+                        newQuestion.setAbet(true);
+                    }            
+                    else
+                    {
+                        newQuestion.setAbet(false);
+                    }
+                    
                 }
                 if (questionBank != null)
                 {
@@ -183,6 +213,16 @@ public class WrittenResponsePanel extends JComponent
                     wrQuestion.setAnswer(answerString);
                     
                     questionBank.add(wrQuestion);
+                    int index = questionBank.getQuestionIndex(wrQuestion);
+                    Question newQuestion = questionBank.getQuestion(index);
+                    if (abetCheckBox.isSelected() == true)
+                    {
+                        newQuestion.setAbet(true);
+                    }            
+                    else
+                    {
+                        newQuestion.setAbet(false);
+                    }
                 }
                 populateTable();
                 mainFrame.dispose();
@@ -193,7 +233,39 @@ public class WrittenResponsePanel extends JComponent
         return buttonPanel;
     }
     
-    
+    /**
+     * Populates the dialog with the question's title, point value, question, and
+     * abet check box
+     * 
+     * @param index the index of the question being edited
+     */
+    private void editQuestion(int index)
+    {  
+        // populate the quiz's question information
+        if (newQuiz != null)
+        {
+            Question editQuestion = newQuiz.getQuestion(index);
+            
+            questionTitle.setText(editQuestion.getTitle());           
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            answerArea.setText(answer);
+        }
+    }
+        
     /**
      * Ensures that the question title, points value, and question description 
      * have been entered before addQuestionButton is enabled

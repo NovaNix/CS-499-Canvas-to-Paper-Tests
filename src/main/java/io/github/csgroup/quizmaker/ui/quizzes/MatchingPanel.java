@@ -56,6 +56,9 @@ public class MatchingPanel extends JComponent
     private QuestionBank questionBank;
     private JButton addQuestionButton;
     private JButton addButton;
+    private JCheckBox abetCheckBox;
+    private boolean edit;
+    private final int defaultAnswers = 4;
     private JButton removeButton;
     private final int numAnswers = 15;
     
@@ -79,6 +82,22 @@ public class MatchingPanel extends JComponent
         questionTable = table;
         questionTitle = title;
         matchingPanel();          
+    }
+    
+    /**
+     * Determines if a question is being edited
+     * 
+     * @param result determines where or not the question is being edited
+     * @param row the row where the question is located 
+     */
+    public void isEditable(boolean result, int row)
+    {
+        edit = result;
+        if (edit == true)
+        {
+            // populate the dialog with the question's information
+            editQuestion(row);
+        }
     }
     
     /**
@@ -114,7 +133,7 @@ public class MatchingPanel extends JComponent
     private JPanel labelsPanel()
     {
         JLabel answerLabel = new JLabel("Answer");
-        JCheckBox abetCheckBox = new JCheckBox("ABET Question");
+        abetCheckBox = new JCheckBox("ABET Question");
         
         // contains answerLabel and abetCheckBox
         JPanel labelsPanel = new JPanel(new GridBagLayout());
@@ -234,12 +253,12 @@ public class MatchingPanel extends JComponent
                 answersPanel.add(cardPanels[i], rowConstraints[i]);  
                 
                 // show the first four row panels upon initialization 
-                if (i < 4)
+                if (i < defaultAnswers)
                 {
                     layout.show(cardPanels[i], "row " + (i));
                 }
                 // show the add/remove button panel
-                if (i == 4)
+                if (i == defaultAnswers)
                 {
                     layout.show(cardPanels[i], "button " + (i));
                 }
@@ -358,6 +377,110 @@ public class MatchingPanel extends JComponent
         });
         
         return buttonPanel;
+    }
+    
+    /**
+     * Populates the dialog with the question's title, point value, question, and
+     * abet check box
+     * 
+     * @param index the index of the question being edited
+     */
+    private void editQuestion(int index)
+    {    
+        // populate the quiz's question information
+        if (newQuiz != null)
+        {
+            Question editQuestion = newQuiz.getQuestion(index);
+            
+            questionTitle.setText(editQuestion.getTitle());           
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer); 
+            
+        }
+    }
+    
+    /**
+     * Populates the question's answer(s)
+     * 
+     * @param answer the question's answer
+     */
+    private void populateAnswers(String answer)
+    {         
+        String[] answers = answer.split(",");
+      
+        // remove any unused text fields
+        if (answers.length < defaultAnswers)
+        {
+            hidePanels(answers.length);
+        }
+        
+        String[] leftAnswers = new String[answers.length];
+        String[] rightAnswers = new String[answers.length];
+        for (int i = 0; i < answers.length; i++)
+        {
+            int spaceIndex = answers[i].indexOf(" ");
+            if (spaceIndex == 0)
+            {
+                answers[i] = answers[i].substring(0, spaceIndex) + answers[i].substring(spaceIndex + 1);
+            }
+            
+            int arrowIndex = answers[i].indexOf("→");  
+            // temporary arrays to hold the character value of the left and right answers
+            char[] leftTempArray = new char[arrowIndex];
+            char[] rightTempArray = new char[answers[i].length() - (arrowIndex + 1)];
+            int p = 0;           
+            for (int j = 0; j < answers[i].length(); j++)
+            {
+                if (j < arrowIndex)
+                {
+                    leftTempArray[j] = answers[i].charAt(j);
+                }
+                if (j > arrowIndex)
+                {
+                    rightTempArray[p] = answers[i].charAt(j);
+                    p++;
+                }
+            }
+            // convert the character arrays to string arrays
+            leftAnswers[i] = new String(leftTempArray);
+            rightAnswers[i] = new String(rightTempArray);
+            
+            if (i > 3)
+            {
+                addAnswer();
+            }
+            
+            // display the answers
+            leftTextFields[i].setText(leftAnswers[i]);
+            rightTextFields[i].setText(rightAnswers[i]);
+        }     
+    }
+    
+    /**
+     * Hides any unused answer text fields
+     * 
+     * @param answers the number of answers for the question
+     */
+    private void hidePanels(int answers)
+    {
+        for (int i = 0; i < (defaultAnswers - answers); i++)
+        {
+            removeAnswer();            
+        }       
     }
     
     /**
@@ -604,10 +727,32 @@ public class MatchingPanel extends JComponent
         if (newQuiz != null)
         {
             newQuiz.addQuestion(question);
+            int index = newQuiz.getQuestionIndex(question);
+            Question newQuestion = newQuiz.getQuestion(index);
+            // if the abetCheckBox is selected mark the question as an abet question
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         if (questionBank != null)
         {
             questionBank.add(question);
+            int index = questionBank.getQuestionIndex(question);
+            Question newQuestion = questionBank.getQuestion(index);
+            // if the abetCheckBox is selected mark the question as an abet question
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         populateTable();
     }

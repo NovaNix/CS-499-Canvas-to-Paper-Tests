@@ -56,8 +56,11 @@ public class MultipleChoicePanel extends JComponent
     private final JTextField questionTitle;
     private JButton addQuestionButton;
     private JButton addButton;
+    private boolean edit;
+    private JCheckBox abetCheckBox;
     private JButton removeButton;
     private final int numAnswers = 10;
+    private final int defaultAnswers = 4;
     private QuestionBank questionBank;
     
     public MultipleChoicePanel(JFrame frame, JTextArea mcQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -80,6 +83,22 @@ public class MultipleChoicePanel extends JComponent
         questionTable = table;
         questionTitle = title;
         multipleChoicePanel();          
+    }
+    
+    /**
+     * Determines if a question is being edited
+     * 
+     * @param result determines where or not the question is being edited
+     * @param row the row where the question is located 
+     */
+    public void isEditable(boolean result, int row)
+    {
+        edit = result;
+        if (edit == true)
+        {
+            // populate the dialog with the question's information
+            editQuestion(row);
+        }
     }
     
     /**
@@ -116,7 +135,7 @@ public class MultipleChoicePanel extends JComponent
     private JPanel labelsPanel()
     {
         JLabel answerLabel = new JLabel("Answer");
-        JCheckBox abetCheckBox = new JCheckBox("ABET Question");
+        abetCheckBox = new JCheckBox("ABET Question");
         
         // contains answerLabel and abetCheckbox
         JPanel labelsPanel = new JPanel(new GridBagLayout());
@@ -254,12 +273,12 @@ public class MultipleChoicePanel extends JComponent
                 answersPanel.add(cardPanels[i], rowConstraints[i]);  
                 
                 // show the first four text fields and radio buttons upon initialization 
-                if (i < 4)
+                if (i < defaultAnswers)
                 {
                     layout.show(cardPanels[i], "row " + (i));
                 }
                 // show the add/remove button panel
-                if (i == 4)
+                if (i == defaultAnswers)
                 {
                     layout.show(cardPanels[i], "button " + (i));
                 }
@@ -320,7 +339,7 @@ public class MultipleChoicePanel extends JComponent
         // listens for when addButton is selected
         addButton.addActionListener((ActionEvent e) -> { 
             // add another text field and radio button on the panel
-            addAnswerChoices();           
+            addAnswerChoice();           
         });
         
         // listens for when removeButton is selected
@@ -386,6 +405,107 @@ public class MultipleChoicePanel extends JComponent
         });
         
         return buttonPanel;
+    }
+    
+    /**
+     * Populates the dialog with the question's title, point value, question, and
+     * abet check box
+     * 
+     * @param index the index of the question being edited
+     */
+    private void editQuestion(int index)
+    {
+        // populate the quiz's question information
+        if (newQuiz != null)
+        {
+            Question editQuestion = newQuiz.getQuestion(index);
+            
+            questionTitle.setText(editQuestion.getTitle());            
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer); 
+        }
+    }
+    
+    /**
+     * Populates the question's answer(s)
+     * 
+     * @param answer the question's answer
+     */
+    private void populateAnswers(String answer)
+    {     
+        // parse the html out of the answer string
+        String removeRoot = parseString(answer, "<html>");
+        String removeRootEnd = parseString(removeRoot, "</html>");
+        String removeBoldEnd = parseString(removeRootEnd, "</b>");
+        String removeBold = parseString(removeBoldEnd, "<b>");
+
+        String[] answers = removeBold.split(",");
+        
+        // removes any unused answer text fields
+        if (answers.length < defaultAnswers)
+        {
+            hidePanels(answers.length);
+        }
+        
+        for (int i = 0; i < answers.length; i++)
+        {
+            int spaceIndex = answers[i].indexOf(" ");
+            if (spaceIndex == 0)
+            {
+                answers[i] = answers[i].substring(0, spaceIndex) + answers[i].substring(spaceIndex + 1);
+            }
+            
+            if (i > (defaultAnswers - 1))
+            {
+                addAnswerChoice();
+            }           
+            answerPanels[i].setVisible(true);
+            answerFields[i].setText(answers[i]);
+        }
+        // set the raido button to the correct answer
+        radioButtons[0].setSelected(true);
+    }
+    
+    /**
+     * Hides any unused answer text fields
+     * 
+     * @param answers the number of answers for the question
+     */
+    private void hidePanels(int answers)
+    {
+        for (int i = 0; i < (defaultAnswers - answers); i++)
+        {
+            removeAnswerChoice();            
+        }       
+    }
+    
+    /**
+     * Parses strings
+     * 
+     * @param input the string to parse
+     * @param delimiter the delimiter used to parse the string
+     * @return the parsed string
+     */
+    private String parseString(String input, String delimiter)
+    {
+        String[] parsedStringArray = input.split(delimiter);
+        String parsedString = String.join("", parsedStringArray);
+        
+        return parsedString;
     }
     
     /**
@@ -513,7 +633,7 @@ public class MultipleChoicePanel extends JComponent
     /**
      * Adds a text field and radio button to the panel
      */
-    private void addAnswerChoices()
+    private void addAnswerChoice()
     {
         for (int i = 0; i < numAnswers; i++)
         {
@@ -637,10 +757,30 @@ public class MultipleChoicePanel extends JComponent
         if (newQuiz != null)
         {
             newQuiz.addQuestion(question);
+            int index = newQuiz.getQuestionIndex(question);
+            Question newQuestion = newQuiz.getQuestion(index);
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         if (questionBank != null)
         {
             questionBank.add(question);
+            int index = questionBank.getQuestionIndex(question);
+            Question newQuestion = questionBank.getQuestion(index);
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         populateTable();
     }

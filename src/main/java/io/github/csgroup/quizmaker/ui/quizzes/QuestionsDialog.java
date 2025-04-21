@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.ui.quizzes;
 
+import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
@@ -41,15 +42,27 @@ public class QuestionsDialog
     private JTextArea question;
     private JTextField points;
     private Quiz quiz;
+    private JComboBox questionTypesList;
     private final QuestionTable table;
     private JTextField title;
     private QuestionBank bank;
+    private int index;
+    private boolean editResult;
     
-    public QuestionsDialog(Quiz newQuiz, QuestionTable questionTable)
+    public QuestionsDialog(Quiz newQuiz, QuestionTable questionTable, boolean edit, int row)
     {        
         table = questionTable;
         quiz = newQuiz;
+        editResult = edit;
+        index = row;
+        
         questionDialog();
+        if (editResult == true)
+        {
+            Question quizQuestion = quiz.getQuestion(index);            
+            String quizClassName = (quizQuestion.getClass()).getName();
+            editQuestion(quizClassName);
+        }
     }
     
     public QuestionsDialog(QuestionBank questionBank, QuestionTable questionTable)
@@ -189,7 +202,7 @@ public class QuestionsDialog
         titlePanel.add(title);
         
         String [] questionTypes = {"Multiple Choice", "Fill in the Blank", "Matching", "Written Response"};
-        JComboBox questionTypesList = new JComboBox(questionTypes);
+        questionTypesList = new JComboBox(questionTypes);
         
         JLabel pointsLabel = new JLabel("Points: ");
         
@@ -248,6 +261,39 @@ public class QuestionsDialog
         });
         
         return informationPanel;
+    }
+    
+    private void editQuestion(String className)
+    {               
+        String fillInTheBlank = "io.github.csgroup.quizmaker.data.questions.FillInTheBlankQuestion";
+        String matching = "io.github.csgroup.quizmaker.data.questions.MatchingQuestion";
+        String multipleChoice = "io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion";
+        String writtenResponse = "io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion";
+  
+        if (className.equals(fillInTheBlank))
+        {
+            displayAnswerPanel("Fill in the Blank");
+            questionTypesList.setSelectedIndex(1);
+            fitbPanel.isEditable(editResult, index);
+        }
+        if (className.equals(matching))
+        {
+            displayAnswerPanel("Matching");
+            questionTypesList.setSelectedIndex(2);
+            matchingPanel.isEditable(editResult, index);
+        }
+        if (className.equals(multipleChoice))
+        {
+            displayAnswerPanel("Multiple Choice");
+            questionTypesList.setSelectedIndex(0);
+            mcPanel.isEditable(editResult, index);
+        }
+        if (className.equals(writtenResponse))
+        {
+            displayAnswerPanel("Written Response");
+            questionTypesList.setSelectedIndex(3);
+            wrPanel.isEditable(editResult, index);
+        }
     }
     
     /**
