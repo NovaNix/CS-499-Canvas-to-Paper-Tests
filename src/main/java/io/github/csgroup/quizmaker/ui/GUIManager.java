@@ -48,10 +48,10 @@ public class GUIManager
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
         homeFrame.setResizable(false);
                
-        Image icon = getIcon();
-        
-        if (icon != null)
-        	homeFrame.setIconImage(icon);
+//        Image icon = getIcon();
+//        
+//        if (icon != null)
+//        	homeFrame.setIconImage(icon);
         
         //size of the JFrame (width, height)
         homeFrame.setSize(775, 625);
@@ -121,7 +121,7 @@ public class GUIManager
     private Image getIcon() 
     {
     	try {
-			return ImageIO.read(GUIManager.class.getResource("/icon.png"));
+			return ImageIO.read(GUIManager.class.getResourceAsStream("/icon.png"));
 		} catch (IOException e) {
 			logger.error("Failed to load window icon");
 			e.printStackTrace();
