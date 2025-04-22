@@ -151,6 +151,10 @@ public class ExportQTIDialog
                 	fileName += ".zip";
                 }
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
+                if(!qtiFilePath.toLowerCase().endsWith(".zip"))
+                {
+                	qtiFilePath += ".zip";
+                }
                 setPath(qtiFilePath);     
                 // display the file name in the text field
                 textField.setText(fileName);  
