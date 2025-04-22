@@ -512,24 +512,23 @@ public class ExportWordDialog
         exportButton.addActionListener((ActionEvent e) -> {
             if ((testButton.isSelected() == true) || (keyButton.isSelected() == true))
             {
+            	String templateLocation = templateTextField.getText();
+                Path templatePath = Paths.get(templateLocation);
+                
+                String exportLocation = locationTextField.getText();
+                Path exportPath = Paths.get(exportLocation);
+                
+                String referenceLocation = referenceTextField.getText();
+                Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
+                    ? Paths.get(referenceLocation)
+                    : null;
+            	
                 // export the quiz 
-                if (testButton.isSelected() == true)
+                if (testButton.isSelected())
                 {
-                    String templateLocation = templateTextField.getText();
-                    Path templatePath = Paths.get(templateLocation);
-                    
-                    String exportLocation = locationTextField.getText();
-                    Path exportPath = Paths.get(exportLocation);
-                    
-                    String referenceLocation = referenceTextField.getText();
-                    Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
-                        ? Paths.get(referenceLocation)
-                        : null;
-
-                    //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, false)                     
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);                     
                     }
                     catch (IOException n)
                     {
@@ -537,27 +536,14 @@ public class ExportWordDialog
                     }
                 }
                 // export the answer key
-                if (keyButton.isSelected() == true)
+                if (keyButton.isSelected())
                 {
-                    String templateLocation = templateTextField.getText();
-                    Path templatePath = Paths.get(templateLocation);
-                    
-                    String exportLocation = locationTextField.getText();
-                    Path exportPath = Paths.get(exportLocation);
-                    
-                    String referenceLocation = referenceTextField.getText();
-                    Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
-                        ? Paths.get(referenceLocation)
-                        : null;
-
-                    //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {
-                        
                         errorDialog(n.getMessage());
                     }
                 }
