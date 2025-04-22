@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
@@ -133,6 +134,11 @@ public class GeneratedQuiz
 		title.append(quiz.getTitle());
 		
 		return title.toString();
+	}
+	
+	public Label getDescription()
+	{
+		return quiz.getDescription();
 	}
 	
 	/**

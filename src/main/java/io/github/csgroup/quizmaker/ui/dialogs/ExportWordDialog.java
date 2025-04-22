@@ -522,13 +522,12 @@ public class ExportWordDialog
                 Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
                     ? Paths.get(referenceLocation)
                     : null;
-            	GenerateQuiz generateQuiz = quiz.getGenerated();
                 // export the quiz 
                 if (testButton.isSelected())
                 {
                     try
                     {
-                        exportFile.exportTest(quiz, generatedQuiz, templatePath, exportPath, replacements, referencePath, false);
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);
 
                     }
                     catch (IOException n)
@@ -541,7 +540,7 @@ public class ExportWordDialog
                 {
                     try
                     {
-                        exportFile.exportTest(quiz, generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {

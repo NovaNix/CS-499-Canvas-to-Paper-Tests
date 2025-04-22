@@ -54,7 +54,7 @@ public class TemplateCreator {
 	 * @param metadata   Metadata to embed into the file.
 	 * @throws IOException If writing the file fails.
 	 */
-	public static void createDocument(XWPFDocument document, Path outputPath, QuizMetadata metadata, Quiz quiz) throws IOException
+	public static void createDocument(XWPFDocument document, Path outputPath, GeneratedQuiz generatedQuiz) throws IOException
 	{
 
 	    // Create a header (Header and footer creation might move to function calls in the future for organization)
@@ -79,16 +79,16 @@ public class TemplateCreator {
 	    headerTable.getRow(0).getCell(2).setWidth("33.3%");
 
 	    // Function calls to correctly set the text in each cell
-	    setCellText(headerTable.getRow(0).getCell(0), "CS" + metadata.getValue(QuizMetadata.MetadataType.ClassNum) + "-0" + metadata.getValue(QuizMetadata.MetadataType.SectionNum) + "\n" + metadata.getValue(QuizMetadata.MetadataType.Professor), ParagraphAlignment.LEFT);
-	    setCellText(headerTable.getRow(0).getCell(1), "Test-" + metadata.getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
-	    setCellText(headerTable.getRow(0).getCell(2), metadata.getValue(QuizMetadata.MetadataType.Date), ParagraphAlignment.RIGHT);
-	    if(quiz.getTitle() != null)
+	    setCellText(headerTable.getRow(0).getCell(0), "CS" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.ClassNum) + "-0" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.SectionNum) + "\n" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Professor), ParagraphAlignment.LEFT);
+	    setCellText(headerTable.getRow(0).getCell(1), "Test-" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
+	    setCellText(headerTable.getRow(0).getCell(2), generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Date), ParagraphAlignment.RIGHT);
+	    if(generatedQuiz.getTitle() != null)
 	    {
 	    	XWPFParagraph headerPara = header.createParagraph();
 	    	headerPara.setAlignment(ParagraphAlignment.CENTER);
 	    	XWPFRun headerRun = headerPara.createRun();
 	    	headerRun.setFontFamily("Times New Roman");
-	    	headerRun.setText(quiz.getTitle());
+	    	headerRun.setText(generatedQuiz.getTitle());
 	    }
 	    
 	    // Create footer with correct properties
@@ -137,14 +137,14 @@ public class TemplateCreator {
 	    nameRun.setText("Name: _____________________________________");
 	    
 	    LabelWriter labelWriter = new LabelWriter(document);
-	    if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
+	    if (generatedQuiz.getDescription() != null && !generatedQuiz.getDescription().asText().isBlank())
 	    {
 	    	XWPFParagraph fallbackParagraph = document.createParagraph();
 	    	XWPFRun descRun = fallbackParagraph.createRun();
     		descRun.addBreak();
     	    descRun.setText("Quiz Description:");
     		descRun.addBreak();
-	    	labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+	    	labelWriter.writeInline(new Label(generatedQuiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
 	    	
 	    }
 	    

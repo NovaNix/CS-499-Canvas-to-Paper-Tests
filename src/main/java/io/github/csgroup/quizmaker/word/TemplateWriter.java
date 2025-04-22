@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import io.github.csgroup.quizmaker.data.Label;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 
@@ -45,12 +46,12 @@ public class TemplateWriter {
 	 * @return A modified {@link XWPFDocument} instance with all replacements applied
 	 * @throws IOException If reading or writing the document fails
 	 */
-	public static XWPFDocument applyMetadata(Path inputPath, TemplateReplacements replacements, QuizMetadata metadata, Quiz quiz) throws IOException {
+	public static XWPFDocument applyMetadata(Path inputPath, TemplateReplacements replacements, GeneratedQuiz quiz) throws IOException {
 		Map<String, String> tokenMap = new HashMap<>();
 		for (MetadataType type : MetadataType.values()) 
 		{
 			String placeholder = replacements.getReplacementText(type);
-			String value = metadata.getValue(type);
+			String value = quiz.getQuizMetadata().getValue(type);
 			if (placeholder != null && !placeholder.isBlank() && value != null && !value.isBlank()) 
 			{
 				tokenMap.put(placeholder, value);
