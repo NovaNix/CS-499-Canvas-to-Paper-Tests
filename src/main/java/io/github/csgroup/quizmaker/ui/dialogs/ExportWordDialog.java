@@ -522,13 +522,13 @@ public class ExportWordDialog
                 Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
                     ? Paths.get(referenceLocation)
                     : null;
-            	
                 // export the quiz 
                 if (testButton.isSelected())
                 {
                     try
                     {
-                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);                     
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);
+
                     }
                     catch (IOException n)
                     {

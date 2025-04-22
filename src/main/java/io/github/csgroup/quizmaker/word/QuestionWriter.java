@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.text.DecimalFormat;
 
 import org.apache.poi.xwpf.usermodel.*;
@@ -36,6 +38,8 @@ public class QuestionWriter
 	
 	private final XWPFDocument document;
 	private final boolean isKey;
+	private final Set<Class<?>> questionTypesWritten = new HashSet<>();
+
 	
 	/**
 	 * Constructs a QuestionWriter for the given document.
@@ -67,6 +71,13 @@ public class QuestionWriter
 	 */
 	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
+		Class<?> questionClass = q.getClass();
+		if (!questionTypesWritten.contains(questionClass)) 
+		{
+			writeInstructionsForQuestion(q);
+			questionTypesWritten.add(questionClass);
+		}
+		
 		switch (q) {
 		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
 		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
@@ -76,6 +87,31 @@ public class QuestionWriter
 		}
 	}
 	
+	/**
+	 * Writes out instructions for a question if it is the first time that question type has been displayed
+	 * 
+	 * @param q The question that will be used to determine type
+	 * @throws IOException If writing fails
+	 */
+	private void writeInstructionsForQuestion(Question q) throws IOException {
+	    XWPFParagraph instructionParagraph = document.createParagraph();
+	    XWPFRun run = instructionParagraph.createRun();
+	    run.setBold(true);
+
+	    String instructionText = switch (q) {
+	        case MultipleChoiceQuestion __ -> "Select the best answer for each of the following multiple choice questions.";
+	        case MatchingQuestion __ -> "Match each item in the left column with the correct item in the right column.";
+	        case FillInTheBlankQuestion __ -> "Fill in the blanks with the correct words or phrases.";
+	        case WrittenResponseQuestion __ -> "Provide a written response to the following questions.";
+	        default -> null;
+	    };
+
+	    if (instructionText != null) {
+	        run.setText(instructionText);
+	    }
+	}
+
+
 	/**
 	 * Writes a {@link WrittenResponseQuestion} to the Word Document. Depending on the {@link ResponseLength},
 	 * the amount of page available to answer will change.
@@ -91,7 +127,8 @@ public class QuestionWriter
 			XWPFParagraph paragraph = document.createParagraph();
 			paragraph.setPageBreak(true);
 		}
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), paragraph);
 		switch (q.getResponseLength()) {
 			case Line -> {
 				if(isKey)
@@ -153,7 +190,8 @@ public class QuestionWriter
 		String tagBlank = q.getLabel().asText();
 		tagBlank = tagBlank.replaceAll("\\[(.+?)\\]", "__________");
 		Label tagBlankLabel = new Label(tagBlank, q.getLabel().getType());
-		labelWriter.write(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(tagBlankLabel, questionNumber, q.getPoints(), q.isAbet()),  paragraph);
 		
 		if(isKey)
 		{
@@ -163,7 +201,7 @@ public class QuestionWriter
 				BlankAnswer answer = q.getAnswer(tag);
 				if (answer != null)
 				{
-					String addIndex =  "	Blank " +  index + ": ";
+					String addIndex =  "	Blank " +  index + ": "; 
 					labelWriter.write(redLabel(new Label(addIndex + answer.asText())));
 				}
 				index++;
@@ -181,32 +219,35 @@ public class QuestionWriter
 	public void writeMultipleChoice(MultipleChoiceQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph questionParagraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), questionParagraph);
 		
 		List <SimpleAnswer> answerLabels = q.getAnswers();
-		Collections.shuffle(answerLabels); //I dont know if Michael has gotten to randomizing this yet, this is just temp for the requirements meeting
+		Collections.shuffle(answerLabels); 
+		char optionLetter = 'a';
 		for (SimpleAnswer answer : answerLabels)
 		{
 			String prefix = "\t";
+			XWPFParagraph paragraph = document.createParagraph();
+			labelWriter.writeInline(new Label(prefix), paragraph);
 			if(isKey && q.isCorrect(answer))
 			{
-				var ansLabel = new Label("- " + answer.asText());
-				XWPFParagraph paragraph = document.createParagraph();
-				labelWriter.writeInline(new Label(prefix), paragraph);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText()); //Change this to lettered list format and grid if small
 				labelWriter.writeInline(redLabel(ansLabel), paragraph);
 				continue;
 			}
 			
 			if(answer.getLabel().getType() == Label.Type.html)
 			{
-				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html);
-				labelWriter.write(ansLabel);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText(), Label.Type.html); 
+				labelWriter.writeInline(ansLabel, paragraph);
 			}
 			else
 			{
-				var ansLabel = new Label(prefix + "- " + answer.asText());
-				labelWriter.write(ansLabel);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText());
+				labelWriter.writeInline(ansLabel, paragraph);
 			}
+			optionLetter++;
 		}
 		
 		
@@ -222,7 +263,8 @@ public class QuestionWriter
 	public void writeMatching(MatchingQuestion q, int questionNumber) throws IOException
 	{
 		LabelWriter labelWriter = new LabelWriter(document);
-		labelWriter.write(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()));
+		XWPFParagraph paragraph = document.createParagraph();
+		labelWriter.writeInline(buildQuestionLabel(q.getLabel(), questionNumber, q.getPoints(), q.isAbet()), paragraph);
 		writeMatchingTable(q, labelWriter);
 		
 	}
@@ -276,7 +318,7 @@ public class QuestionWriter
 			spacerCell.getCTTc().getTcPr().getTcW().setType(STTblWidth.DXA);
 			XWPFParagraph spacerPara = spacerCell.getParagraphs().get(0);
 			spacerPara.setAlignment(ParagraphAlignment.CENTER);
-			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" ");
+			Label spacerSymbol = isKey ? redLabel(new Label("→")) : new Label(" "); //Change to dots that span screen
 			new LabelWriter(document).writeInline(spacerSymbol, spacerPara);
 
 			XWPFTableCell rightCell = row.getCell(2);
@@ -336,14 +378,8 @@ public class QuestionWriter
 		String abet = isKey && isAbet 
 				? "(ABET)"
 				: "";
-	    if (label.getType() == Label.Type.html) {
-	    	String html = label.asText(); 
-	    	String updated = "<p>" + prefix + html + " (Points: " + formattedPoints + ") " + abet + "</p>"; // Inject number and points inside the HTML
-	    	return new Label(updated, Label.Type.html);
-	    } else {
-	    	String text = label.asText();
-	    	String updated = prefix + text + " (Points: " + formattedPoints + ") " +  abet;
-	    	return new Label(updated);
-	    }
+	    String html = label.asText(); 
+	    String updated = prefix + html + " (Points: " + formattedPoints + ") " + abet;
+	    return new Label(updated, Label.Type.html);
 	}
 }

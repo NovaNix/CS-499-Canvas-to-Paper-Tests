@@ -49,11 +49,11 @@ public class WordExporter
 	 * @param isKey         Whether this export represents an answer key (applies special styling).
 	 * @throws IOException  If any file path is invalid, unreadable, unwritable, or export fails.
 	 */
-	public void exportTest(GeneratedQuiz quiz, Path template, Path destination, TemplateReplacements replacements, Path referenceAppendPath, boolean isKey) throws IOException
+	public void exportTest(GeneratedQuiz generatedQuiz, Path template, Path destination, TemplateReplacements replacements, Path referenceAppendPath, boolean isKey) throws IOException
 	{
 		
 		String filename = destination.toString();
-		if(quiz == null)
+		if(generatedQuiz == null)
 		{
 			logger.error("Quiz has not been generated!");
 			throw new IOException("Quiz has not been generated!");
@@ -84,10 +84,10 @@ public class WordExporter
 		    	logger.error("invalid template file: {}", template);
 		        throw new IOException("Invalid template file: " + template);
 		    }
-		    document = TemplateWriter.applyMetadata(template, replacements, quiz.getQuizMetadata());
+		    document = TemplateWriter.applyMetadata(template, replacements, generatedQuiz);
 		} else {
 		    document = new XWPFDocument();
-		    TemplateCreator.createDocument(document, destination, quiz.getQuizMetadata());
+		    TemplateCreator.createDocument(document, destination, generatedQuiz);
 		}
 
 		QuestionWriter questionWriter = new QuestionWriter(document, isKey);
@@ -105,11 +105,11 @@ public class WordExporter
 			
 		//questionWriter.insertPageBreak(); //Deciding whether this is necessary or not.
 			
-		if(quiz != null) //Maybe move upwards in export
+		if(generatedQuiz != null) //Maybe move upwards in export
 		{
-			List<Question> generatedQuiz = quiz.getQuestions();
-			for(int i = 0; i < quiz.getQuestions().size(); i++ ) {
-				questionWriter.writeQuestion(generatedQuiz.get(i), i+1);
+			List<Question> quizQuestions = generatedQuiz.getQuestions();
+			for(int i = 0; i < generatedQuiz.getQuestions().size(); i++ ) {
+				questionWriter.writeQuestion(quizQuestions.get(i), i+1);
 			}
 		}
 		
@@ -144,7 +144,7 @@ public class WordExporter
 			document.write(out);
 		} catch (IOException e) {
 			logger.error("Failed to export document to: {}", e.getMessage());
-			throw new IOException("Failed to export document."); //This should throw up to the UI
+			throw new IOException("Failed to export document.");
 		}
 		logger.info("Export completed: {}", destination.toAbsolutePath());
 	}

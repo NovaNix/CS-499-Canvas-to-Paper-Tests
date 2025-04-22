@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.poi.wp.usermodel.HeaderFooterType;
 import org.apache.poi.xwpf.usermodel.*;
@@ -21,6 +22,9 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.STFldCharType;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STNumberFormat;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STTblLayoutType;
 
+import io.github.csgroup.quizmaker.data.Label;
+import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 
 /**
@@ -50,7 +54,7 @@ public class TemplateCreator {
 	 * @param metadata   Metadata to embed into the file.
 	 * @throws IOException If writing the file fails.
 	 */
-	public static void createDocument(XWPFDocument document, Path outputPath, QuizMetadata metadata) throws IOException
+	public static void createDocument(XWPFDocument document, Path outputPath, GeneratedQuiz generatedQuiz) throws IOException
 	{
 
 	    // Create a header (Header and footer creation might move to function calls in the future for organization)
@@ -75,9 +79,17 @@ public class TemplateCreator {
 	    headerTable.getRow(0).getCell(2).setWidth("33.3%");
 
 	    // Function calls to correctly set the text in each cell
-	    setCellText(headerTable.getRow(0).getCell(0), "CS" + metadata.getValue(QuizMetadata.MetadataType.ClassNum) + "-0" + metadata.getValue(QuizMetadata.MetadataType.SectionNum) + "\n" + metadata.getValue(QuizMetadata.MetadataType.Professor), ParagraphAlignment.LEFT);
-	    setCellText(headerTable.getRow(0).getCell(1), "Test" + metadata.getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
-	    setCellText(headerTable.getRow(0).getCell(2), metadata.getValue(QuizMetadata.MetadataType.Date), ParagraphAlignment.RIGHT);
+	    setCellText(headerTable.getRow(0).getCell(0), "CS" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.ClassNum) + "-0" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.SectionNum) + "\n" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Professor), ParagraphAlignment.LEFT);
+	    setCellText(headerTable.getRow(0).getCell(1), "Test-" + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
+	    setCellText(headerTable.getRow(0).getCell(2), generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Date), ParagraphAlignment.RIGHT);
+	    if(generatedQuiz.getTitle() != null)
+	    {
+	    	XWPFParagraph headerPara = header.createParagraph();
+	    	headerPara.setAlignment(ParagraphAlignment.CENTER);
+	    	XWPFRun headerRun = headerPara.createRun();
+	    	headerRun.setFontFamily("Times New Roman");
+	    	headerRun.setText(generatedQuiz.getTitle());
+	    }
 	    
 	    // Create footer with correct properties
 	    XWPFFooter footer = document.createFooter(HeaderFooterType.DEFAULT);
@@ -124,37 +136,49 @@ public class TemplateCreator {
 	    nameRun.setFontSize(12);
 	    nameRun.setText("Name: _____________________________________");
 	    
-	    // Create a break between name field and numbered list
-	    XWPFParagraph testInstruction = document.createParagraph();
-	    testInstruction.setSpacingAfter(0);
-	    testInstruction.setSpacingBetween(1, LineSpacingRule.AUTO);
-	    XWPFRun preListRun = testInstruction.createRun();
-	    preListRun.setFontFamily("Times New Roman");
-	    preListRun.setFontSize(12);
-	    preListRun.addBreak();
-	    preListRun.setText("Test Instructions:");
-
-	    // Setup for creating numbered list
-	    XWPFNumbering numbering = document.createNumbering();
-	    String numId = createNumberingStyle(numbering); // Define numbering style
-
-	    // Add numbered list items matching document format 
-	    addNumberedParagraph(document, "Make sure your test has all the pages.", numId, 0);
-	    addNumberedParagraph(document, "Do your own work.", numId, 0);
-	    addNumberedParagraph(document, "Show your work. It is impossible to give partial credit if you do not show your work.", numId, 0);
-	    addNumberedParagraph(document, "When you finish the exam turn it in at the front desk and immediately leave the room. Please do not hang around outside the classroom.", numId, 0);
-	    addNumberedParagraph(document, "Do not use any paper other than what is provided. Use the back of these pages if needed.", numId, 0);
-	    addNumberedParagraph(document, "No books, notes or other materials are allowed.", numId, 0);
-	    addNumberedParagraph(document, "Only simple calculators are allowed. The calculator cannot store text.", numId, 0);
-	    addNumberedParagraph(document, "Put your name on this page and the top of the next page.", numId, 0);
-	    addNumberedParagraph(document, "Do NOT fold this exam and leave all the pages stapled together.", numId, 0);
-	    addNumberedParagraph(document, "If there are provided reference information those sheets may be removed. Those sheets do NOT need to be returned with the test.", numId, 0);
-	    addNumberedParagraph(document, "If you do not understand what the problem is asking for raise your hand or come to the front of the class.", numId, 0);
-	    addNumberedParagraph(document, "Do not communicate with other students. Talk only to the proctor.", numId, 0);
-	    addNumberedParagraph(document, "If you need a break during the exam, ask the proctor first. You must leave the exam and your cell phone in the classroom.", numId, 0);
-	    addNumberedParagraph(document, "This is a ", metadata.getValue(QuizMetadata.MetadataType.Points), " point exam.", numId, 0);
-	    addNumberedParagraph(document, "The time limit on this exam is " + metadata.getValue(QuizMetadata.MetadataType.Minutes) + " minutes.", numId, 0);
+	    LabelWriter labelWriter = new LabelWriter(document);
+	    if (generatedQuiz.getDescription() != null && !generatedQuiz.getDescription().asText().isBlank())
+	    {
+	    	XWPFParagraph fallbackParagraph = document.createParagraph();
+	    	XWPFRun descRun = fallbackParagraph.createRun();
+    		descRun.addBreak();
+    	    descRun.setText("Quiz Description:");
+    		descRun.addBreak();
+	    	labelWriter.writeInline(new Label(generatedQuiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+	    	
+	    }
 	    
+	    // Create a break between name field and numbered list
+        XWPFParagraph testInstruction = document.createParagraph();
+        testInstruction.setSpacingAfter(0);
+        testInstruction.setSpacingBetween(1, LineSpacingRule.AUTO);
+        XWPFRun preListRun = testInstruction.createRun();
+        preListRun.setFontFamily("Times New Roman");
+        preListRun.setFontSize(12);
+        preListRun.addBreak();
+        preListRun.setText("Test Instructions:");
+	    
+	    // Setup for creating numbered list
+        XWPFNumbering numbering = document.createNumbering();
+        String numId = createNumberingStyle(numbering); // Define numbering style
+
+        // Add numbered list items matching document format
+        addNumberedParagraph(document, "Make sure your test has all the pages.", numId, 0);
+        addNumberedParagraph(document, "Do your own work.", numId, 0);
+        addNumberedParagraph(document, "Show your work. It is impossible to give partial credit if you do not show your work.", numId, 0);
+        addNumberedParagraph(document, "When you finish the exam turn it in at the front desk and immediately leave the room. Please do not hang around outside the classroom.", numId, 0);
+        addNumberedParagraph(document, "Do not use any paper other than what is provided. Use the back of these pages if needed.", numId, 0);
+        addNumberedParagraph(document, "No books, notes or other materials are allowed.", numId, 0);
+        addNumberedParagraph(document, "Only simple calculators are allowed. The calculator cannot store text.", numId, 0);
+        addNumberedParagraph(document, "Put your name on this page and the top of the next page.", numId, 0);
+        addNumberedParagraph(document, "Do NOT fold this exam and leave all the pages stapled together.", numId, 0);
+        addNumberedParagraph(document, "If there are provided reference information those sheets may be removed. Those sheets do NOT need to be returned with the test.", numId, 0);
+        addNumberedParagraph(document, "If you do not understand what the problem is asking for raise your hand or come to the front of the class.", numId, 0);
+        addNumberedParagraph(document, "Do not communicate with other students. Talk only to the proctor.", numId, 0);
+        addNumberedParagraph(document, "If you need a break during the exam, ask the proctor first. You must leave the exam and your cell phone in the classroom.", numId, 0);
+        addNumberedParagraph(document, "This is a ", "(Point)", " point exam.", numId, 0);
+        addNumberedParagraph(document, "The base time limit on this exam is (Time) minutes.", numId, 0);
+        
 	    // Create space between numbered list and the section list
 	    XWPFParagraph sectionPar = document.createParagraph();
 	    sectionPar.setSpacingAfter(0);
@@ -222,102 +246,77 @@ public class TemplateCreator {
 	        }
 	    }
 	}
+	
+	// Function to create a correctly set numbered list
+    private static String createNumberingStyle(XWPFNumbering numbering) {
+        CTAbstractNum abstractNum = CTAbstractNum.Factory.newInstance();
+        abstractNum.setAbstractNumId(BigInteger.ZERO);
 
-	/**
-	 * Creates a custom numbering style in the document to support main and sub-numbered lists.
-	 * <p>
-	 * Level 0: 1., 2., 3.<br>
-	 * Level 1: a., b., c.
-	 *
-	 * @param numbering The numbering manager from the document.
-	 * @return The identifier (numId) for the created numbering style.
-	 */
-	private static String createNumberingStyle(XWPFNumbering numbering) {
-	    CTAbstractNum abstractNum = CTAbstractNum.Factory.newInstance();
-	    abstractNum.setAbstractNumId(BigInteger.ZERO);
+        // Level 0 (Main Numbering: 1., 2., 3.)
+        CTLvl lvl0 = abstractNum.addNewLvl();
+        lvl0.setIlvl(BigInteger.ZERO);
+        lvl0.addNewNumFmt().setVal(STNumberFormat.DECIMAL);
+        lvl0.addNewLvlText().setVal("%1.");
+        lvl0.addNewStart().setVal(BigInteger.ONE);
+        lvl0.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(360)); // Indentation for level 0
+        
+        CTRPr rPr = lvl0.addNewRPr(); // Create a run properties section
+        CTFonts fonts = rPr.addNewRFonts();
+        fonts.setAscii("Times New Roman");
+        fonts.setHAnsi("Times New Roman");
+        rPr.addNewSz().setVal(BigInteger.valueOf(24)); // Font size uses half-points
 
-	    // Level 0 (Main Numbering: 1., 2., 3.)
-	    CTLvl lvl0 = abstractNum.addNewLvl();
-	    lvl0.setIlvl(BigInteger.ZERO);
-	    lvl0.addNewNumFmt().setVal(STNumberFormat.DECIMAL);
-	    lvl0.addNewLvlText().setVal("%1.");
-	    lvl0.addNewStart().setVal(BigInteger.ONE);
-	    lvl0.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(360)); // Indentation for level 0
-	    
-	    CTRPr rPr = lvl0.addNewRPr(); // Create a run properties section
-	    CTFonts fonts = rPr.addNewRFonts();
-	    fonts.setAscii("Times New Roman");
-	    fonts.setHAnsi("Times New Roman");
-	    rPr.addNewSz().setVal(BigInteger.valueOf(24)); // Font size uses half-points
+        // Level 1 (Sub-numbering: a., b., c.)
+        CTLvl lvl1 = abstractNum.addNewLvl();
+        lvl1.setIlvl(BigInteger.ONE);
+        lvl1.addNewNumFmt().setVal(STNumberFormat.LOWER_LETTER);
+        lvl1.addNewLvlText().setVal("%2.");
+        lvl1.addNewStart().setVal(BigInteger.ONE);
+        lvl1.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(720));
+        
+        CTRPr rPr1 = lvl1.addNewRPr();
+        CTFonts fonts1 = rPr1.addNewRFonts();
+        fonts1.setAscii("Times New Roman");
+        fonts1.setHAnsi("Times New Roman");
+        rPr1.addNewSz().setVal(BigInteger.valueOf(24));
 
-	    // Level 1 (Sub-numbering: a., b., c.)
-	    CTLvl lvl1 = abstractNum.addNewLvl();
-	    lvl1.setIlvl(BigInteger.ONE);
-	    lvl1.addNewNumFmt().setVal(STNumberFormat.LOWER_LETTER);
-	    lvl1.addNewLvlText().setVal("%2.");
-	    lvl1.addNewStart().setVal(BigInteger.ONE);
-	    lvl1.addNewPPr().addNewInd().setLeft(BigInteger.valueOf(720));
-	    
-	    CTRPr rPr1 = lvl1.addNewRPr();
-	    CTFonts fonts1 = rPr1.addNewRFonts();
-	    fonts1.setAscii("Times New Roman");
-	    fonts1.setHAnsi("Times New Roman");
-	    rPr1.addNewSz().setVal(BigInteger.valueOf(24));
+        XWPFAbstractNum xwpfAbstractNum = new XWPFAbstractNum(abstractNum);
+        BigInteger abstractNumID = numbering.addAbstractNum(xwpfAbstractNum);
+        return numbering.addNum(abstractNumID).toString(); // Returns the numId
+    }
 
-	    XWPFAbstractNum xwpfAbstractNum = new XWPFAbstractNum(abstractNum);
-	    BigInteger abstractNumID = numbering.addAbstractNum(xwpfAbstractNum);
-	    return numbering.addNum(abstractNumID).toString(); // Returns the numId
-	}
+    // Function to add a numbered list paragraph with proper indentation
+    private static void addNumberedParagraph(XWPFDocument document, String beforeBold, String boldText, String afterBold, String numId, int level) {
+    	XWPFParagraph paragraph = document.createParagraph();
+        paragraph.setNumID(new BigInteger(numId)); // Apply numbering
+        paragraph.setNumILvl(BigInteger.valueOf(level)); // Set level (0 = main, 1 = sub-item)
+        paragraph.setSpacingAfter(0);
+        paragraph.setSpacingBetween(1, LineSpacingRule.AUTO); 
+        
+        // Text before bolding
+        XWPFRun run1 = paragraph.createRun();
+        run1.setFontFamily("Times New Roman");
+        run1.setFontSize(12);
+        run1.setText(beforeBold);
 
-	/**
-	 * Adds a numbered paragraph to the document with optional bold text in the middle.
-	 *
-	 * @param document   The document to modify.
-	 * @param beforeBold Text to appear before the bolded segment.
-	 * @param boldText   The bolded portion of the sentence.
-	 * @param afterBold  Text to appear after the bolded segment.
-	 * @param numId      The numbering style identifier (created via {@link #createNumberingStyle}).
-	 * @param level      The numbering level (0 for main, 1 for sub-items).
-	 */
-	private static void addNumberedParagraph(XWPFDocument document, String beforeBold, String boldText, String afterBold, String numId, int level) {
-		XWPFParagraph paragraph = document.createParagraph();
-	    paragraph.setNumID(new BigInteger(numId)); // Apply numbering
-	    paragraph.setNumILvl(BigInteger.valueOf(level)); // Set level (0 = main, 1 = sub-item)
-	    paragraph.setSpacingAfter(0);
-	    paragraph.setSpacingBetween(1, LineSpacingRule.AUTO); 
-	    
-	    // Text before bolding
-	    XWPFRun run1 = paragraph.createRun();
-	    run1.setFontFamily("Times New Roman");
-	    run1.setFontSize(12);
-	    run1.setText(beforeBold);
+        // Bold text
+        XWPFRun boldRun = paragraph.createRun();
+        boldRun.setFontFamily("Times New Roman");
+        boldRun.setFontSize(12);
+        boldRun.setBold(true); // Make bold
+        boldRun.setText(boldText);
 
-	    // Bold text
-	    XWPFRun boldRun = paragraph.createRun();
-	    boldRun.setFontFamily("Times New Roman");
-	    boldRun.setFontSize(12);
-	    boldRun.setBold(true); // Make bold
-	    boldRun.setText(boldText);
-
-	    // Normal text after bold
-	    XWPFRun run2 = paragraph.createRun();
-	    run2.setFontFamily("Times New Roman");
-	    run2.setFontSize(12);
-	    run2.setText(afterBold);       
-	}
-
-	/**
-	 * Adds a simple numbered paragraph to the document with no bolded text.
-	 *
-	 * @param document The document to modify.
-	 * @param noBold   The full text of the paragraph.
-	 * @param numId    The numbering style identifier.
-	 * @param level    The numbering level (0 for main, 1 for sub-items).
-	 */
-	private static void addNumberedParagraph(XWPFDocument document, String noBold, String numId, int level) {
-	    addNumberedParagraph(document, noBold, "", "", numId, level);
-	}
+        // Normal text after bold
+        XWPFRun run2 = paragraph.createRun();
+        run2.setFontFamily("Times New Roman");
+        run2.setFontSize(12);
+        run2.setText(afterBold);       
+    }
+    
+    // Overloaded function for cases without bold text
+    private static void addNumberedParagraph(XWPFDocument document, String noBold, String numId, int level) {
+        addNumberedParagraph(document, noBold, "", "", numId, level);
+    }
 
 }
-
 

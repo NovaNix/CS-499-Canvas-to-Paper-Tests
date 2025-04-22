@@ -35,6 +35,7 @@ public class LabelWriter
 	private final XWPFDocument document;
 	
 	
+	
 	/**
      * Constructs a LabelWriter for the given document.
      * @param document The XWPFDocument to which labels will be written.
@@ -205,7 +206,7 @@ public class LabelWriter
 				case "u" -> processElements(element.childNodes(), paragraph, bold, italic, true, color, inLine);
 				case "br" -> paragraph.createRun().addBreak();
 				case "p" -> {
-					if(!inLine) 
+					if(!inLine)
 					{
 						XWPFParagraph newParagraph = document.createParagraph();
 						processElements(element.childNodes(), newParagraph, bold, italic, underline, color, inLine);
