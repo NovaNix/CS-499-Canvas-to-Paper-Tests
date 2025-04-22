@@ -2,7 +2,6 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
-import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
@@ -14,7 +13,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.ButtonGroup;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.GridBagLayout;
@@ -67,8 +65,8 @@ public class ExportWordDialog
      */
     private void createExportFileFrame()
     {
-        exportFrame = new JFrame("Export File");
-        exportFrame.setSize(435, 340);
+        exportFrame = new JFrame("Export Quiz");
+        exportFrame.setSize(465, 400);
                 
         // contains labelPanel, radioButtonPanel, filePanel, and exportButtonPanel
         JPanel exportPanel = new JPanel(new GridBagLayout());
@@ -83,7 +81,7 @@ public class ExportWordDialog
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 0, 0, 75);
+        labelConstraint.insets = new Insets(0, 0, 0, 122);
         exportPanel.add(labelPanel, labelConstraint);
                 
         // places radioButtonPanel below labelPanel on exportPanel
@@ -91,7 +89,7 @@ public class ExportWordDialog
         buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonConstraint.gridx = 0;
         buttonConstraint.gridy = 2;
-        buttonConstraint.insets = new Insets(0, 0, 5, 200);
+        buttonConstraint.insets = new Insets(0, 0, 10, 250);
         exportPanel.add(radioButtonPanel, buttonConstraint);
                 
         // places filePanel below radioButtonPanel on exportPanel
@@ -99,6 +97,7 @@ public class ExportWordDialog
         fileConstraint.fill = GridBagConstraints.HORIZONTAL;
         fileConstraint.gridx = 0;
         fileConstraint.gridy = 3;
+        fileConstraint.insets = new Insets(0, 0, 30, 0);
         exportPanel.add(filePanel, fileConstraint);
                    
         // places exportButtonPanel at the bottmo of exportPanel
@@ -143,7 +142,7 @@ public class ExportWordDialog
         textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         textFieldConstraint.gridx = 1;
         textFieldConstraint.gridy = 0;
-        textFieldConstraint.insets = new Insets(0, 10, 5, 0);
+        textFieldConstraint.insets = new Insets(0, 10, 0, 0);
         exportPanel.add(namePanel, textFieldConstraint);
                 
         // contains quizName and typeLabel
@@ -219,7 +218,7 @@ public class ExportWordDialog
         buttonPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonPanelConstraint.gridx = 0;
         buttonPanelConstraint.gridy = 2;
-        buttonPanelConstraint.insets = new Insets(0, 0, 8, 167);
+        buttonPanelConstraint.insets = new Insets(0, 0, 8, 233);
         fileAttachPanel.add(buttonPanel, buttonPanelConstraint);
         
         // places replacementPanel below buttonPanel
@@ -258,7 +257,7 @@ public class ExportWordDialog
         referenceLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         referenceLabelConstraint.gridx = 0;
         referenceLabelConstraint.gridy = 6;
-        referenceLabelConstraint.insets = new Insets(0, 6, 5, 0);
+        referenceLabelConstraint.insets = new Insets(0, 6, 0, 0);
         fileAttachPanel.add(referenceLabel, referenceLabelConstraint);
 
         // Reference text field
@@ -276,7 +275,6 @@ public class ExportWordDialog
         referenceButtonConstraint.gridx = 2;
         referenceButtonConstraint.gridy = 7;
         fileAttachPanel.add(referenceButtonPanel, referenceButtonConstraint);
-
                                 
         return fileAttachPanel;            
     }
@@ -291,7 +289,7 @@ public class ExportWordDialog
     {
         templateTextField = new JTextField();
         templateTextField.setFocusable(false);
-        templateTextField.setPreferredSize(new Dimension(290, 22));
+        templateTextField.setPreferredSize(new Dimension(330, 22));
         JPanel tempPanel = new JPanel();
         tempPanel.add(templateTextField);
              
@@ -306,7 +304,7 @@ public class ExportWordDialog
     {
         referenceTextField = new JTextField();
         referenceTextField.setFocusable(false);
-        referenceTextField.setPreferredSize(new Dimension(290, 22));
+        referenceTextField.setPreferredSize(new Dimension(330, 22));
         JPanel tempPanel = new JPanel();
         tempPanel.add(referenceTextField);
              
@@ -322,7 +320,7 @@ public class ExportWordDialog
     private JPanel locationTextField()
     {
         locationTextField = new JTextField();
-        locationTextField.setPreferredSize(new Dimension(290, 22));
+        locationTextField.setPreferredSize(new Dimension(330, 22));
         locationTextField.setFocusable(false);
         JPanel locationPanel = new JPanel();
         locationPanel.add(locationTextField);
@@ -333,8 +331,7 @@ public class ExportWordDialog
             @Override
             public void insertUpdate(DocumentEvent e)
             {
-                // if text is in the location field enable
-                // the export button
+                // if text is in the location field enable the export button
                 exportButton.setEnabled(true);
             }
             
@@ -366,9 +363,7 @@ public class ExportWordDialog
         testButton = new JRadioButton("Test");
         testButton.setSelected(true);
         keyButton = new JRadioButton("Key");
-        ButtonGroup group = new ButtonGroup();
-        group.add(testButton);
-        group.add(keyButton);
+        keyButton.setSelected(true);
                 
         // contains testButton and keyButton
         JPanel buttonPanel = new JPanel(new GridBagLayout());

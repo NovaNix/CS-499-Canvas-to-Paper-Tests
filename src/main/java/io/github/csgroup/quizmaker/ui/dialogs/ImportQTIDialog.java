@@ -53,10 +53,10 @@ public class ImportQTIDialog
      */
     private void importFileFrame()
     {            
-        importFrame = new JFrame("Import File");
-        importFrame.setSize(430, 220);
+        importFrame = new JFrame("Import QTI File");
+        importFrame.setSize(450, 240);
                 
-        JLabel fileLabel = new JLabel("File (DISCLAIMER Question banks cannot be imported from Canvas): ");
+        JLabel fileLabel = new JLabel("File (Question banks cannot be imported from Canvas): ");
                        
         // contains importButtonPanel and importFilePanel
         JPanel importPanel = new JPanel(new GridBagLayout());
@@ -68,7 +68,7 @@ public class ImportQTIDialog
         fileLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         fileLabelConstraint.gridx = 0;
         fileLabelConstraint.gridy = 0;
-        fileLabelConstraint.insets = new Insets(40, 5, 0, 0);
+        fileLabelConstraint.insets = new Insets(60, 15, 0, 0);
         importPanel.add(fileLabel, fileLabelConstraint);
                 
         // places importFilePanel at the top of the panel
@@ -76,7 +76,7 @@ public class ImportQTIDialog
         importPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
         importPanelConstraint.gridx = 0;
         importPanelConstraint.gridy = 1;
-        importPanelConstraint.insets = new Insets(0, 0, 35, 0);
+        importPanelConstraint.insets = new Insets(0, 10, 45, 0);
         importPanel.add(filePanel, importPanelConstraint);
         
         // places importButtonPanel at the bottom of the panel
@@ -98,7 +98,7 @@ public class ImportQTIDialog
     private JPanel importFilePanel()
     {
         JTextField fileTextField = new JTextField();
-        fileTextField.setPreferredSize(new Dimension(280, 22));
+        fileTextField.setPreferredSize(new Dimension(310, 22));
         fileTextField.setFocusable(false);
         JPanel textPanel = new JPanel();
         textPanel.add(fileTextField);
@@ -119,7 +119,7 @@ public class ImportQTIDialog
         attachButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         attachButtonConstraint.gridx = 1;
         attachButtonConstraint.gridy = 0;
-        attachButtonConstraint.insets = new Insets(0, 5, 0, 30);
+        attachButtonConstraint.insets = new Insets(0, 5, 0, 13);
         importFilePanel.add(attachFileButton, attachButtonConstraint);
         
         return importFilePanel;

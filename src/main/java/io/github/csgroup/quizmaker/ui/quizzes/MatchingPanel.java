@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 import java.awt.CardLayout;
+import java.util.List;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -60,6 +61,10 @@ public class MatchingPanel extends JComponent
     private boolean edit;
     private final int defaultAnswers = 4;
     private JButton removeButton;
+    private int editedRow;
+    private Question editQuestion;
+    private String leftAnswers[];
+    private String rightAnswers[];
     private final int numAnswers = 15;
     
     public MatchingPanel(JFrame frame, JTextArea matchQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -93,6 +98,7 @@ public class MatchingPanel extends JComponent
     public void isEditable(boolean result, int row)
     {
         edit = result;
+        editedRow = row;
         if (edit == true)
         {
             // populate the dialog with the question's information
@@ -144,14 +150,14 @@ public class MatchingPanel extends JComponent
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 3, 0, 140);
+        labelConstraint.insets = new Insets(0, 3, 0, 130);
         labelsPanel.add(answerLabel, labelConstraint); 
         
         // places abetCheckBox on the right side of answerLabel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
-        checkBoxConstraint.insets = new Insets(0, 85, 0, 0);
+        checkBoxConstraint.insets = new Insets(0, 150, 0, 0);
         labelsPanel.add(abetCheckBox, checkBoxConstraint); 
                 
         return labelsPanel;
@@ -169,12 +175,12 @@ public class MatchingPanel extends JComponent
         for (int i = 0; i < numAnswers; i++)
         {
             rightTextFields[i] = new JTextField();
-            rightTextFields[i].setPreferredSize(new Dimension(175, 25));
+            rightTextFields[i].setPreferredSize(new Dimension(197, 25));
             rightPanels[i] = new JPanel();
             rightPanels[i].add(rightTextFields[i]);
             
             leftTextFields[i] = new JTextField();
-            leftTextFields[i].setPreferredSize(new Dimension(175, 25));
+            leftTextFields[i].setPreferredSize(new Dimension(197, 25));
             leftPanels[i] = new JPanel();
             leftPanels[i].add(leftTextFields[i]);
             // only display the first four text fields upon initialization
@@ -305,7 +311,7 @@ public class MatchingPanel extends JComponent
         addConstraint.fill = GridBagConstraints.HORIZONTAL;
         addConstraint.gridx = 0;
         addConstraint.gridy = 0;
-        addConstraint.insets = new Insets(0, 210, 0, 2);
+        addConstraint.insets = new Insets(0, 225, 0, 2);
         buttonPanel.add(addButton, addConstraint);
         
         removeConstraint.fill = GridBagConstraints.HORIZONTAL;
@@ -355,20 +361,33 @@ public class MatchingPanel extends JComponent
 
             try
             {
-                if (newQuiz != null)
+                // the point value of the question
+                String pointsString = pointsValue.getText();
+                float floatPoints = Float.parseFloat(pointsString);
+                
+                // adds a quiz question
+                if ((newQuiz != null) && (edit == false))
                 {
-                    // the point value of the question
-                    String pointsString = pointsValue.getText();
-                    float floatPoints = Float.parseFloat(pointsString);
                     MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel, floatPoints);
                     matchingQuestion.setLabel(new Label(questionString));
                     addMatchingQuestion(matchingQuestion);
                 }
-                if (questionBank != null)
+                // updates a quiz question
+                if ((newQuiz != null) && (edit == true))
+                {
+                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                }
+                // adds a bank question
+                if ((questionBank != null) && (edit == false))
                 {
                     MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel);
                     matchingQuestion.setLabel(new Label(questionString));
                     addMatchingQuestion(matchingQuestion);
+                }
+                // updates a bank question
+                if ((questionBank != null) && (edit == true))
+                {
+                    updateBankQuestion(questionLabel, questionString);    
                 }
                     
                 mainFrame.dispose();
@@ -390,7 +409,7 @@ public class MatchingPanel extends JComponent
         // populate the quiz's question information
         if (newQuiz != null)
         {
-            Question editQuestion = newQuiz.getQuestion(index);
+            editQuestion = newQuiz.getQuestion(index);
             
             questionTitle.setText(editQuestion.getTitle());           
             pointsValue.setText(Float.toString(editQuestion.getPoints()));
@@ -408,8 +427,27 @@ public class MatchingPanel extends JComponent
             question.setText(questionLabel.asText());
             
             String answer = editQuestion.getAnswerString();
-            populateAnswers(answer); 
+            populateAnswers(answer);            
+        }
+        if (questionBank != null)
+        {
+            editQuestion = questionBank.getQuestion(index);            
+            questionTitle.setText(editQuestion.getTitle());           
             
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer);   
         }
     }
     
@@ -428,8 +466,8 @@ public class MatchingPanel extends JComponent
             hidePanels(answers.length);
         }
         
-        String[] leftAnswers = new String[answers.length];
-        String[] rightAnswers = new String[answers.length];
+        leftAnswers = new String[answers.length];
+        rightAnswers = new String[answers.length];
         for (int i = 0; i < answers.length; i++)
         {
             int spaceIndex = answers[i].indexOf(" ");
@@ -709,21 +747,7 @@ public class MatchingPanel extends JComponent
      */
     private void addMatchingQuestion(MatchingQuestion question)
     {
-        for (int i = 0; i < numAnswers; i++)
-        {
-            // get the answers
-            String leftAnswer = leftTextFields[i].getText();
-            String rightAnswer = rightTextFields[i].getText();
-            
-            // check to see if answer fields are empty
-            boolean leftFieldEmpty = leftAnswer.isEmpty();
-            boolean rightFieldEmpty = rightAnswer.isEmpty();
-            // if the text fields aren't empty and they're visible add the answer to the quiz
-            if ((leftFieldEmpty == false) && (rightFieldEmpty == false) && (leftPanels[i].isVisible() == true))
-            {
-                question.addAnswer(new MatchingAnswer(i, leftAnswer, rightAnswer));
-            }
-        }
+        addAnswers(question);
         if (newQuiz != null)
         {
             newQuiz.addQuestion(question);
@@ -756,7 +780,94 @@ public class MatchingPanel extends JComponent
         }
         populateTable();
     }
-     
+    
+    /**
+     * Updates a quiz question
+     * 
+     * @param updateTitle the question title
+     * @param updatePoints the points amount for the question
+     * @param updateQuestion the question
+     */
+    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    {
+        MatchingQuestion newQuestion = (MatchingQuestion) editQuestion;        
+        newQuestion.setPoints(updatePoints);
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        clearAnswers(newQuestion);
+        addAnswers(newQuestion);
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }  
+    
+    /**
+     * Updates a bank question
+     * 
+     * @param updateTitle the question title
+     * @param updateQuestion the question
+     */
+    private void updateBankQuestion(String updateTitle, String updateQuestion)
+    {
+        MatchingQuestion newQuestion = (MatchingQuestion) editQuestion;        
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        clearAnswers(newQuestion);
+        addAnswers(newQuestion);
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+        
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }  
+    
+    /**
+     * Adds answers to a multiple choice question
+     * 
+     * @param question 
+     */
+    private void addAnswers(MatchingQuestion question)
+    {
+        for (int i = 0; i < numAnswers; i++)
+        {
+            // get the answers
+            String leftAnswer = leftTextFields[i].getText();
+            String rightAnswer = rightTextFields[i].getText();
+            
+            // check to see if answer fields are empty
+            boolean leftFieldEmpty = leftAnswer.isEmpty();
+            boolean rightFieldEmpty = rightAnswer.isEmpty();
+            // if the text fields aren't empty and they're visible add the answer to the quiz
+            if ((leftFieldEmpty == false) && (rightFieldEmpty == false) && (leftPanels[i].isVisible() == true))
+            {
+                question.addAnswer(new MatchingAnswer(i, leftAnswer, rightAnswer));
+            }
+        }
+    }
+    
+    private void clearAnswers(MatchingQuestion mQuestion)
+    {
+        List<MatchingAnswer> answers = mQuestion.getAnswers();
+        for (int i = 0; i < answers.size(); i++)
+        {
+            mQuestion.removeAnswer(answers.get(i));
+        }
+    }
+        
     /**
      * Adds the question to the table 
      */

@@ -54,7 +54,7 @@ public class GUIManager
         	homeFrame.setIconImage(icon);
         
         //size of the JFrame (width, height)
-        homeFrame.setSize(775, 625);
+        homeFrame.setSize(930, 694);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();
@@ -70,7 +70,12 @@ public class GUIManager
         menuBar.add(fileMenu);
             
         // "About" menu
-        JMenu aboutMenu = new JMenu("About");               
+        JMenu aboutMenu = new JMenu("About");    
+        JMenuItem attributeFileItem = new JMenuItem("Icon attribute");
+        JMenuItem creditsFileItem = new JMenuItem("Credits");           
+        // add items to the JMenu fileMenu
+        aboutMenu.add(creditsFileItem);    
+        aboutMenu.add(attributeFileItem);  
         // add JMenu "About" to the JMenuBar menuBar
         menuBar.add(aboutMenu);
         
@@ -88,9 +93,9 @@ public class GUIManager
         tabs.addTab("Quizzes", quizPanel);
         tabs.addTab("Question Banks", bankPanel);
         // setting the looks and feel of the tabs
-        tabs.setBackgroundAt(0, new Color(237, 237, 237));
-        tabs.setBackgroundAt(1, new Color(237, 237, 237));
-        UIManager.put("TabbedPane.contentAreaColor", new Color(237, 237, 237));
+        tabs.setBackgroundAt(0, new Color(242, 242, 242));
+        tabs.setBackgroundAt(1, new Color(242, 242, 242));
+        UIManager.put("TabbedPane.contentAreaColor", new Color(242, 242, 242));
         UIManager.put("TabbedPane.highlight", Color.GRAY);
         tabs.setUI(new BasicTabbedPaneUI());
         // add the tabs to homeFrame

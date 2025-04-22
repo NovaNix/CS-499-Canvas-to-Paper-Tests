@@ -65,11 +65,20 @@ public class QuestionsDialog
         }
     }
     
-    public QuestionsDialog(QuestionBank questionBank, QuestionTable questionTable)
+    public QuestionsDialog(QuestionBank questionBank, QuestionTable questionTable, boolean edit, int row)
     {
         table = questionTable;
         bank = questionBank;
+        editResult = edit;
+        index = row;
+        
         questionDialog();
+        if (editResult == true)
+        {
+            Question bankQuestion = bank.getQuestion(index);            
+            String bankClassName = (bankQuestion.getClass()).getName();
+            editQuestion(bankClassName);
+        }
     }  
     
     /**
@@ -79,7 +88,7 @@ public class QuestionsDialog
     private void questionDialog()
     {
         questionFrame = new JFrame("Questions");
-        questionFrame.setSize(460, 465);
+        questionFrame.setSize(490, 475);
         
         // contains questionPanel and answerPanel
         JPanel questionDialogPanel = new JPanel(new GridBagLayout());
@@ -163,7 +172,7 @@ public class QuestionsDialog
         question.setLineWrap(true);
         question.setWrapStyleWord(true);
         JScrollPane questionScrollPane = new JScrollPane(question);
-        questionScrollPane.setPreferredSize(new Dimension(380, 130));
+        questionScrollPane.setPreferredSize(new Dimension(425, 150));
         JPanel panePanel = new JPanel();
         panePanel.add(questionScrollPane);
         
@@ -230,12 +239,13 @@ public class QuestionsDialog
                
         if (quiz != null)
         {
-            checkBoxConstraint.insets = new Insets(0, 0, 0, 22);
+            checkBoxConstraint.insets = new Insets(0, 0, 0, 48);
             
             // places pointsLabel to the right of questionTypesList
             labelConstraint.fill = GridBagConstraints.HORIZONTAL;
             labelConstraint.gridx = 2;
             labelConstraint.gridy = 0;
+            labelConstraint.insets = new Insets(0, 25, 0, 0);
             informationPanel.add(pointsLabel, labelConstraint);
             
             // places pointsPanel to the right of pointsLabel
@@ -246,8 +256,8 @@ public class QuestionsDialog
         }
         if (bank != null)
         {
-            titleConstraint.insets = new Insets(0, 0, 0, 42);
-            checkBoxConstraint.insets = new Insets(0, 60, 0, 6);
+            titleConstraint.insets = new Insets(0, 0, 0, 70);
+            checkBoxConstraint.insets = new Insets(0, 80, 0, 6);
         }
         
         informationPanel.add(titlePanel, titleConstraint);

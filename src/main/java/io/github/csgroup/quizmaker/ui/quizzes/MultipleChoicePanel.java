@@ -62,6 +62,8 @@ public class MultipleChoicePanel extends JComponent
     private final int numAnswers = 10;
     private final int defaultAnswers = 4;
     private QuestionBank questionBank;
+    private Question editQuestion;
+    private int editedRow;
     
     public MultipleChoicePanel(JFrame frame, JTextArea mcQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
     {
@@ -94,10 +96,11 @@ public class MultipleChoicePanel extends JComponent
     public void isEditable(boolean result, int row)
     {
         edit = result;
+        editedRow = row;
         if (edit == true)
         {
             // populate the dialog with the question's information
-            editQuestion(row);
+            editQuestion(editedRow);
         }
     }
     
@@ -123,7 +126,7 @@ public class MultipleChoicePanel extends JComponent
         answersConstraint.fill = GridBagConstraints.HORIZONTAL;
         answersConstraint.gridx = 0;
         answersConstraint.gridy = 1;
-        answersConstraint.insets = new Insets(0, 0, 0, 175);
+        //answersConstraint.insets = new Insets(0, 0, 0, 195);
         this.add(answersPanel, answersConstraint);   
     }
     
@@ -146,14 +149,14 @@ public class MultipleChoicePanel extends JComponent
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 22, 0, 116);
+        labelConstraint.insets = new Insets(0, 24, 0, 132);
         labelsPanel.add(answerLabel, labelConstraint); 
         
         // places abetCheckBox on the right side of answerLabel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
-        checkBoxConstraint.insets = new Insets(0, 90, 0, 0);
+        checkBoxConstraint.insets = new Insets(0, 130, 0, 0);
         labelsPanel.add(abetCheckBox, checkBoxConstraint); 
                 
         return labelsPanel;
@@ -169,7 +172,7 @@ public class MultipleChoicePanel extends JComponent
         for (int i = 0; i < numAnswers; i++)
         {
             answerFields[i] = new JTextField();
-            answerFields[i].setPreferredSize(new Dimension(185, 25));
+            answerFields[i].setPreferredSize(new Dimension(200, 25));
             answerFields[i].setText(null);
             answerPanels[i] = new JPanel();
             answerPanels[i].add(answerFields[i]);
@@ -228,6 +231,7 @@ public class MultipleChoicePanel extends JComponent
             textFieldConstraints[i].fill = GridBagConstraints.HORIZONTAL;
             textFieldConstraints[i].gridx = 1;
             textFieldConstraints[i].gridy = 0;
+            textFieldConstraints[i].insets = new Insets(0, 0, 0, 200);
             rowPanels[i].add(answerPanels[i], textFieldConstraints[i]);            
         }
     }
@@ -302,7 +306,7 @@ public class MultipleChoicePanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 11;
-        addButtonConstraint.insets = new Insets(0, 175, 0, 0);
+        //addButtonConstraint.insets = new Insets(0, 195, 0, 0);
         answersPanel.add(buttonPanel, addButtonConstraint);
                       
         return answersPanel;
@@ -327,13 +331,14 @@ public class MultipleChoicePanel extends JComponent
         addConstraint.fill = GridBagConstraints.HORIZONTAL;
         addConstraint.gridx = 0;
         addConstraint.gridy = 0;
-        addConstraint.insets = new Insets(0, 20, 0, 2);
+        addConstraint.insets = new Insets(0, 0, 0, 2);
         buttonPanel.add(addButton, addConstraint);
         
         // places removeButton on the right side of buttonPanel
         removeConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeConstraint.gridx = 1;
         removeConstraint.gridy = 0;
+        removeConstraint.insets = new Insets(0, 0, 0, 190);
         buttonPanel.add(removeButton, removeConstraint);
         
         // listens for when addButton is selected
@@ -382,20 +387,33 @@ public class MultipleChoicePanel extends JComponent
 
             try 
             {
-                if (newQuiz != null)
-                {
-                    // the point value of the question
-                    String pointsString = pointsValue.getText();
-                    float floatPoints = Float.parseFloat(pointsString);                
+                // the point value of the question
+                String pointsString = pointsValue.getText();
+                float floatPoints = Float.parseFloat(pointsString);
+                
+                // add quiz question
+                if ((newQuiz != null) && (edit == false))
+                {               
                     MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
                     mcQuestion.setLabel(new Label(questionString));
                     addMCQuestion(mcQuestion);
                 }
-                if (questionBank != null)
+                // update quiz question
+                if ((newQuiz != null) && (edit == true))
+                { 
+                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                }
+                // add bank question
+                if ((questionBank != null) && (edit == false))
                 {
                     MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel);
                     mcQuestion.setLabel(new Label(questionString));
                     addMCQuestion(mcQuestion);
+                }
+                // update bank question
+                if ((questionBank != null) && (edit == true))
+                {
+                    updateBankQuestion(questionLabel, questionString);
                 }
                 
                 mainFrame.dispose();  
@@ -418,10 +436,31 @@ public class MultipleChoicePanel extends JComponent
         // populate the quiz's question information
         if (newQuiz != null)
         {
-            Question editQuestion = newQuiz.getQuestion(index);
+            editQuestion = newQuiz.getQuestion(index);
             
             questionTitle.setText(editQuestion.getTitle());            
             pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer); 
+        }
+        // populate the bank's question information
+        if (questionBank != null)
+        {
+            editQuestion = questionBank.getQuestion(index);            
+            questionTitle.setText(editQuestion.getTitle());            
             
             if (editQuestion.isAbet() == true)
             {
@@ -734,26 +773,7 @@ public class MultipleChoicePanel extends JComponent
      */
     private void addMCQuestion(MultipleChoiceQuestion question)
     {
-        for (int i = 0; i < numAnswers; i++)
-        {
-            // get each answer choice
-            String answerChoice = answerFields[i].getText();                    
-            boolean empty = answerChoice.isEmpty();
-            // if the text field isn't empty and it's visible add the answer 
-            // choice to the quiz
-            if ((empty == false) && (answerPanels[i].isVisible() == true))
-            {
-                // get the correct answer
-                if (radioButtons[i].isSelected() == true)
-                {
-                    question.addAnswer(new SimpleAnswer(i, answerChoice), true);
-                }
-                else
-                {
-                    question.addAnswer(new SimpleAnswer(i, answerChoice), false);
-                }
-            }
-        }
+        addAnswers(question);
         if (newQuiz != null)
         {
             newQuiz.addQuestion(question);
@@ -783,6 +803,92 @@ public class MultipleChoicePanel extends JComponent
             }
         }
         populateTable();
+    }
+    
+    /**
+     * Updates a quiz question
+     * 
+     * @param updateTitle the question title
+     * @param updatePoints the points amount for the question
+     * @param updateQuestion the question
+     */
+    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    {
+        MultipleChoiceQuestion newQuestion = (MultipleChoiceQuestion) editQuestion;
+        newQuestion.setPoints(updatePoints);
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+
+        newQuestion.clearAnswers();
+        addAnswers(newQuestion);
+        
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+        
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }
+    
+    /**
+     * Updates a bank question
+     * 
+     * @param updateTitle the question title
+     * @param updateQuestion the question
+     */
+    private void updateBankQuestion(String updateTitle, String updateQuestion)
+    {
+        MultipleChoiceQuestion newQuestion = (MultipleChoiceQuestion) editQuestion;
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+
+        newQuestion.clearAnswers();
+        addAnswers(newQuestion);
+        
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }
+    
+    /**
+     * Adds answers to a multiple choice question
+     * 
+     * @param question 
+     */
+    private void addAnswers(MultipleChoiceQuestion question)
+    {
+        // get each answer
+        for (int i = 0; i < numAnswers; i++)
+        {
+            // get each answer choice
+            String answerChoice = answerFields[i].getText();                    
+            boolean empty = answerChoice.isEmpty();
+            // if the text field isn't empty and it's visible add the answer 
+            // choice to the quiz
+            if ((empty == false) && (answerPanels[i].isVisible() == true))
+            {
+                // get the correct answer
+                if (radioButtons[i].isSelected() == true)
+                {
+                    question.addAnswer(new SimpleAnswer(i, answerChoice), true);
+                }
+                else
+                {
+                    question.addAnswer(new SimpleAnswer(i, answerChoice), false);
+                }
+            }
+        }
     }
        
     /**

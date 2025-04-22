@@ -8,6 +8,7 @@ import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
+import java.awt.Color;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -21,6 +22,7 @@ import javax.swing.JScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.BorderFactory;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.ListModel;
 import javax.swing.JComponent;
@@ -63,7 +65,9 @@ public class BankPanel extends JComponent
     private void bankPanel()
     {
         JPanel containerPanel = new JPanel();
-        containerPanel.setPreferredSize(new Dimension(522, 535));
+        //522, 535
+        containerPanel.setPreferredSize(new Dimension(648, 622));
+        //containerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
         
         // contains bankNamePanel and questionTable
         this.setLayout(new GridBagLayout());
@@ -100,7 +104,7 @@ public class BankPanel extends JComponent
         bankNames = project.getBankModel();
         bankList = new JList(bankNames);  
         JScrollPane bankScrollPane = new JScrollPane(bankList);
-        bankScrollPane.setPreferredSize(new Dimension(215, 455));
+        bankScrollPane.setPreferredSize(new Dimension(260, 537));
                 
         // contains quizBankLabel and bankScrollPane 
         JPanel bankPanel = new JPanel(new GridBagLayout());
@@ -173,16 +177,16 @@ public class BankPanel extends JComponent
         addButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         addButtonConstraint.gridx = 0;
         addButtonConstraint.gridy = 0;
-        addButtonConstraint.ipadx = 68;
-        addButtonConstraint.ipady = 3;
+        addButtonConstraint.ipadx = 108;
+        addButtonConstraint.ipady = 13;
         buttonPanel.add(addBankButton, addButtonConstraint);
         
         // places removeBankButton on the right side of buttonPanel
         removeButtonConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeButtonConstraint.gridx = 1;
         removeButtonConstraint.gridy = 0;
-        removeButtonConstraint.ipadx = 67;
-        removeButtonConstraint.ipady = 3;
+        removeButtonConstraint.ipadx = 108;
+        removeButtonConstraint.ipady = 13;
         buttonPanel.add(removeBankButton, removeButtonConstraint); 
                 
         // listens for when addBankButton is clicked 
@@ -236,16 +240,18 @@ public class BankPanel extends JComponent
     private JPanel bankTable()
     {        
         String[] bankTableHeaders = {"Questions", "Answers"};
-        int numRows = 29;
+        int numRows = 34;
                 
         bankTable = new QuestionTable(bankTableHeaders, numRows);
-        bankTable.setTableSize(520, 487);
+        //520, 487
+        bankTable.setTableSize(640, 572);
         bankTable.setTableRowHeight(16);
         bankTable.setVisible(false);
               
         JPanel tablePanel = new JPanel();
         tablePanel.add(bankTable); 
-        tablePanel.setPreferredSize(new Dimension(521, 490));
+        // 521, 490
+        tablePanel.setPreferredSize(new Dimension(641, 575));
         
         table = bankTable.getTable();
         
@@ -255,19 +261,25 @@ public class BankPanel extends JComponent
             { 
                 int index = bankList.getSelectedIndex();
                 QuestionBank bank = project.getBank(index);
+                int row = table.getSelectedRow();
+                Object value = bankTable.getValue(row, 0);
                 
                 // if the user double clicks the table show the dialog that allows them 
                 // to add a question
-                if (e.getClickCount() == 2)
+                if ((e.getClickCount() == 2) && (value != null))
                 {
-                    QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable);
+                    QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable, true, row);
                     questionDialog.show();
                 }    
+                if ((e.getClickCount() == 2) && (value == null))
+                {
+                    QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable, false, row);
+                    questionDialog.show();
+                }
                 // if the user right clicks the table allow them to add or delete
                 // a question
                 if (SwingUtilities.isRightMouseButton(e))
                 {
-                    int row = table.getSelectedRow();
                     if (row >= 0)
                     {
                         try
@@ -299,33 +311,45 @@ public class BankPanel extends JComponent
      */
     private JPopupMenu quizPopUpMenu(QuestionBank bank, Question question, int row)
     {
-        JPopupMenu quizMenu = new JPopupMenu();
+        JPopupMenu bankMenu = new JPopupMenu();
         
         JMenuItem addQuestionItem = new JMenuItem("Add question");
         JMenuItem removeQuestionItem = new JMenuItem("Remove question");
         removeQuestionItem.setEnabled(false);
+        JMenuItem editQuestionItem = new JMenuItem("Edit Question");
+        editQuestionItem.setEnabled(false);
         
-        quizMenu.add(addQuestionItem);
-        quizMenu.add(removeQuestionItem);
+        bankMenu.add(addQuestionItem);
+        bankMenu.add(editQuestionItem);
+        bankMenu.add(removeQuestionItem);
         
         Object value = bankTable.getValue(row, 0);
-        // if the user selects an empty row allow them to add a question
-        if ((bank.getQuestionCount() > 0) && (value != null))
+        // if the user selects a row with a question allow them to delete it 
+        if (bank.getQuestionCount() > 0 && (value != null))
         {
             removeQuestionItem.setEnabled(true);
             addQuestionItem.setEnabled(false);
+            editQuestionItem.setEnabled(true);
         }
-        // if the user selects a row with a question allow them to delete it 
-        if ((bank.getQuestionCount() > 0) && (value == null))
+        // if the user selects an empty row allow them to add a question
+        if (bank.getQuestionCount() > 0 && (value == null))
         {
             removeQuestionItem.setEnabled(false);
             addQuestionItem.setEnabled(true);
+            editQuestionItem.setEnabled(false);
         }
         
         // listens for when the "Add question" menu item is clicked
         addQuestionItem.addActionListener((ActionEvent e) -> {
-            // display the frame that allows the user to add a bank question
-            QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable);
+            // display the frame that allows the user to add a quiz question
+            QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable, false, row);
+            questionDialog.show();
+        });
+        
+        // listens for when the "Add question" menu item is clicked
+        editQuestionItem.addActionListener((ActionEvent e) -> {
+            // display the frame that allows the user to add a quiz question
+            QuestionsDialog questionDialog = new QuestionsDialog(bank, bankTable, true, row);
             questionDialog.show();
         });
         
@@ -337,7 +361,7 @@ public class BankPanel extends JComponent
             remove.show();
         });
         
-        return quizMenu;
+        return bankMenu;
     }
     
      /**
@@ -371,7 +395,7 @@ public class BankPanel extends JComponent
         nameConstraint.fill = GridBagConstraints.HORIZONTAL;
         nameConstraint.gridx = 1;
         nameConstraint.gridy = 0;
-        nameConstraint.insets = new Insets(0, 0, 0, 233);
+        nameConstraint.insets = new Insets(0, 0, 0, 358);
         bankLabelPanel.add(namePanel, nameConstraint);
         
         bankLabelPanel.setVisible(false);
