@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.text.DecimalFormat;
 
 import org.apache.poi.xwpf.usermodel.*;
@@ -36,6 +38,8 @@ public class QuestionWriter
 	
 	private final XWPFDocument document;
 	private final boolean isKey;
+	private final Set<Class<?>> questionTypesWritten = new HashSet<>();
+
 	
 	/**
 	 * Constructs a QuestionWriter for the given document.
@@ -67,6 +71,13 @@ public class QuestionWriter
 	 */
 	public void writeQuestion(Question q, int questionNumber) throws IOException 
 	{
+		Class<?> questionClass = q.getClass();
+		if (!questionTypesWritten.contains(questionClass)) 
+		{
+			writeInstructionsForQuestion(q);
+			questionTypesWritten.add(questionClass);
+		}
+		
 		switch (q) {
 		case WrittenResponseQuestion wr -> writeWrittenResponse(wr, questionNumber);
 		case FillInTheBlankQuestion fitb -> writeFillBlank(fitb, questionNumber);
@@ -76,6 +87,31 @@ public class QuestionWriter
 		}
 	}
 	
+	/**
+	 * Writes out instructions for a question if it is the first time that question type has been displayed
+	 * 
+	 * @param q The question that will be used to determine type
+	 * @throws IOException If writing fails
+	 */
+	private void writeInstructionsForQuestion(Question q) throws IOException {
+	    XWPFParagraph instructionParagraph = document.createParagraph();
+	    XWPFRun run = instructionParagraph.createRun();
+	    run.setBold(true);
+
+	    String instructionText = switch (q) {
+	        case MultipleChoiceQuestion __ -> "Select the best answer for each of the following multiple choice questions.";
+	        case MatchingQuestion __ -> "Match each item in the left column with the correct item in the right column.";
+	        case FillInTheBlankQuestion __ -> "Fill in the blanks with the correct words or phrases.";
+	        case WrittenResponseQuestion __ -> "Provide a written response to the following questions.";
+	        default -> null;
+	    };
+
+	    if (instructionText != null) {
+	        run.setText(instructionText);
+	    }
+	}
+
+
 	/**
 	 * Writes a {@link WrittenResponseQuestion} to the Word Document. Depending on the {@link ResponseLength},
 	 * the amount of page available to answer will change.
