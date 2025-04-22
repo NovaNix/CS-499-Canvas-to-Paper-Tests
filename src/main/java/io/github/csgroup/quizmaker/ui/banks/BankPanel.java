@@ -9,6 +9,8 @@ import io.github.csgroup.quizmaker.ui.dialogs.QuestionUsageDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
+
+import java.awt.BorderLayout;
 import java.awt.Color;
 
 import java.awt.Dimension;
@@ -20,6 +22,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -71,7 +75,8 @@ public class BankPanel extends JComponent
         //containerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
         
         // contains bankNamePanel and questionTable
-        this.setLayout(new GridBagLayout());
+        //this.setLayout(new GridBagLayout());
+        this.setLayout(new BorderLayout());
         GridBagConstraints listConstraint = new GridBagConstraints();
         GridBagConstraints tableConstraint = new GridBagConstraints();
         
@@ -81,7 +86,7 @@ public class BankPanel extends JComponent
         listConstraint.gridx = 0;
         listConstraint.gridy = 0;
         listConstraint.insets = new Insets(25, 3, 0, 0);
-        this.add(bankNamePanel, listConstraint);
+        //this.add(bankNamePanel, listConstraint);
         
         // places questionTable on the right of the component
         JPanel tablePanel = bankTablePanel();
@@ -89,7 +94,13 @@ public class BankPanel extends JComponent
         tableConstraint.fill = GridBagConstraints.HORIZONTAL;
         tableConstraint.gridx = 1;
         tableConstraint.gridy = 0;
-        this.add(containerPanel, tableConstraint);                
+        //this.add(containerPanel, tableConstraint);      
+        
+        var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, bankNamePanel, containerPanel);
+		splitPane.setOneTouchExpandable(false);
+		splitPane.setDividerLocation(260);
+		
+		this.add(splitPane, BorderLayout.CENTER);
     }
     
     /**
@@ -105,7 +116,7 @@ public class BankPanel extends JComponent
         bankNames = project.getBankModel();
         bankList = new JList(bankNames);  
         JScrollPane bankScrollPane = new JScrollPane(bankList);
-        bankScrollPane.setPreferredSize(new Dimension(260, 537));
+        bankScrollPane.setPreferredSize(new Dimension(260, 560));
                 
         // contains quizBankLabel and bankScrollPane 
         JPanel bankPanel = new JPanel(new GridBagLayout());
