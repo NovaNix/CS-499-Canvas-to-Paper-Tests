@@ -108,7 +108,7 @@ public class TemplateWriter {
 					XWPFParagraph headerPara = header.createParagraph();
 			    	headerPara.setAlignment(ParagraphAlignment.CENTER);
 			    	XWPFRun headerRun = headerPara.createRun();
-					headerRun.setText(quiz.getTitle());
+					headerRun.setText(quiz.getQuiz().getTitle());
 				}
 				for (XWPFParagraph p : header.getParagraphs()) 
 				{

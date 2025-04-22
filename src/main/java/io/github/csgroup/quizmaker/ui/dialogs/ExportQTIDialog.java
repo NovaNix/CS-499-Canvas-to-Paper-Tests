@@ -146,6 +146,10 @@ public class ExportQTIDialog
             {
                 exportButton.setEnabled(true);
                 String fileName = fileChooser.getSelectedFile().getName();
+                if(!fileName.toLowerCase().endsWith(".zip"))
+                {
+                	fileName += ".zip";
+                }
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
                 setPath(qtiFilePath);     
                 // display the file name in the text field

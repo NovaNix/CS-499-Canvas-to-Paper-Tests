@@ -141,6 +141,11 @@ public class GeneratedQuiz
 		return quiz.getDescription();
 	}
 	
+	public Quiz getQuiz()
+	{
+		return quiz;
+	}
+	
 	/**
 	 * @return the metadata associated with the quiz<br>
 	 * note: be careful using the metadata object, as it is mutable

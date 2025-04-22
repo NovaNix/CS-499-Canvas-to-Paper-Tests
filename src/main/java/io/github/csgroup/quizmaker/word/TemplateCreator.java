@@ -88,7 +88,7 @@ public class TemplateCreator {
 	    	headerPara.setAlignment(ParagraphAlignment.CENTER);
 	    	XWPFRun headerRun = headerPara.createRun();
 	    	headerRun.setFontFamily("Times New Roman");
-	    	headerRun.setText(generatedQuiz.getTitle());
+	    	headerRun.setText(generatedQuiz.getQuiz().getTitle());
 	    }
 	    
 	    // Create footer with correct properties
@@ -176,8 +176,8 @@ public class TemplateCreator {
         addNumberedParagraph(document, "If you do not understand what the problem is asking for raise your hand or come to the front of the class.", numId, 0);
         addNumberedParagraph(document, "Do not communicate with other students. Talk only to the proctor.", numId, 0);
         addNumberedParagraph(document, "If you need a break during the exam, ask the proctor first. You must leave the exam and your cell phone in the classroom.", numId, 0);
-        addNumberedParagraph(document, "This is a ", "(Point)", " point exam.", numId, 0);
-        addNumberedParagraph(document, "The base time limit on this exam is (Time) minutes.", numId, 0);
+        addNumberedParagraph(document, "This is a ", generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Points), " point exam.", numId, 0);
+        addNumberedParagraph(document, "The base time limit on this exam is " + generatedQuiz.getQuizMetadata().getValue(QuizMetadata.MetadataType.Minutes) + " minutes.", numId, 0);
         
 	    // Create space between numbered list and the section list
 	    XWPFParagraph sectionPar = document.createParagraph();
