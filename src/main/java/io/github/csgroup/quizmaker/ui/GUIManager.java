@@ -48,10 +48,10 @@ public class GUIManager
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
         homeFrame.setResizable(false);
                
-        Image icon = getIcon();
-        
-        if (icon != null)
-        	homeFrame.setIconImage(icon);
+//        Image icon = getIcon();
+//        
+//        if (icon != null)
+//        	homeFrame.setIconImage(icon);
         
         //size of the JFrame (width, height)
         homeFrame.setSize(940, 694);
@@ -87,14 +87,17 @@ public class GUIManager
         Project project = App.getCurrentProject();
         BankPanel bankPanel = new BankPanel(project);
         QuizPanel quizPanel = new QuizPanel(project);
+        GeneratedTab generatedTab = new GeneratedTab(project);
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Quizzes", quizPanel);
         tabs.addTab("Question Banks", bankPanel);
+        tabs.addTab("Assignments", generatedTab);
         // setting the looks and feel of the tabs
         tabs.setBackgroundAt(0, new Color(242, 242, 242));
         tabs.setBackgroundAt(1, new Color(242, 242, 242));
+        tabs.setBackgroundAt(2, new Color(242, 242, 242));
         UIManager.put("TabbedPane.contentAreaColor", new Color(242, 242, 242));
         UIManager.put("TabbedPane.highlight", Color.GRAY);
         tabs.setUI(new BasicTabbedPaneUI());
@@ -126,7 +129,7 @@ public class GUIManager
     private Image getIcon() 
     {
     	try {
-			return ImageIO.read(GUIManager.class.getResource("/icon.png"));
+			return ImageIO.read(GUIManager.class.getResourceAsStream("/icon.png"));
 		} catch (IOException e) {
 			logger.error("Failed to load window icon");
 			e.printStackTrace();

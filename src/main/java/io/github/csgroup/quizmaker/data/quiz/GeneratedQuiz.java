@@ -7,6 +7,7 @@ import java.util.Random;
 
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.utils.RandomBag;
 
 /**
@@ -30,9 +31,9 @@ public class GeneratedQuiz
 	 * Generates a new quiz with a random seed
 	 * @param quiz
 	 */
-	public GeneratedQuiz(Quiz quiz)
+	public GeneratedQuiz(Quiz quiz, QuizMetadata metadata)
 	{
-		this(quiz, new Random());
+		this(quiz, metadata, new Random());
 	}
 	
 	/**
@@ -41,7 +42,7 @@ public class GeneratedQuiz
 	 * @param random the source of randomness
 	 */
 	
-	public GeneratedQuiz(Quiz quiz, Random random)
+	public GeneratedQuiz(Quiz quiz, QuizMetadata metadata, Random random)
 	{
 		this.quiz = quiz;
 		
@@ -73,7 +74,7 @@ public class GeneratedQuiz
 		Collections.shuffle(questions, random);
 		
 		// Generate the metadata
-		this.metadata = quiz.getMetadata().clone();
+		this.metadata = metadata;
 		metadata.setDynamicValues(this);
 	}
 	
@@ -108,6 +109,11 @@ public class GeneratedQuiz
 		pointTotal += q.getPoints();
 	}
 	
+	public boolean contains(Question q)
+	{
+		return questions.contains(q);
+	}
+	
 	public List<Question> getQuestions()
 	{
 		return new ArrayList<Question>(questions);
@@ -118,6 +124,17 @@ public class GeneratedQuiz
 		return pointTotal;
 	}
 	
+	public String getTitle()
+	{
+		StringBuilder title = new StringBuilder();
+		
+		title.append(metadata.getValue(MetadataType.Date));
+		title.append(": ");
+		title.append(quiz.getTitle());
+		
+		return title.toString();
+	}
+	
 	/**
 	 * @return the metadata associated with the quiz<br>
 	 * note: be careful using the metadata object, as it is mutable
@@ -125,5 +142,11 @@ public class GeneratedQuiz
 	public QuizMetadata getQuizMetadata()
 	{
 		return metadata;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getTitle();
 	}
 }
