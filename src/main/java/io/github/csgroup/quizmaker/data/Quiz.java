@@ -64,12 +64,12 @@ public class Quiz implements QuestionContainer
 	}
 
 	/**
-	 * Takes the information stored within this Quiz and created a new GeneratedQuiz based on it
+	 * Takes the information stored within this Quiz and creates a new GeneratedQuiz based on it.<br>
 	 * @return the generated quiz
 	 */
 	public GeneratedQuiz regenerate()
 	{
-		this.generated = new GeneratedQuiz(this);
+		this.generated = new GeneratedQuiz(this, metadata.clone());
 		
 		return generated;
 	}

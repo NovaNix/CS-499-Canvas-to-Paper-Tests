@@ -673,7 +673,7 @@ public class QuizPanel extends JComponent
      */
     private JPanel exportGenerateButtonPanel()
     {
-        JButton exportButton = new JButton("Export");
+        //JButton exportButton = new JButton("Export");
         generateButton = new JButton("Generate");
         
         // contains exportButton and generateButton
@@ -688,23 +688,23 @@ public class QuizPanel extends JComponent
         exportConstraint.insets = new Insets(0, 0, 0, 1);
         quizButtonPanel.add(generateButton, exportConstraint);
         
-        // places exportButton on the right side of quizActionButtonPanel
-        generateConstraint.fill = GridBagConstraints.HORIZONTAL;
-        generateConstraint.gridx = 1;
-        generateConstraint.gridy = 0;
-        generateConstraint.insets = new Insets(0, 1, 0, 0);
-        quizButtonPanel.add(exportButton, generateConstraint);   
+//        // places exportButton on the right side of quizActionButtonPanel
+//        generateConstraint.fill = GridBagConstraints.HORIZONTAL;
+//        generateConstraint.gridx = 1;
+//        generateConstraint.gridy = 0;
+//        generateConstraint.insets = new Insets(0, 1, 0, 0);
+//        quizButtonPanel.add(exportButton, generateConstraint);   
         
         quizButtonPanel.setVisible(false);
         
         // listens for when exportButton is clicked
-        exportButton.addActionListener((ActionEvent e) -> {
-            int index = quizList.getSelectedIndex();
-            Quiz selectedQuiz = project.getQuiz(index);
-            // show the export dialog
-            ExportWordDialog exportDialog = new ExportWordDialog(selectedQuiz);
-            exportDialog.show();
-        });
+//        exportButton.addActionListener((ActionEvent e) -> {
+//            int index = quizList.getSelectedIndex();
+//            Quiz selectedQuiz = project.getQuiz(index);
+//            // show the export dialog
+//            ExportWordDialog exportDialog = new ExportWordDialog(selectedQuiz);
+//            exportDialog.show();
+//        });
                 
         // listens for when generateButton is clicked
         generateButton.addActionListener((ActionEvent e) -> { 
