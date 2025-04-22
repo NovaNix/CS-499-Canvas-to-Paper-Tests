@@ -5,6 +5,7 @@ import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.QuestionUsageDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
@@ -318,10 +319,12 @@ public class BankPanel extends JComponent
         removeQuestionItem.setEnabled(false);
         JMenuItem editQuestionItem = new JMenuItem("Edit Question");
         editQuestionItem.setEnabled(false);
+        JMenuItem questionUsage = new JMenuItem("Question Usage");
         
         bankMenu.add(addQuestionItem);
         bankMenu.add(editQuestionItem);
         bankMenu.add(removeQuestionItem);
+        bankMenu.add(questionUsage);
         
         Object value = bankTable.getValue(row, 0);
         // if the user selects a row with a question allow them to delete it 
@@ -359,6 +362,11 @@ public class BankPanel extends JComponent
             // display the frame that allows the user to delete a quiz question
             RemoveQuestionDialog remove = new RemoveQuestionDialog(bank, question, tableModel);
             remove.show();
+        });
+        
+        questionUsage.addActionListener((ActionEvent e) -> {
+            QuestionUsageDialog dialog = new QuestionUsageDialog(question);
+            dialog.show();
         });
         
         return bankMenu;
