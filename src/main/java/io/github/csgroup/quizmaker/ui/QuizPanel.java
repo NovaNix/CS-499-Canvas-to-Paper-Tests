@@ -658,7 +658,7 @@ public class QuizPanel extends JComponent
         exportGenConstraint.gridy = 3;
         detailsPanel.add(exportGenButtons, exportGenConstraint);
 
-        detailsPanel.setPreferredSize(new Dimension(642, 5924));
+        detailsPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.add(detailsPanel);
                                
@@ -801,10 +801,12 @@ public class QuizPanel extends JComponent
         removeQuestionItem.setEnabled(false);
         JMenuItem editQuestionItem = new JMenuItem("Edit question");
         editQuestionItem.setEnabled(false);
+        JMenuItem questionUsage = new JMenuItem("Question Usage");
         
         quizMenu.add(addQuestionItem);
         quizMenu.add(editQuestionItem); 
         quizMenu.add(removeQuestionItem);
+        quizMenu.add(questionUsage);
         
         Object value = quizTable.getValue(row, 0);
         // if the user selects a row with a question allow them to delete it 
@@ -842,6 +844,11 @@ public class QuizPanel extends JComponent
             // display the frame that allows the user to delete a quiz question
             RemoveQuestionDialog remove = new RemoveQuestionDialog(quiz, question, tableModel);
             remove.show();
+        });
+        
+        questionUsage.addActionListener((ActionEvent e) -> {
+            QuestionUsageDialog dialog = new QuestionUsageDialog(question);
+            dialog.show();
         });
                 
         return quizMenu;
