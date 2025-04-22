@@ -45,7 +45,7 @@ public class RemoveBankDialog
     private void createRemoveBankFrame(QuestionBank name)
     {            
         removeFrame = new JFrame();
-        removeFrame.setSize(380, 270);
+        removeFrame.setSize(400, 240);
         
         JLabel questionLabel = new JLabel("Are you sure you want to remove question bank: " + name + "?");
                             
@@ -58,7 +58,7 @@ public class RemoveBankDialog
         questionConstraint.fill = GridBagConstraints.HORIZONTAL;
         questionConstraint.gridx = 0;
         questionConstraint.gridy = 0;
-        questionConstraint.insets = new Insets(0, 0, 5, 0);
+        questionConstraint.insets = new Insets(0, 0, 10, 0);
         removeBankPanel.add(questionLabel, questionConstraint);
         
         // places buttonPanel at the bottom of removeBankPanel

@@ -15,7 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
+ * Prompts the user to ensure they are removing the correct question bank from a 
+ * quiz
+ * 
  * @author Emily Palmer
  */
 public class RemoveBankFromQuizDialog 
@@ -38,9 +40,9 @@ public class RemoveBankFromQuizDialog
     private void removeBankFrame()
     {
         removeFrame = new JFrame();
-        removeFrame.setSize(300, 200);
+        removeFrame.setSize(350, 230);
         
-        JLabel removeLabel = new JLabel("Delete question bank?");
+        JLabel removeLabel = new JLabel("Delete selected question bank?");
         
         // contains removeLabel and buttonPanel
         JPanel removePanel = new JPanel(new GridBagLayout());
