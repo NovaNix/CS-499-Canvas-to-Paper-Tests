@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -28,6 +30,8 @@ import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
@@ -64,54 +68,17 @@ public class GeneratedTab extends JComponent
 
 	private JPanel createSidebar(Project p)
 	{
-		JPanel sidebar = new JPanel(new GridBagLayout());
+		//JPanel sidebar = new JPanel(new GridBagLayout());
+		JPanel sidebar = new JPanel(new BorderLayout());
 
 		JLabel label = new JLabel("Assignments");
 
 		var assignments = project.getGeneratedQuizModel();
 		list = new JList<GeneratedQuiz>(assignments);  
 		JScrollPane scrollPane = new JScrollPane(list);
-		//scrollPane.
-		//scrollPane.setPreferredSize(new Dimension(215, 455));
 
-		GridBagConstraints labelConstraint = new GridBagConstraints();
-		GridBagConstraints scrollPaneConstraint = new GridBagConstraints();
-		//GridBagConstraints buttonConstraint = new GridBagConstraints();
-
-		// places quiBankLabel at the top of the panel
-		labelConstraint.fill = GridBagConstraints.HORIZONTAL;
-		labelConstraint.gridx = 0;
-		labelConstraint.gridy = 0;
-		sidebar.add(label, labelConstraint);
-
-		// places bankScrollPanel at the bottom of the panel
-		scrollPaneConstraint.fill = GridBagConstraints.HORIZONTAL;
-		scrollPaneConstraint.gridx = 0;
-		scrollPaneConstraint.gridy = 1;
-		sidebar.add(scrollPane, scrollPaneConstraint);
-
-		//        // add and remove button panel
-		//        JPanel buttonPanel = bankButtonPanel(bankList);
-		//        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
-		//        buttonConstraint.gridx = 0;
-		//        buttonConstraint.gridy = 2;
-		//        bankPanel.add(buttonPanel, buttonConstraint);  
-
-		// once a bank has been added select it on bankList
-		assignments.addListDataListener(new ListDataListener() {
-			@Override
-			public void intervalAdded(ListDataEvent e) {
-				int index = e.getIndex0();
-				//list.setSelectedIndex(index);
-				//                table.setVisible(true);
-				//                bankLabelPanel.setVisible(true);
-			}
-			@Override
-			public void intervalRemoved(ListDataEvent e) {}
-
-			@Override
-			public void contentsChanged(ListDataEvent e) {}                                             
-		});  
+		sidebar.add(label, BorderLayout.NORTH);
+		sidebar.add(scrollPane, BorderLayout.CENTER); 
 
 		return sidebar;
 	}
@@ -121,9 +88,7 @@ public class GeneratedTab extends JComponent
 		JPanel details = new JPanel();
 		
 		list.addListSelectionListener((ListSelectionEvent e) -> {
-			System.out.println("Updating!!");
 			populateDetailsPanel(details, p.getGeneratedQuiz(e.getFirstIndex()));
-			
 		});
 		
 		
@@ -140,12 +105,17 @@ public class GeneratedTab extends JComponent
 		JPanel contents = new JPanel();
 		contents.setLayout(new BoxLayout(contents, BoxLayout.PAGE_AXIS));
 		
-		JScrollPane scroll = new JScrollPane(contents);
+		//JScrollPane scroll = new JScrollPane(contents);
+		//scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
 		// Add the header
 		
 		JLabel title = new JLabel(quiz.toString());
 		contents.add(title);
+		
+		// Add the metadata fields
+		
+		contents.add(createMetadataPanel(quiz));
 		
 		// Add the question table
 		
@@ -156,8 +126,6 @@ public class GeneratedTab extends JComponent
 		JButton exportButton = new JButton("Export");
 		
 		exportButton.addActionListener((ActionEvent e) -> {
-            //int index = quizList.getSelectedIndex();
-            //Quiz selectedQuiz = project.getQuiz(index);
             // show the export dialog
             ExportWordDialog exportDialog = new ExportWordDialog(quiz);
             exportDialog.show();
@@ -165,11 +133,52 @@ public class GeneratedTab extends JComponent
 		
 		contents.add(exportButton);
 		
-		details.add(scroll);
+		//details.add(scroll);
+		
+		details.add(contents);
 		
 		details.validate();
 	}
 	
+	private JPanel createMetadataPanel(GeneratedQuiz quiz)
+	{
+		JPanel panel = new JPanel(new GridBagLayout());
+		
+		QuizMetadata data = quiz.getQuizMetadata();
+		
+		int y = 0;
+		
+		for (var type : MetadataType.values())
+		{
+			String value = data.getValue(type);
+			
+			// Make the left label
+			JLabel label = new JLabel(type.getDisplayName() + ": ");
+			
+			// Make the right box
+			
+			JTextField field = new JTextField();
+			field.setText(value);
+			
+			field.setEditable(false); // CHANGE THIS LATER
+			//StringStoreBinder binder = new StringStoreBinder();
+			
+			
+			GridBagConstraints labelConstraints = new GridBagConstraints();
+			labelConstraints.gridx = 0;
+			labelConstraints.gridy = y;
+			GridBagConstraints fieldConstraints = new GridBagConstraints();
+			fieldConstraints.gridx = 1;
+			fieldConstraints.gridy = y;
+			
+			panel.add(label, labelConstraints);
+			panel.add(field, fieldConstraints);
+			
+			y++;
+		}
+		
+		return panel;
+	}
 	
 	private JPanel createQuestionTable(GeneratedQuiz quiz)
     {        
