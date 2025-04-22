@@ -2,8 +2,6 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Quiz;
-import io.github.csgroup.quizmaker.ui.QuizPanel;
-import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -47,7 +45,7 @@ public class RemoveQuizDialog
     private void createRemoveBankFrame()
     {            
         removeFrame = new JFrame();
-        removeFrame.setSize(380, 270);
+        removeFrame.setSize(400, 240);
         
         JLabel questionLabel = new JLabel("Are you sure you want to remove the quiz: " + quiz + "?");
                             
@@ -60,7 +58,7 @@ public class RemoveQuizDialog
         questionConstraint.fill = GridBagConstraints.HORIZONTAL;
         questionConstraint.gridx = 0;
         questionConstraint.gridy = 0;
-        questionConstraint.insets = new Insets(0, 0, 5, 0);
+        questionConstraint.insets = new Insets(0, 0, 10, 0);
         removeBankPanel.add(questionLabel, questionConstraint);
         
         // places buttonPanel at the bottom of removeBankPanel

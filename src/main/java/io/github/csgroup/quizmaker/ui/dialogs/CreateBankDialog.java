@@ -52,11 +52,11 @@ public class CreateBankDialog
     private void createAddBankFrame()
     {                
         newBankFrame = new JFrame();
-        newBankFrame.setSize(400, 260);
+        newBankFrame.setSize(450, 240);
                 
         JLabel instructionLabel = new JLabel("Enter question bank name: ");
         JTextField bankTextField = new JTextField();
-        bankTextField.setPreferredSize(new Dimension(250, 22));
+        bankTextField.setPreferredSize(new Dimension(300, 22));
         JPanel namePanel = new JPanel();
         namePanel.add(bankTextField);
                 
@@ -77,6 +77,7 @@ public class CreateBankDialog
         textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         textFieldConstraint.gridx = 0;
         textFieldConstraint.gridy = 1;
+        textFieldConstraint.insets = new Insets(0, 0, 20, 3);
         newBankPanel.add(namePanel, textFieldConstraint);
                 
         // places addButton to the right of bankTextField
@@ -84,6 +85,7 @@ public class CreateBankDialog
         buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
         buttonConstraint.gridx = 1;
         buttonConstraint.gridy = 1;
+        buttonConstraint.insets = new Insets(0, 0, 20, 0);
         newBankPanel.add(addBankButton, buttonConstraint);
                 
         // listens for when addButton is clicked

@@ -8,10 +8,13 @@ import javax.swing.ListModel;
 import io.github.csgroup.quizmaker.data.events.ProjectListener;
 import io.github.csgroup.quizmaker.data.events.project.ProjectBankUpdateEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectEvent;
+import io.github.csgroup.quizmaker.data.events.project.ProjectGeneratedQuizUpdateEvent;
 import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 import io.github.csgroup.quizmaker.data.models.ProjectBankListModel;
 import io.github.csgroup.quizmaker.data.models.ProjectQuizListModel;
+import io.github.csgroup.quizmaker.data.models.ProjectGeneratedQuizListModel;
+import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.qti.QTIContents;
 
 /**
@@ -24,6 +27,8 @@ public class Project
 	private final List<QuestionBank> banks = new ArrayList<QuestionBank>();
 	private final List<Quiz> quizzes = new ArrayList<Quiz>();
 
+	private final List<GeneratedQuiz> generatedQuizzes = new ArrayList<GeneratedQuiz>();
+	
 	public Project()
 	{
 		
@@ -38,6 +43,8 @@ public class Project
 		addBanks(qti.banks);
 		addQuizzes(qti.quizzes);
 	}
+	
+	// Banks
 	
 	/**
 	 * Adds a single {@link QuestionBank} to this Project.<br>
@@ -139,6 +146,8 @@ public class Project
 		return new ArrayList<QuestionBank>(banks);
 	}
 	
+	// Quizzes
+	
 	/**
 	 * Adds a single {@link Quiz} to this Project.<br>
 	 * Fires an event when the quiz is added.
@@ -234,6 +243,115 @@ public class Project
 		return quizzes.indexOf(quiz);
 	}
 	
+	// Generated Quizzes
+	
+	/**
+	 * Adds a single {@link GeneratedQuiz} to this Project.<br>
+	 * Fires an event when the quiz is added.
+	 * @param quiz the quiz to add to the Project
+	 * @return true (to match Collection.add)
+	 */
+	public boolean addGeneratedQuiz(GeneratedQuiz quiz)
+	{
+		boolean added = generatedQuizzes.add(quiz);
+		
+		if (added)
+		{
+			int index = quizzes.size() - 1;
+			
+			// If this Quiz was added to the list, we need to send an addition event
+			fireEvent(new ProjectGeneratedQuizUpdateEvent(this, ListUpdateType.Addition, quiz, index));
+		}
+		
+		return added;
+	}
+	
+	/**
+	 * Adds multiple {@link GeneratedQuiz GeneratedQuizzes} to this Project.<br>
+	 * Fires an event for each quiz added
+	 * @param quizzes the quizzes to add
+	 */
+	public void addGeneratedQuizzes(List<GeneratedQuiz> quizzes)
+	{
+		for (var quiz : quizzes)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addGeneratedQuiz(quiz);
+		}
+	}
+	
+	/**
+	 * Adds multiple {@link GeneratedQuiz GeneratedQuizzes} to this Project.<br>
+	 * Fires an event for each quiz added
+	 * @param quizzes the quizzes to add
+	 */
+	public void addGeneratedQuizzes(GeneratedQuiz... quizzes)
+	{
+		for (var quiz : quizzes)
+		{
+			// TODO this could be optimized further by changing how the events work to support multiple added items
+			addGeneratedQuiz(quiz);
+		}
+	}
+	
+	/**
+	 * Removes a {@link GeneratedQuiz} from this Project.<br>
+	 * Fires an event when the quiz is removed
+	 * @param quiz the quiz to remove
+	 * @return whether the quiz was included in the Project
+	 */
+	public boolean removeGeneratedQuiz(GeneratedQuiz quiz)
+	{
+		int index = generatedQuizzes.indexOf(quiz);
+		boolean included = generatedQuizzes.remove(quiz); 
+		
+		if (included)
+		{	
+			// If this Quiz was included in the list, we need to send a deletion event
+			fireEvent(new ProjectGeneratedQuizUpdateEvent(this, ListUpdateType.Deletion, quiz, index));
+		}
+		
+		return included;
+	}
+	
+	/**
+	 * @return A shallow copy of the list of GeneratedQuizzes included in the Project
+	 */
+	public List<GeneratedQuiz> getGeneratedQuizzes()
+	{
+		return new ArrayList<GeneratedQuiz>(generatedQuizzes);
+	}
+	
+	/**
+	 * @param q
+	 * @return a list of GeneratedQuizzes containing the question Q
+	 */
+	public List<GeneratedQuiz> getGeneratedQuizzesWith(Question q)
+	{
+		return generatedQuizzes.stream()
+				.filter((quiz) -> quiz.contains(q))
+				.toList();
+	}
+	
+	/**
+	 * @return the number of {@link Quiz Quizzes} in this Project
+	 */
+	public int getGeneratedQuizCount()
+	{
+		return generatedQuizzes.size();
+	}
+	
+	public GeneratedQuiz getGeneratedQuiz(int index)
+	{
+		return generatedQuizzes.get(index);
+	}
+	
+	public int getGeneratedQuizIndex(GeneratedQuiz quiz)
+	{
+		return generatedQuizzes.indexOf(quiz);
+	}
+	
+	
 	// Event Processing
 	
 	private static List<ProjectListener> globalListeners = new ArrayList<ProjectListener>();
@@ -276,6 +394,7 @@ public class Project
 	
 	private ListModel<QuestionBank> bankModel = new ProjectBankListModel(this);
 	private ListModel<Quiz> quizModel = new ProjectQuizListModel(this);
+	private ListModel<GeneratedQuiz> generatedQuizModel = new ProjectGeneratedQuizListModel(this);
 	
 	public ListModel<QuestionBank> getBankModel()
 	{
@@ -285,6 +404,11 @@ public class Project
 	public ListModel<Quiz> getQuizModel()
 	{
 		return quizModel;
+	}
+	
+	public ListModel<GeneratedQuiz> getGeneratedQuizModel()
+	{
+		return generatedQuizModel;
 	}
 	
 }

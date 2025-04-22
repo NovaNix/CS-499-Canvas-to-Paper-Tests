@@ -42,6 +42,10 @@ public class WrittenResponsePanel extends JComponent
     private final QuestionTable questionTable;
     private final JTextField questionTitle;
     private JButton addQuestionButton;
+    private boolean edit;
+    private JCheckBox abetCheckBox;
+    private int editedRow;
+    private Question editQuestion;
     private QuestionBank questionBank;
     
     public WrittenResponsePanel(JFrame frame, JTextArea wrQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -67,6 +71,23 @@ public class WrittenResponsePanel extends JComponent
     }
     
     /**
+     * Determines if a question is being edited
+     * 
+     * @param result determines where or not the question is being edited
+     * @param row the row where the question is located 
+     */
+    public void isEditable(boolean result, int row)
+    {
+        edit = result;
+        editedRow = row;
+        if (edit == true)
+        {
+            // populate the dialog with the question's information
+            editQuestion(editedRow);
+        }
+    }
+    
+    /**
      * Places the labelsPanel, answersPane, and the button pane on the component 
      * together 
      */
@@ -76,7 +97,7 @@ public class WrittenResponsePanel extends JComponent
         answerArea.setLineWrap(true);
         answerArea.setWrapStyleWord(true);
         JScrollPane questionScrollPane = new JScrollPane(answerArea);
-        questionScrollPane.setPreferredSize(new Dimension(380, 130));
+        questionScrollPane.setPreferredSize(new Dimension(425, 150));
         JPanel answerPane = new JPanel();
         answerPane.add(questionScrollPane);
         
@@ -97,7 +118,7 @@ public class WrittenResponsePanel extends JComponent
         answerConstraint.fill = GridBagConstraints.HORIZONTAL;
         answerConstraint.gridx = 0;
         answerConstraint.gridy = 1;
-        answerConstraint.insets = new Insets(0, 0, 35, 0);
+        answerConstraint.insets = new Insets(0, 0, 15, 0);
         this.add(answerPane, answerConstraint); 
         
         // places buttonPanel below answersPane
@@ -116,7 +137,7 @@ public class WrittenResponsePanel extends JComponent
     private JPanel labelsPanel()
     {
         JLabel answerLabel = new JLabel("Answer");
-        JCheckBox abetCheckBox = new JCheckBox("ABET Question");
+        abetCheckBox = new JCheckBox("ABET Question");
         
         // contains answerLabel and abetCheckBox
         JPanel labelsPanel = new JPanel(new GridBagLayout());
@@ -127,14 +148,14 @@ public class WrittenResponsePanel extends JComponent
         labelConstraint.fill = GridBagConstraints.HORIZONTAL;
         labelConstraint.gridx = 0;
         labelConstraint.gridy = 0;
-        labelConstraint.insets = new Insets(0, 3, 0, 95);
+        labelConstraint.insets = new Insets(0, 3, 0, 100);
         labelsPanel.add(answerLabel, labelConstraint); 
         
         // places abetCheckBox on the right side of answerLabel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
-        checkBoxConstraint.insets = new Insets(0, 130, 0, 0);
+        checkBoxConstraint.insets = new Insets(0, 180, 0, 0);
         labelsPanel.add(abetCheckBox, checkBoxConstraint); 
                 
         return labelsPanel;
@@ -148,7 +169,7 @@ public class WrittenResponsePanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        addQuestionButton = new JButton("Add");
+        addQuestionButton = new JButton("Save");
         addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addQuestionButton);
@@ -165,25 +186,61 @@ public class WrittenResponsePanel extends JComponent
  
             try
             {  
-                if (newQuiz != null)
+                // the point value of the question
+                String pointsString = pointsValue.getText();
+                float floatPoints = Float.parseFloat(pointsString);
+                
+                // add a new quiz question
+                if ((newQuiz != null) && (edit == false))
                 {
-                    // the point value of the question
-                    String pointsString = pointsValue.getText();
-                    float floatPoints = Float.parseFloat(pointsString);
                     WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
                     wrQuestion.setLabel(new Label(questionString));
                     wrQuestion.setAnswer(answerString);
                     
                     newQuiz.addQuestion(wrQuestion);
+                    int index = newQuiz.getQuestionIndex(wrQuestion);
+                    Question newQuestion = newQuiz.getQuestion(index);
+                    // if the abetCheckBox is selected mark the question as an abet question
+                    if (abetCheckBox.isSelected() == true)
+                    {
+                        newQuestion.setAbet(true);
+                    }            
+                    else
+                    {
+                        newQuestion.setAbet(false);
+                    }
+                    
                 }
-                if (questionBank != null)
+                // update a quiz question
+                if (newQuiz != null && (edit == true))
+                {
+                    updateQuizQuestion(questionLabel, floatPoints, questionString, answerString);
+                }
+                // add a question bank question
+                if ((questionBank != null) && (edit == false))
                 {
                     WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel); 
                     wrQuestion.setLabel(new Label(questionString));
                     wrQuestion.setAnswer(answerString);
                     
                     questionBank.add(wrQuestion);
+                    int index = questionBank.getQuestionIndex(wrQuestion);
+                    Question newQuestion = questionBank.getQuestion(index);
+                    if (abetCheckBox.isSelected() == true)
+                    {
+                        newQuestion.setAbet(true);
+                    }            
+                    else
+                    {
+                        newQuestion.setAbet(false);
+                    }
                 }
+                // update a question bank question
+                if ((questionBank != null) && (edit == true))
+                {
+                    updateBankQuestion(questionLabel, questionString, answerString);
+                }
+                
                 populateTable();
                 mainFrame.dispose();
             }
@@ -193,7 +250,60 @@ public class WrittenResponsePanel extends JComponent
         return buttonPanel;
     }
     
-    
+    /**
+     * Populates the dialog with the question's title, point value, question, and
+     * abet check box
+     * 
+     * @param index the index of the question being edited
+     */
+    private void editQuestion(int index)
+    {  
+        // populate the quiz's question information
+        if (newQuiz != null)
+        {
+            editQuestion = newQuiz.getQuestion(index);
+            
+            questionTitle.setText(editQuestion.getTitle());           
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            answerArea.setText(answer);
+        }
+        // populate the quiz's question information
+        if (questionBank != null)
+        {
+            editQuestion = questionBank.getQuestion(index);            
+            questionTitle.setText(editQuestion.getTitle());           
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            answerArea.setText(answer);
+        }        
+    }
+        
     /**
      * Ensures that the question title, points value, and question description 
      * have been entered before addQuestionButton is enabled
@@ -315,6 +425,65 @@ public class WrittenResponsePanel extends JComponent
             public void changedUpdate(DocumentEvent e) {}                 
         });
     }
+    
+    /**
+     * Updates a quiz question
+     * 
+     * @param updateTitle the title of the quiz
+     * @param updatePoints the point amount for the quiz question
+     * @param updateQuestion the question
+     * @param updateAnswer the answer 
+     */
+    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion, String updateAnswer)
+    {
+        WrittenResponseQuestion newQuestion = (WrittenResponseQuestion) editQuestion;        
+        newQuestion.setPoints(updatePoints);
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        newQuestion.setLabel(new Label(updateQuestion));
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setAnswer(updateAnswer);
+        
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    } 
+    
+    /**
+     * Updates a bank question
+     * 
+     * @param updateTitle the title of the question
+     * @param updateQuestion the question 
+     * @param updateAnswer the answer
+     */
+    private void updateBankQuestion(String updateTitle, String updateQuestion, String updateAnswer)
+    {
+        WrittenResponseQuestion newQuestion = (WrittenResponseQuestion) editQuestion;        
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        newQuestion.setLabel(new Label(updateQuestion));
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setAnswer(updateAnswer);
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    } 
     
     /**
      * Adds the question to the table 

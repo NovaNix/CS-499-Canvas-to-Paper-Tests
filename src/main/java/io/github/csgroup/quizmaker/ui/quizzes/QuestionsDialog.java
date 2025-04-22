@@ -1,5 +1,6 @@
 package io.github.csgroup.quizmaker.ui.quizzes;
 
+import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
@@ -41,22 +42,43 @@ public class QuestionsDialog
     private JTextArea question;
     private JTextField points;
     private Quiz quiz;
+    private JComboBox questionTypesList;
     private final QuestionTable table;
     private JTextField title;
     private QuestionBank bank;
+    private int index;
+    private boolean editResult;
     
-    public QuestionsDialog(Quiz newQuiz, QuestionTable questionTable)
+    public QuestionsDialog(Quiz newQuiz, QuestionTable questionTable, boolean edit, int row)
     {        
         table = questionTable;
         quiz = newQuiz;
+        editResult = edit;
+        index = row;
+        
         questionDialog();
+        if (editResult == true)
+        {
+            Question quizQuestion = quiz.getQuestion(index);            
+            String quizClassName = (quizQuestion.getClass()).getName();
+            editQuestion(quizClassName);
+        }
     }
     
-    public QuestionsDialog(QuestionBank questionBank, QuestionTable questionTable)
+    public QuestionsDialog(QuestionBank questionBank, QuestionTable questionTable, boolean edit, int row)
     {
         table = questionTable;
         bank = questionBank;
+        editResult = edit;
+        index = row;
+        
         questionDialog();
+        if (editResult == true)
+        {
+            Question bankQuestion = bank.getQuestion(index);            
+            String bankClassName = (bankQuestion.getClass()).getName();
+            editQuestion(bankClassName);
+        }
     }  
     
     /**
@@ -66,7 +88,7 @@ public class QuestionsDialog
     private void questionDialog()
     {
         questionFrame = new JFrame("Questions");
-        questionFrame.setSize(460, 465);
+        questionFrame.setSize(490, 475);
         
         // contains questionPanel and answerPanel
         JPanel questionDialogPanel = new JPanel(new GridBagLayout());
@@ -150,7 +172,7 @@ public class QuestionsDialog
         question.setLineWrap(true);
         question.setWrapStyleWord(true);
         JScrollPane questionScrollPane = new JScrollPane(question);
-        questionScrollPane.setPreferredSize(new Dimension(380, 130));
+        questionScrollPane.setPreferredSize(new Dimension(425, 150));
         JPanel panePanel = new JPanel();
         panePanel.add(questionScrollPane);
         
@@ -189,7 +211,7 @@ public class QuestionsDialog
         titlePanel.add(title);
         
         String [] questionTypes = {"Multiple Choice", "Fill in the Blank", "Matching", "Written Response"};
-        JComboBox questionTypesList = new JComboBox(questionTypes);
+        questionTypesList = new JComboBox(questionTypes);
         
         JLabel pointsLabel = new JLabel("Points: ");
         
@@ -217,12 +239,13 @@ public class QuestionsDialog
                
         if (quiz != null)
         {
-            checkBoxConstraint.insets = new Insets(0, 0, 0, 22);
+            checkBoxConstraint.insets = new Insets(0, 0, 0, 48);
             
             // places pointsLabel to the right of questionTypesList
             labelConstraint.fill = GridBagConstraints.HORIZONTAL;
             labelConstraint.gridx = 2;
             labelConstraint.gridy = 0;
+            labelConstraint.insets = new Insets(0, 25, 0, 0);
             informationPanel.add(pointsLabel, labelConstraint);
             
             // places pointsPanel to the right of pointsLabel
@@ -233,8 +256,8 @@ public class QuestionsDialog
         }
         if (bank != null)
         {
-            titleConstraint.insets = new Insets(0, 0, 0, 42);
-            checkBoxConstraint.insets = new Insets(0, 60, 0, 6);
+            titleConstraint.insets = new Insets(0, 0, 0, 70);
+            checkBoxConstraint.insets = new Insets(0, 80, 0, 6);
         }
         
         informationPanel.add(titlePanel, titleConstraint);
@@ -248,6 +271,39 @@ public class QuestionsDialog
         });
         
         return informationPanel;
+    }
+    
+    private void editQuestion(String className)
+    {               
+        String fillInTheBlank = "io.github.csgroup.quizmaker.data.questions.FillInTheBlankQuestion";
+        String matching = "io.github.csgroup.quizmaker.data.questions.MatchingQuestion";
+        String multipleChoice = "io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion";
+        String writtenResponse = "io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion";
+  
+        if (className.equals(fillInTheBlank))
+        {
+            displayAnswerPanel("Fill in the Blank");
+            questionTypesList.setSelectedIndex(1);
+            fitbPanel.isEditable(editResult, index);
+        }
+        if (className.equals(matching))
+        {
+            displayAnswerPanel("Matching");
+            questionTypesList.setSelectedIndex(2);
+            matchingPanel.isEditable(editResult, index);
+        }
+        if (className.equals(multipleChoice))
+        {
+            displayAnswerPanel("Multiple Choice");
+            questionTypesList.setSelectedIndex(0);
+            mcPanel.isEditable(editResult, index);
+        }
+        if (className.equals(writtenResponse))
+        {
+            displayAnswerPanel("Written Response");
+            questionTypesList.setSelectedIndex(3);
+            wrPanel.isEditable(editResult, index);
+        }
     }
     
     /**
