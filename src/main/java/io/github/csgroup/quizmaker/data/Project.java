@@ -13,6 +13,7 @@ import io.github.csgroup.quizmaker.data.events.project.ProjectQuizUpdateEvent;
 import io.github.csgroup.quizmaker.utils.ListUpdateType;
 import io.github.csgroup.quizmaker.data.models.ProjectBankListModel;
 import io.github.csgroup.quizmaker.data.models.ProjectQuizListModel;
+import io.github.csgroup.quizmaker.data.models.ProjectGeneratedQuizListModel;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.qti.QTIContents;
 
@@ -393,6 +394,7 @@ public class Project
 	
 	private ListModel<QuestionBank> bankModel = new ProjectBankListModel(this);
 	private ListModel<Quiz> quizModel = new ProjectQuizListModel(this);
+	private ListModel<GeneratedQuiz> generatedQuizModel = new ProjectGeneratedQuizListModel(this);
 	
 	public ListModel<QuestionBank> getBankModel()
 	{
@@ -402,6 +404,11 @@ public class Project
 	public ListModel<Quiz> getQuizModel()
 	{
 		return quizModel;
+	}
+	
+	public ListModel<GeneratedQuiz> getGeneratedQuizModel()
+	{
+		return generatedQuizModel;
 	}
 	
 }
