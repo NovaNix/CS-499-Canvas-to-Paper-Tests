@@ -16,9 +16,12 @@ import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuizDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
 import javax.swing.JComponent;
+
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension; 
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
@@ -90,12 +93,13 @@ public class QuizPanel extends JComponent
      * "Quizzes" tab
      */
     private void quizzesPanel()
-    {             
+    {             		
         JPanel listPanel = quizListPanel();
         JTabbedPane quizTabs = createTabs(); 
             
         // contains listPanel and quizTabs
-        this.setLayout(new GridBagLayout());
+        this.setLayout(new BorderLayout());
+        //this.setLayout(new GridBagLayout());
         GridBagConstraints listConstraint = new GridBagConstraints();
         GridBagConstraints tabsConstraint = new GridBagConstraints();
             
@@ -104,13 +108,20 @@ public class QuizPanel extends JComponent
         listConstraint.gridx = 0;
         listConstraint.gridy = 0;
         listConstraint.insets = new Insets(6, 0, 0, 0);
-        this.add(listPanel, listConstraint); 
+        //this.add(listPanel, listConstraint); 
            
         // places quizTabs on the right side of the component
         tabsConstraint.fill = GridBagConstraints.HORIZONTAL;
         tabsConstraint.gridx = 1;
         tabsConstraint.gridy = 0;
-        this.add(quizTabs, tabsConstraint); 
+        //this.add(quizTabs, tabsConstraint); 
+        
+        
+    	var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, quizTabs);
+		splitPane.setOneTouchExpandable(false);
+		splitPane.setDividerLocation(260);
+		
+		this.add(splitPane, BorderLayout.CENTER);
     }
     
     /**
@@ -658,7 +669,7 @@ public class QuizPanel extends JComponent
         exportGenConstraint.gridy = 3;
         detailsPanel.add(exportGenButtons, exportGenConstraint);
 
-        detailsPanel.setPreferredSize(new Dimension(642, 5924));
+        detailsPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.add(detailsPanel);
                                

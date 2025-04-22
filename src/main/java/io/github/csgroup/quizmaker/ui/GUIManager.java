@@ -46,7 +46,7 @@ public class GUIManager
     {
         // main JFrame that will host all JPanels for the system
         JFrame homeFrame = new JFrame("Canvas to Paper Tests");
-        homeFrame.setResizable(false);
+        //homeFrame.setResizable(false);
                
 //        Image icon = getIcon();
 //        
