@@ -54,7 +54,7 @@ public class GUIManager
 //        	homeFrame.setIconImage(icon);
         
         //size of the JFrame (width, height)
-        homeFrame.setSize(930, 694);
+        homeFrame.setSize(940, 694);
             
         // will contain the menus "File" and "About"
         JMenuBar menuBar = new JMenuBar();

@@ -184,6 +184,7 @@ public class ExportQTIDialog
                     writer.writeProject(project, path);                             
                     // close the frame
                     exportQTIFrame.dispose();
+                    successDialog();
                 }
                 catch (IOException n) 
                 {
@@ -214,6 +215,11 @@ public class ExportQTIDialog
         JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);        
     }
 
+    private void successDialog()
+    {
+        JFrame successFrame = new JFrame();
+        JOptionPane.showMessageDialog(successFrame, "QTI File Successfully Exported", null, JOptionPane.PLAIN_MESSAGE);        
+    }
                
     /**
      * Controls when and where the frame appears

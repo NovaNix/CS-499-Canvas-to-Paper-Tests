@@ -658,8 +658,8 @@ public class QuizPanel extends JComponent
         exportGenConstraint.gridy = 3;
         detailsPanel.add(exportGenButtons, exportGenConstraint);
 
-        detailsPanel.setPreferredSize(new Dimension(640, 592));
-        containerPanel.setPreferredSize(new Dimension(640, 592));
+        detailsPanel.setPreferredSize(new Dimension(642, 5924));
+        containerPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.add(detailsPanel);
                                
         return containerPanel;
@@ -729,13 +729,13 @@ public class QuizPanel extends JComponent
         int numRows = 35;
 
         quizTable = new QuestionTable(quizTableHeaders, numRows);
-        quizTable.setTableSize(634, 588);      
+        quizTable.setTableSize(640, 588);      
         quizTable.setTableRowHeight(16);
         quizTable.setVisible(false);
         
         JPanel quizTablePanel = new JPanel();
         quizTablePanel.add(quizTable);
-        quizTablePanel.setPreferredSize(new Dimension(641, 592));
+        quizTablePanel.setPreferredSize(new Dimension(647, 592));
         
         JTable table = quizTable.getTable();  
         table.addMouseListener(new MouseAdapter() {

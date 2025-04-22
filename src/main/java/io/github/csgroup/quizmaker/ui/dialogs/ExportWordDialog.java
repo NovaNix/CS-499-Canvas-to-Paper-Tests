@@ -529,7 +529,7 @@ public class ExportWordDialog
                     //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, false)                     
                     }
                     catch (IOException n)
                     {
@@ -553,7 +553,7 @@ public class ExportWordDialog
                     //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, true);
+                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {
@@ -572,6 +572,12 @@ public class ExportWordDialog
     {
         JFrame errorFrame = new JFrame();
         JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);  
+    }
+    
+    private void successDialog(String location)
+    {
+        JFrame successFrame = new JFrame();
+        JOptionPane.showMessageDialog(successFrame, "Word file exported to: " + location, null, JOptionPane.PLAIN_MESSAGE);        
     }
     
     /**
