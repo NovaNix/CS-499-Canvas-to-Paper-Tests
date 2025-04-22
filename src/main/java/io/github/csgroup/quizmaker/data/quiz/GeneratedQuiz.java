@@ -7,6 +7,7 @@ import java.util.Random;
 
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.Quiz;
+import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.utils.RandomBag;
 
 /**
@@ -123,6 +124,17 @@ public class GeneratedQuiz
 		return pointTotal;
 	}
 	
+	public String getTitle()
+	{
+		StringBuilder title = new StringBuilder();
+		
+		title.append(metadata.getValue(MetadataType.Date));
+		title.append(": ");
+		title.append(quiz.getTitle());
+		
+		return title.toString();
+	}
+	
 	/**
 	 * @return the metadata associated with the quiz<br>
 	 * note: be careful using the metadata object, as it is mutable
@@ -130,5 +142,11 @@ public class GeneratedQuiz
 	public QuizMetadata getQuizMetadata()
 	{
 		return metadata;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return getTitle();
 	}
 }
