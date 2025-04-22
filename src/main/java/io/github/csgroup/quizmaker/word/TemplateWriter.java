@@ -53,36 +53,62 @@ public class TemplateWriter {
 			String value = metadata.getValue(type);
 			if (placeholder != null && !placeholder.isBlank() && value != null && !value.isBlank()) 
 			{
-				tokenMap.put(placeholder, value); //Change test to take the title value
+				tokenMap.put(placeholder, value);
 			}
 		}
 		try (FileInputStream fis = new FileInputStream(inputPath.toFile())) {
 			XWPFDocument document = new XWPFDocument(fis);
 			
 			LabelWriter labelWriter = new LabelWriter(document);
-		    if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
+			if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
 		    {
+		    	boolean isInserted = false;
 		    	List<XWPFParagraph> paragraphs = document.getParagraphs();
 		    	for (int i = 0; i < paragraphs.size(); i++) {
 		    		XWPFParagraph paragraph = paragraphs.get(i);
 
-		    		// Found the first paragraph with actual content
-		    		if (!paragraph.getText().isBlank()) {
+		    		// Found the first paragraph with no content
+		    		if (paragraph.getText().isBlank()) {
 		    			XWPFParagraph insertHere;
 					
-		    			if (i + 1 < paragraphs.size() && paragraphs.get(i + 1).isEmpty()) {
-		    				insertHere = document.insertNewParagraph(paragraphs.get(i + 1).getCTP().newCursor());
-		    				labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), insertHere);
+		    			if (i < paragraphs.size()) {
+		    				insertHere = document.insertNewParagraph(paragraphs.get(i).getCTP().newCursor());
 		    			} 
+		    			else 
+		    			{
+		    				insertHere = document.createParagraph();
+		    			}
+		    			XWPFRun descRun = insertHere.createRun();
+		    			descRun.addBreak();
+		    	        descRun.setText("Quiz Description:");
+		    	        descRun.addBreak();
+		    	        
+		    			labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), insertHere);
+		    			isInserted = true;
+		    			break;
 		    		}
 		    	}
-		    	// Fallback: if no non-blank paragraph found, append at the end
-				XWPFParagraph fallbackParagraph = document.createParagraph();
-				labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+		    	if(!isInserted)
+		    	{
+		    		XWPFRun descRun = document.createParagraph().createRun();
+		    		descRun.setText(" ");
+	    			descRun.addBreak();
+	    	        descRun.setText("Quiz Description:");
+		    		// Fallback: if no non-blank paragraph found, append at the end
+		    		XWPFParagraph fallbackParagraph = document.createParagraph();
+		    		labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+		    	}
 		    }
 
 			for (XWPFHeader header : document.getHeaderList()) 
 			{
+				if(quiz.getTitle() != null)
+				{
+					XWPFParagraph headerPara = header.createParagraph();
+			    	headerPara.setAlignment(ParagraphAlignment.CENTER);
+			    	XWPFRun headerRun = headerPara.createRun();
+					headerRun.setText(quiz.getTitle());
+				}
 				for (XWPFParagraph p : header.getParagraphs()) 
 				{
 					applyToParagraph(p, tokenMap);

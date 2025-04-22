@@ -188,28 +188,30 @@ public class QuestionWriter
 		
 		List <SimpleAnswer> answerLabels = q.getAnswers();
 		Collections.shuffle(answerLabels); 
+		char optionLetter = 'a';
 		for (SimpleAnswer answer : answerLabels)
 		{
 			String prefix = "\t";
+			XWPFParagraph paragraph = document.createParagraph();
+			labelWriter.writeInline(new Label(prefix), paragraph);
 			if(isKey && q.isCorrect(answer))
 			{
-				var ansLabel = new Label("- " + answer.asText()); //Change this to lettered list format and grid if small
-				XWPFParagraph paragraph = document.createParagraph();
-				labelWriter.writeInline(new Label(prefix), paragraph);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText()); //Change this to lettered list format and grid if small
 				labelWriter.writeInline(redLabel(ansLabel), paragraph);
 				continue;
 			}
 			
 			if(answer.getLabel().getType() == Label.Type.html)
 			{
-				var ansLabel = new Label(prefix + "- " + answer.asText(), Label.Type.html); 
-				labelWriter.write(ansLabel);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText(), Label.Type.html); 
+				labelWriter.writeInline(ansLabel, paragraph);
 			}
 			else
 			{
-				var ansLabel = new Label(prefix + "- " + answer.asText());
-				labelWriter.write(ansLabel);
+				var ansLabel = new Label(optionLetter + ". " + answer.asText());
+				labelWriter.writeInline(ansLabel, paragraph);
 			}
+			optionLetter++;
 		}
 		
 		

@@ -80,8 +80,16 @@ public class TemplateCreator {
 
 	    // Function calls to correctly set the text in each cell
 	    setCellText(headerTable.getRow(0).getCell(0), "CS" + metadata.getValue(QuizMetadata.MetadataType.ClassNum) + "-0" + metadata.getValue(QuizMetadata.MetadataType.SectionNum) + "\n" + metadata.getValue(QuizMetadata.MetadataType.Professor), ParagraphAlignment.LEFT);
-	    setCellText(headerTable.getRow(0).getCell(1), "Test" + metadata.getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
+	    setCellText(headerTable.getRow(0).getCell(1), "Test-" + metadata.getValue(QuizMetadata.MetadataType.TestNum), ParagraphAlignment.CENTER);
 	    setCellText(headerTable.getRow(0).getCell(2), metadata.getValue(QuizMetadata.MetadataType.Date), ParagraphAlignment.RIGHT);
+	    if(quiz.getTitle() != null)
+	    {
+	    	XWPFParagraph headerPara = header.createParagraph();
+	    	headerPara.setAlignment(ParagraphAlignment.CENTER);
+	    	XWPFRun headerRun = headerPara.createRun();
+	    	headerRun.setFontFamily("Times New Roman");
+	    	headerRun.setText(quiz.getTitle());
+	    }
 	    
 	    // Create footer with correct properties
 	    XWPFFooter footer = document.createFooter(HeaderFooterType.DEFAULT);
@@ -128,6 +136,18 @@ public class TemplateCreator {
 	    nameRun.setFontSize(12);
 	    nameRun.setText("Name: _____________________________________");
 	    
+	    LabelWriter labelWriter = new LabelWriter(document);
+	    if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
+	    {
+	    	XWPFParagraph fallbackParagraph = document.createParagraph();
+	    	XWPFRun descRun = fallbackParagraph.createRun();
+    		descRun.addBreak();
+    	    descRun.setText("Quiz Description:");
+    		descRun.addBreak();
+	    	labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
+	    	
+	    }
+	    
 	    // Create a break between name field and numbered list
         XWPFParagraph testInstruction = document.createParagraph();
         testInstruction.setSpacingAfter(0);
@@ -157,45 +177,7 @@ public class TemplateCreator {
         addNumberedParagraph(document, "Do not communicate with other students. Talk only to the proctor.", numId, 0);
         addNumberedParagraph(document, "If you need a break during the exam, ask the proctor first. You must leave the exam and your cell phone in the classroom.", numId, 0);
         addNumberedParagraph(document, "This is a ", "(Point)", " point exam.", numId, 0);
-        addNumberedParagraph(document, "The time limit on this exam is (Time) minutes.", numId, 0);
-        
-        LabelWriter labelWriter = new LabelWriter(document);
-	    if (quiz.getDescription() != null && !quiz.getDescription().asText().isBlank())
-	    {
-	    	boolean isInserted = false;
-	    	List<XWPFParagraph> paragraphs = document.getParagraphs();
-	    	for (int i = 0; i < paragraphs.size(); i++) {
-	    		XWPFParagraph paragraph = paragraphs.get(i);
-
-	    		// Found the first paragraph with actual content
-	    		if (!paragraph.getText().isBlank()) {
-	    			XWPFParagraph insertHere;
-				
-	    			if (i + 1 < paragraphs.size() && paragraphs.get(i + 1).isEmpty()) {
-	    				insertHere = document.insertNewParagraph(paragraphs.get(i + 1).getCTP().newCursor());
-	    			} 
-	    			else 
-	    			{
-	    				insertHere = document.createParagraph();
-	    			}
-	    			XWPFRun breakRun = paragraph.createRun();
-	    			breakRun.setText(" "); //Need to change this to actually insert blank line
-	    			breakRun.addBreak();
-	    			labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), insertHere);
-	    			isInserted = true;
-	    			break;
-	    		}
-	    	}
-	    	if(!isInserted)
-	    	{
-	    		// Fallback: if no non-blank paragraph found, append at the end
-	    		XWPFParagraph fallbackParagraph = document.createParagraph();
-	    		XWPFRun breakRun = fallbackParagraph.createRun();
-    			breakRun.setText(" ");
-    			breakRun.addBreak();
-	    		labelWriter.writeInline(new Label(quiz.getDescription().asText(), Label.Type.html), fallbackParagraph);
-	    	}
-	    }
+        addNumberedParagraph(document, "The base time limit on this exam is (Time) minutes.", numId, 0);
         
 	    // Create space between numbered list and the section list
 	    XWPFParagraph sectionPar = document.createParagraph();
