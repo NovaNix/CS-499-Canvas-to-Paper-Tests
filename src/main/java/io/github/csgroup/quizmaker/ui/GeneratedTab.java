@@ -26,9 +26,11 @@ import javax.swing.event.ListSelectionEvent;
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Question;
 import io.github.csgroup.quizmaker.data.QuestionBank;
+import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
+import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
@@ -51,8 +53,9 @@ public class GeneratedTab extends JComponent
 		JPanel details = createDetailsPanel(p);
 		
 		var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, details);
-		splitPane.setOneTouchExpandable(true);
+		splitPane.setOneTouchExpandable(false);
 		splitPane.setDividerLocation(215);
+		//splitPane.
 
 		//splitPane.setPreferredSize(new Dimension(522, 535));
 		
@@ -68,7 +71,8 @@ public class GeneratedTab extends JComponent
 		var assignments = project.getGeneratedQuizModel();
 		list = new JList<GeneratedQuiz>(assignments);  
 		JScrollPane scrollPane = new JScrollPane(list);
-		scrollPane.setPreferredSize(new Dimension(215, 455));
+		//scrollPane.
+		//scrollPane.setPreferredSize(new Dimension(215, 455));
 
 		GridBagConstraints labelConstraint = new GridBagConstraints();
 		GridBagConstraints scrollPaneConstraint = new GridBagConstraints();
@@ -133,17 +137,33 @@ public class GeneratedTab extends JComponent
 		if (quiz == null)
 			return;
 		
-		System.out.println("2");
-		
 		JPanel contents = new JPanel();
 		contents.setLayout(new BoxLayout(contents, BoxLayout.PAGE_AXIS));
 		
 		JScrollPane scroll = new JScrollPane(contents);
 		
+		// Add the header
+		
 		JLabel title = new JLabel(quiz.toString());
 		contents.add(title);
 		
+		// Add the question table
+		
 		contents.add(createQuestionTable(quiz));
+		
+		// Add the export button
+		
+		JButton exportButton = new JButton("Export");
+		
+		exportButton.addActionListener((ActionEvent e) -> {
+            //int index = quizList.getSelectedIndex();
+            //Quiz selectedQuiz = project.getQuiz(index);
+            // show the export dialog
+            ExportWordDialog exportDialog = new ExportWordDialog(quiz);
+            exportDialog.show();
+        });
+		
+		contents.add(exportButton);
 		
 		details.add(scroll);
 		
@@ -165,46 +185,9 @@ public class GeneratedTab extends JComponent
         tablePanel.add(questionTable); 
         tablePanel.setPreferredSize(new Dimension(521, 490/2));
         
-        var table = questionTable.getTable();
+        //var table = questionTable.getTable();
         
         populateQuestionTable(quiz, questionTable);
-        
-//        table.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e)
-//            { 
-//                int index = list.getSelectedIndex();
-//                //QuestionBank bank = project.getBank(index);
-//                
-//                // if the user double clicks the table show the dialog that allows them 
-//                // to add a question
-//                if (e.getClickCount() == 2)
-//                {
-//                    //QuestionsDialog questionDialog = new QuestionsDialog(bank, questionTable);
-//                    //questionDialog.show();
-//                }    
-//                // if the user right clicks the table allow them to add or delete
-//                // a question
-//                if (SwingUtilities.isRightMouseButton(e))
-//                {
-//                    int row = table.getSelectedRow();
-//                    if (row >= 0)
-//                    {
-//                        try
-//                        {
-//                            //Question question = bank.getQuestion(row);                        
-//                            //JPopupMenu menu = quizPopUpMenu(bank, question, row);
-//                            //menu.show(e.getComponent(), e.getX(), e.getY());                            
-//                        }
-//                        catch(IndexOutOfBoundsException n)
-//                        {
-//                            //JPopupMenu menu = quizPopUpMenu(bank, null, row);
-//                            //menu.show(e.getComponent(), e.getX(), e.getY());  
-//                        }
-//                    }                    
-//                }               
-//            }        
-//        });
                                
         return tablePanel;
     }

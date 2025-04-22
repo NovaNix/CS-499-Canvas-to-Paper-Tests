@@ -1,8 +1,6 @@
 package io.github.csgroup.quizmaker.ui.dialogs;
 
-import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
-import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
@@ -50,10 +48,10 @@ public class ExportWordDialog
     private JPanel replacementPanel;
     private JPanel cardPanel;
     private Path lastUsedDirectory = Paths.get(System.getProperty("user.home"));
-    private Quiz quiz;
+    private GeneratedQuiz quiz;
     private TemplateReplacements replacements;
     
-    public ExportWordDialog(Quiz exportQuiz)
+    public ExportWordDialog(GeneratedQuiz exportQuiz)
     {
         quiz = exportQuiz;
         createExportFileFrame();
@@ -532,10 +530,10 @@ public class ExportWordDialog
                         ? Paths.get(referenceLocation)
                         : null;
 
-                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, false);
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, false);
                     }
                     catch (IOException n)
                     {
@@ -556,10 +554,10 @@ public class ExportWordDialog
                         ? Paths.get(referenceLocation)
                         : null;
 
-                    GeneratedQuiz generatedQuiz = quiz.getGenerated();
+                    //GeneratedQuiz generatedQuiz = quiz.getGenerated();
                     try
                     {
-                        exportFile.exportTest(generatedQuiz, templatePath, exportPath, replacements, referencePath, true);
+                        exportFile.exportTest(quiz, templatePath, exportPath, replacements, referencePath, true);
                     }
                     catch (IOException n)
                     {
