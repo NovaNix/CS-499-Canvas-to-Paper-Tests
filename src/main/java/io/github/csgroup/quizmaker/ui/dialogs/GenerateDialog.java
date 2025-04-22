@@ -9,6 +9,7 @@ import io.github.csgroup.quizmaker.word.TemplateReplacements;
 
 import java.awt.GridBagLayout;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
@@ -104,6 +105,8 @@ public class GenerateDialog
             	// TODO THIS IS HACKY, FIX LATER
             	var generated = quiz.regenerate();
             	App.getCurrentProject().addGeneratedQuiz(generated);
+            	
+            	successDialog(generated.getTitle());
             }
             generateFrame.dispose();
         });
@@ -111,6 +114,12 @@ public class GenerateDialog
         return buttonPanel;
     }
    
+    private void successDialog(String name)
+    {
+        JFrame successFrame = new JFrame();
+        JOptionPane.showMessageDialog(successFrame, "Created a new assessment: " + name, null, JOptionPane.PLAIN_MESSAGE);        
+    }
+    
     /**
      * Controls when and where the frame appears 
      */

@@ -522,6 +522,9 @@ public class ExportWordDialog
                 Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
                     ? Paths.get(referenceLocation)
                     : null;
+                
+                boolean errored = false;
+                
                 // export the quiz 
                 if (testButton.isSelected())
                 {
@@ -532,6 +535,7 @@ public class ExportWordDialog
                     }
                     catch (IOException n)
                     {
+                    	errored = true;
                         errorDialog(n.getMessage());
                     }
                 }
@@ -544,10 +548,16 @@ public class ExportWordDialog
                     }
                     catch (IOException n)
                     {
+                    	errored = true;
                         errorDialog(n.getMessage());
                     }
                 }
                 exportFrame.dispose();
+                
+                if (!errored)
+                {
+                	successDialog(exportLocation);
+                }
             }
         }); 
                 
