@@ -658,7 +658,7 @@ public class QuizPanel extends JComponent
         exportGenConstraint.gridy = 3;
         detailsPanel.add(exportGenButtons, exportGenConstraint);
 
-        detailsPanel.setPreferredSize(new Dimension(642, 5924));
+        detailsPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.setPreferredSize(new Dimension(642, 592));
         containerPanel.add(detailsPanel);
                                
