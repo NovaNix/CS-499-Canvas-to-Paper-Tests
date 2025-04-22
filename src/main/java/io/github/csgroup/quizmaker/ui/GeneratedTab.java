@@ -23,6 +23,7 @@ import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
+import java.awt.Insets;
 
 /**
  * The panel placed inside of the "Assignments" tab
@@ -93,8 +94,50 @@ public class GeneratedTab extends JComponent
 		
 		if (quiz == null)
 			return;
-		
-		JPanel contents = new JPanel();
+        
+        
+        JButton exportButton = new JButton("Export");
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(exportButton);
+		       
+        JPanel contents = new JPanel(new GridBagLayout());
+        GridBagConstraints titleConstraint = new GridBagConstraints();
+        GridBagConstraints dataConstraint = new GridBagConstraints();
+        GridBagConstraints tableConstraint = new GridBagConstraints();
+        GridBagConstraints buttonConstraint = new GridBagConstraints();
+        
+        JLabel title = new JLabel(quiz.toString());
+        titleConstraint.fill = GridBagConstraints.HORIZONTAL;
+        titleConstraint.gridx = 0;
+        titleConstraint.gridy = 0;
+        titleConstraint.insets = new Insets(20, 0, 10, 0);
+        contents.add(title, titleConstraint);        
+      
+        dataConstraint.fill = GridBagConstraints.HORIZONTAL;
+        dataConstraint.gridx = 0;
+        dataConstraint.gridy = 1;
+        contents.add(createMetadataPanel(quiz), dataConstraint);
+        
+        tableConstraint.fill = GridBagConstraints.HORIZONTAL;
+        tableConstraint.gridx = 0;
+        tableConstraint.gridy = 2;
+        tableConstraint.insets = new Insets(0, 0, 100, 110);
+        contents.add(createQuestionTable(quiz), tableConstraint);        
+      
+        buttonConstraint.fill = GridBagConstraints.HORIZONTAL;
+        buttonConstraint.gridx = 0;
+        buttonConstraint.gridy = 3;
+        buttonConstraint.insets = new Insets(0, 0, 0, 60);
+        contents.add(buttonPanel, buttonConstraint);
+        
+        exportButton.addActionListener((ActionEvent e) -> {
+            // show the export dialog
+            ExportWordDialog exportDialog = new ExportWordDialog(quiz);
+            exportDialog.show();
+        });
+        
+        
+		/*JPanel contents = new JPanel();
 		contents.setLayout(new BoxLayout(contents, BoxLayout.PAGE_AXIS));
 		
 		// Add the header
@@ -120,7 +163,7 @@ public class GeneratedTab extends JComponent
             exportDialog.show();
         });
 		
-		contents.add(exportButton);
+		contents.add(exportButton);*/
 		
 		details.add(contents);
 		
@@ -130,6 +173,7 @@ public class GeneratedTab extends JComponent
 	private JPanel createMetadataPanel(GeneratedQuiz quiz)
 	{
 		JPanel panel = new JPanel(new GridBagLayout());
+        JPanel finalPanel = new JPanel(new GridBagLayout());
 		
 		QuizMetadata data = quiz.getQuizMetadata();
 		
@@ -154,31 +198,33 @@ public class GeneratedTab extends JComponent
 			GridBagConstraints labelConstraints = new GridBagConstraints();
 			labelConstraints.gridx = 0;
 			labelConstraints.gridy = y;
+            labelConstraints.insets = new Insets(0, 0, 5, 0);
 			GridBagConstraints fieldConstraints = new GridBagConstraints();
 			fieldConstraints.gridx = 1;
 			fieldConstraints.gridy = y;
-			
+          	fieldConstraints.insets = new Insets(0, 0, 5, 160);
+            
 			panel.add(label, labelConstraints);
 			panel.add(field, fieldConstraints);
-			
-			y++;
+                        			
+			y++;                       
 		}
-		
+        		
 		return panel;
 	}
 	
 	private JPanel createQuestionTable(GeneratedQuiz quiz)
     {        
         String[] bankTableHeaders = {"Questions", "Answers"};
-        int numRows = 29;
+        int numRows = 13;
                 
         var questionTable = new QuestionTable(bankTableHeaders, numRows);
-        questionTable.setTableSize(520, 487);
+        questionTable.setTableSize(570, 235);
         questionTable.setTableRowHeight(16);
               
         JPanel tablePanel = new JPanel();
         tablePanel.add(questionTable); 
-        tablePanel.setPreferredSize(new Dimension(521, 490/2));
+        tablePanel.setPreferredSize(new Dimension(571, 245));
         
         populateQuestionTable(quiz, questionTable);
                                
@@ -195,6 +241,5 @@ public class GeneratedTab extends JComponent
 			table.setValue(answer, i, 1);
 		}   
         
-    }
-	
+    }	
 }
