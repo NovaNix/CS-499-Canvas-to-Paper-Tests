@@ -199,6 +199,7 @@ public class ImportQTIDialog
             QTIContents contents = importQTIFile.readFile(qtiStringPath);
             project.addQTI(contents);
             importFrame.dispose();
+            successDialog();
         } 
         catch (Exception ex) 
         {
@@ -214,6 +215,12 @@ public class ImportQTIDialog
     {
         JFrame errorFrame = new JFrame();
         JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);        
+    }
+    
+    private void successDialog()
+    {
+        JFrame successFrame = new JFrame();
+        JOptionPane.showMessageDialog(successFrame, "QTI File Successfully imported", null, JOptionPane.PLAIN_MESSAGE);        
     }
             
     /**
