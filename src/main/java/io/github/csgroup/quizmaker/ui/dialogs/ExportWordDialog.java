@@ -522,7 +522,7 @@ public class ExportWordDialog
                 Path referencePath = referenceLocation != null && !referenceLocation.isBlank()
                     ? Paths.get(referenceLocation)
                     : null;
-            	
+            	GenerateQuiz generateQuiz = quiz.getGenerated();
                 // export the quiz 
                 if (testButton.isSelected())
                 {
