@@ -82,14 +82,17 @@ public class GUIManager
         Project project = App.getCurrentProject();
         BankPanel bankPanel = new BankPanel(project);
         QuizPanel quizPanel = new QuizPanel(project);
+        GeneratedTab generatedTab = new GeneratedTab(project);
                 
         // adds two tabs two the homeFrame
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Quizzes", quizPanel);
         tabs.addTab("Question Banks", bankPanel);
+        tabs.addTab("Assignments", generatedTab);
         // setting the looks and feel of the tabs
         tabs.setBackgroundAt(0, new Color(237, 237, 237));
         tabs.setBackgroundAt(1, new Color(237, 237, 237));
+        tabs.setBackgroundAt(2, new Color(237, 237, 237));
         UIManager.put("TabbedPane.contentAreaColor", new Color(237, 237, 237));
         UIManager.put("TabbedPane.highlight", Color.GRAY);
         tabs.setUI(new BasicTabbedPaneUI());
