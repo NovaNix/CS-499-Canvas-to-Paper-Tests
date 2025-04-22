@@ -31,6 +31,8 @@ public class QuestionUsageDialog
         
         JPanel contents = new JPanel(new BorderLayout());
         
+        contents.add(new JLabel(q.getTitle()), BorderLayout.NORTH);
+        
         contents.add(getTrackingPanel(q), BorderLayout.CENTER);
         
         frame.add(contents);
