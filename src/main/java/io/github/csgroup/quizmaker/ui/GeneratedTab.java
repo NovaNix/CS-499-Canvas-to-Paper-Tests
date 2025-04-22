@@ -2,44 +2,37 @@ package io.github.csgroup.quizmaker.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Question;
-import io.github.csgroup.quizmaker.data.QuestionBank;
-import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata.MetadataType;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
-import io.github.csgroup.quizmaker.ui.dialogs.CreateBankDialog;
 import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
-import io.github.csgroup.quizmaker.ui.dialogs.RemoveBankDialog;
-import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
+/**
+ * The panel placed inside of the "Assignments" tab
+ * 
+ * @author Michael Nix
+ */
 public class GeneratedTab extends JComponent
 {
+
+	private static final long serialVersionUID = 728471021049458310L;
 
 	private Project project;
 
@@ -59,16 +52,12 @@ public class GeneratedTab extends JComponent
 		var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, details);
 		splitPane.setOneTouchExpandable(false);
 		splitPane.setDividerLocation(215);
-		//splitPane.
-
-		//splitPane.setPreferredSize(new Dimension(522, 535));
 		
 		this.add(splitPane, BorderLayout.CENTER);
 	}
 
 	private JPanel createSidebar(Project p)
 	{
-		//JPanel sidebar = new JPanel(new GridBagLayout());
 		JPanel sidebar = new JPanel(new BorderLayout());
 
 		JLabel label = new JLabel("Assignments");
@@ -88,7 +77,10 @@ public class GeneratedTab extends JComponent
 		JPanel details = new JPanel();
 		
 		list.addListSelectionListener((ListSelectionEvent e) -> {
-			populateDetailsPanel(details, p.getGeneratedQuiz(e.getFirstIndex()));
+
+			GeneratedQuiz quiz = list.getSelectedValue();
+			
+			populateDetailsPanel(details, quiz);
 		});
 		
 		
@@ -104,9 +96,6 @@ public class GeneratedTab extends JComponent
 		
 		JPanel contents = new JPanel();
 		contents.setLayout(new BoxLayout(contents, BoxLayout.PAGE_AXIS));
-		
-		//JScrollPane scroll = new JScrollPane(contents);
-		//scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		
 		// Add the header
 		
@@ -132,8 +121,6 @@ public class GeneratedTab extends JComponent
         });
 		
 		contents.add(exportButton);
-		
-		//details.add(scroll);
 		
 		details.add(contents);
 		
@@ -188,13 +175,10 @@ public class GeneratedTab extends JComponent
         var questionTable = new QuestionTable(bankTableHeaders, numRows);
         questionTable.setTableSize(520, 487);
         questionTable.setTableRowHeight(16);
-        //questionTable.setVisible(false);
               
         JPanel tablePanel = new JPanel();
         tablePanel.add(questionTable); 
         tablePanel.setPreferredSize(new Dimension(521, 490/2));
-        
-        //var table = questionTable.getTable();
         
         populateQuestionTable(quiz, questionTable);
                                
