@@ -20,7 +20,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
@@ -71,11 +76,9 @@ public class GUIManager
             
         // "About" menu
         JMenu aboutMenu = new JMenu("About");    
-        JMenuItem attributeFileItem = new JMenuItem("Icon attribute");
         JMenuItem creditsFileItem = new JMenuItem("Credits");           
         // add items to the JMenu fileMenu
         aboutMenu.add(creditsFileItem);    
-        aboutMenu.add(attributeFileItem);  
         // add JMenu "About" to the JMenuBar menuBar
         menuBar.add(aboutMenu);
         
@@ -117,6 +120,11 @@ public class GUIManager
             // display the frame that lets the user export their QTI files
             exportQTIFrame.show();            
         });
+        
+        // listens for when the user selects importFileItems
+        creditsFileItem.addActionListener((ActionEvent e) -> {
+            credits();
+        });
                                                                                                   
         // if the JFrame is closed terminate the running program
         homeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,6 +134,53 @@ public class GUIManager
         homeFrame.setVisible(true);  
     }	
     
+    private void credits()
+    {
+        JFrame creditsFrame = new JFrame();
+        creditsFrame.setSize(300, 250);
+        JLabel michaelLabel = new JLabel("Michael Nix: Full stack developer");
+        JLabel sarahLabel = new JLabel("Srash Sing: Back end developer");
+        JLabel samLabel = new JLabel("Samuel Garcia: Back end developer");
+        JLabel emilyLabel = new JLabel("Emily Palmer: Front end developer");
+        
+        JPanel labelPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints michaelConstraint = new GridBagConstraints();
+        GridBagConstraints sarahConstraint = new GridBagConstraints();
+        GridBagConstraints samConstraint = new GridBagConstraints();
+        GridBagConstraints emilyConstraint = new GridBagConstraints();
+        
+        michaelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        michaelConstraint.gridx = 0;
+        michaelConstraint.gridy = 0;
+        michaelConstraint.insets = new Insets(0, 0, 10, 0);
+        labelPanel.add(michaelLabel, michaelConstraint);   
+        
+        sarahConstraint.fill = GridBagConstraints.HORIZONTAL;
+        sarahConstraint.gridx = 0;
+        sarahConstraint.gridy = 1;
+        sarahConstraint.insets = new Insets(0, 0, 10, 0);
+        labelPanel.add(sarahLabel, sarahConstraint); 
+        
+        samConstraint.fill = GridBagConstraints.HORIZONTAL;
+        samConstraint.gridx = 0;
+        samConstraint.gridy = 2;
+        samConstraint.insets = new Insets(0, 0, 10, 0);
+        labelPanel.add(samLabel, samConstraint); 
+        
+        emilyConstraint.fill = GridBagConstraints.HORIZONTAL;
+        emilyConstraint.gridx = 0;
+        emilyConstraint.gridy = 3;
+        emilyConstraint.insets = new Insets(0, 0, 10, 0);
+        labelPanel.add(emilyLabel, emilyConstraint); 
+        
+        creditsFrame.add(labelPanel);
+        
+        // makes the JFrame appear in the center of the screen
+        creditsFrame.setLocationRelativeTo(null);
+        // makes the JFrame visible
+        creditsFrame.setVisible(true);
+    }
+        
     private Image getIcon() 
     {
     	try {
