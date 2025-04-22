@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -50,8 +51,8 @@ public class ExportQTIDialog
        
     private void exportFileFrame()
     {
-        exportQTIFrame = new JFrame("Export File");
-        exportQTIFrame.setSize(380, 220);
+        exportQTIFrame = new JFrame("Export QTI File");
+        exportQTIFrame.setSize(450, 240);
                 
         JLabel fileLabel = new JLabel("File: ");
                        
@@ -65,7 +66,7 @@ public class ExportQTIDialog
         fileLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         fileLabelConstraint.gridx = 0;
         fileLabelConstraint.gridy = 0;
-        fileLabelConstraint.insets = new Insets(40, 5, 0, 0);
+        fileLabelConstraint.insets = new Insets(55, 5, 0, 0);
         exportPanel.add(fileLabel, fileLabelConstraint);
                 
         // places importFilePanel at the top of the panel
@@ -73,7 +74,7 @@ public class ExportQTIDialog
         exportPanelConstraint.fill = GridBagConstraints.HORIZONTAL;
         exportPanelConstraint.gridx = 0;
         exportPanelConstraint.gridy = 1;
-        exportPanelConstraint.insets = new Insets(0, 0, 35, 0);
+        exportPanelConstraint.insets = new Insets(0, 0, 55, 0);
         exportPanel.add(filePanel, exportPanelConstraint);
         
         // places importButtonPanel at the bottom of the panel
@@ -95,7 +96,7 @@ public class ExportQTIDialog
     private JPanel exportFilePanel()
     {
         JTextField fileTextField = new JTextField();
-        fileTextField.setPreferredSize(new Dimension(250, 22));
+        fileTextField.setPreferredSize(new Dimension(310, 22));
         fileTextField.setFocusable(false);
         JPanel textPanel = new JPanel();
         textPanel.add(fileTextField);
@@ -167,8 +168,8 @@ public class ExportQTIDialog
     {
         exportButton = new JButton("Export");
         exportButton.setEnabled(false);
-        JPanel importButtonPanel = new JPanel();
-        importButtonPanel.add(exportButton);
+        JPanel exportButtonPanel = new JPanel();
+        exportButtonPanel.add(exportButton);
                
         // listens for when importButton is selected
         exportButton.addActionListener((ActionEvent e) -> {
@@ -184,18 +185,35 @@ public class ExportQTIDialog
                     // close the frame
                     exportQTIFrame.dispose();
                 }
-                catch (IOException n) {} catch (TransformerException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+                catch (IOException n) 
+                {
+                    errorDialog(n.getMessage());
+                    
+                } 
+                catch (TransformerException e1) 
+                {
+					errorDialog(e1.getMessage());
+				} 
+                catch (Exception e1) 
+                {
+					errorDialog(e1.getMessage());
 				}
             }
         });
         
-        return importButtonPanel;
-    }   
+        return exportButtonPanel;
+    } 
+    
+    /**
+     * Shows a JOptionPane to let the user know if an error has occurred importing 
+     * their file
+     */
+    private void errorDialog(String error)
+    {
+        JFrame errorFrame = new JFrame();
+        JOptionPane.showMessageDialog(errorFrame, error, "Error", JOptionPane.ERROR_MESSAGE);        
+    }
+
                
     /**
      * Controls when and where the frame appears

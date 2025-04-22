@@ -7,7 +7,6 @@ import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.answers.BlankAnswer;
 import io.github.csgroup.quizmaker.data.questions.FillInTheBlankQuestion;
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
-
 import java.awt.Dimension;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -55,6 +54,11 @@ public class FillInTheBlankPanel extends JComponent
     private JButton addQuestionButton;
     private JButton addButton;
     private JButton removeButton;
+    private JCheckBox abetCheckBox;
+    private final int defaultAnswers = 2;
+    private boolean edit;
+    private Question editQuestion;
+    private int editedRow;
     private final int numAnswers = 10;
     
     public FillInTheBlankPanel(JFrame frame, JTextArea fitbQuestion, JTextField points, Quiz quiz, QuestionTable table, JTextField title)
@@ -77,6 +81,23 @@ public class FillInTheBlankPanel extends JComponent
         questionTable = table;
         questionTitle = title;
         fillInTheBlankPanel();          
+    }
+    
+    /**
+     * Determines if a question is being edited
+     * 
+     * @param result determines where or not the question is being edited
+     * @param row the row where the question is located 
+     */
+    public void isEditable(boolean result, int row)
+    {
+        edit = result;
+        editedRow = row;
+        if (edit == true)
+        {
+            // populate the dialog with the question's information
+            editQuestion(editedRow);
+        }
     }
     
     /**
@@ -113,7 +134,7 @@ public class FillInTheBlankPanel extends JComponent
     private JPanel labelsPanel()
     {
         JLabel answerLabel = new JLabel("Answer");
-        JCheckBox abetCheckBox = new JCheckBox("ABET Question");
+        abetCheckBox = new JCheckBox("ABET Question");
         
         // contains answerLabel and abetCheckBox
         JPanel labelsPanel = new JPanel(new GridBagLayout());
@@ -124,14 +145,14 @@ public class FillInTheBlankPanel extends JComponent
         answerConstraint.fill = GridBagConstraints.HORIZONTAL;
         answerConstraint.gridx = 0;
         answerConstraint.gridy = 0;
-        answerConstraint.insets = new Insets(0, 4, 0, 122);
+        answerConstraint.insets = new Insets(0, 0, 0, 112);
         labelsPanel.add(answerLabel, answerConstraint); 
         
         // places abetCheckBox on the right side of answerLabel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
-        checkBoxConstraint.insets = new Insets(0, 102, 0, 0);
+        checkBoxConstraint.insets = new Insets(0, 170, 0, 0);
         labelsPanel.add(abetCheckBox, checkBoxConstraint); 
                 
         return labelsPanel;
@@ -147,7 +168,7 @@ public class FillInTheBlankPanel extends JComponent
         for (int i = 0; i < numAnswers; i++)
         {
             answerFields[i] = new JTextField();
-            answerFields[i].setPreferredSize(new Dimension(190, 25));
+            answerFields[i].setPreferredSize(new Dimension(200, 25));
             answerPanels[i] = new JPanel();
             answerPanels[i].add(answerFields[i]);
             // only display the first two text fields upon initialization
@@ -173,7 +194,7 @@ public class FillInTheBlankPanel extends JComponent
             textFieldConstraints[i].fill = GridBagConstraints.HORIZONTAL;
             textFieldConstraints[i].gridx = 0;
             textFieldConstraints[i].gridy = 0;
-            textFieldConstraints[i].insets = new Insets(0, 0, 0, 90);
+            textFieldConstraints[i].insets = new Insets(0, 0, 0, 125);
             rowPanels[i].add(answerPanels[i], textFieldConstraints[i]);   
         }
     }
@@ -218,17 +239,17 @@ public class FillInTheBlankPanel extends JComponent
                 answersPanel.add(cardPanels[i], rowConstraints[i]);  
                 
                 // show the first two text fields upon initialization 
-                if (i < 2)
+                if (i < defaultAnswers)
                 {
                     layout.show(cardPanels[i], "row " + (i));
                 }
                 // show the add/remove button panel
-                if (i == 2)
+                if (i == defaultAnswers)
                 {
                     layout.show(cardPanels[i], "button " + (i));
                 }
                 // show three blank panels upon initialization 
-                if ((i > 2) && (i < 5))
+                if ((i > defaultAnswers) && (i < 5))
                 {
                     layout.show(cardPanels[i], "blank " + (i));
                 }
@@ -284,7 +305,7 @@ public class FillInTheBlankPanel extends JComponent
         removeConstraint.fill = GridBagConstraints.HORIZONTAL;
         removeConstraint.gridx = 1;
         removeConstraint.gridy = 0;
-        removeConstraint.insets = new Insets(0, 0, 0, 90);
+        removeConstraint.insets = new Insets(0, 0, 0, 125);
         buttonPanel.add(removeButton, removeConstraint);
         
         // listens for when addButton is selected
@@ -317,7 +338,7 @@ public class FillInTheBlankPanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        addQuestionButton = new JButton("Add");
+        addQuestionButton = new JButton("Save");
         addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addQuestionButton);
@@ -332,20 +353,33 @@ public class FillInTheBlankPanel extends JComponent
 
             try
             {
-                if (newQuiz != null)
-                {
-                    // the point value of the question
-                    String pointsString = pointsValue.getText();
-                    float floatPoints = Float.parseFloat(pointsString);               
+                // the point value of the question
+                String pointsString = pointsValue.getText();
+                float floatPoints = Float.parseFloat(pointsString); 
+                
+                // add quiz question
+                if ((newQuiz != null) && (edit == false))
+                {            
                     FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
                     fitbQuestion.setLabel(new Label(questionString));
-                    addFITBQuestion(fitbQuestion, questionString);
+                    addFITBQuestion(fitbQuestion, questionString);                
                 }
-                if (questionBank != null)
+                // update quiz question
+                if ((newQuiz != null) && (edit == true))
+                {
+                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                }
+                // add bank question
+                if ((questionBank != null) && (edit == false))
                 {
                     FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel);
                     fitbQuestion.setLabel(new Label(questionString));
                     addFITBQuestion(fitbQuestion, questionString);
+                }
+                // update bank question
+                if ((questionBank != null) && (edit == true))
+                { 
+                    updateBankQuestion(questionLabel, questionString);                    
                 }
 
                 mainFrame.dispose();
@@ -357,6 +391,106 @@ public class FillInTheBlankPanel extends JComponent
         return buttonPanel;
     }
     
+    /**
+     * Populates the dialog with the question's title, point value, question, and
+     * abet check box
+     * 
+     * @param index the index of the question being edited
+     */
+    private void editQuestion(int index)
+    {  
+        // populate the quiz's question information
+        if (newQuiz != null)
+        {
+            editQuestion = newQuiz.getQuestion(index);
+            
+            questionTitle.setText(editQuestion.getTitle());           
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer);           
+        }
+        // populate the banks's question information
+        if (questionBank != null)
+        {
+            editQuestion = questionBank.getQuestion(index);            
+            questionTitle.setText(editQuestion.getTitle());           
+            
+            if (editQuestion.isAbet() == true)
+            {
+                abetCheckBox.setSelected(true);
+            }
+            else
+            {
+                abetCheckBox.setSelected(false);
+            }
+            
+            Label questionLabel = editQuestion.getLabel();
+            question.setText(questionLabel.asText());
+            
+            String answer = editQuestion.getAnswerString();
+            populateAnswers(answer);           
+        }        
+    }
+    
+    /**
+     * Populates the question's answer(s)
+     * 
+     * @param answer the question's answer
+     */
+    private void populateAnswers(String answer)
+    {
+        String[] answers = answer.split(",");
+        
+        // remove any unused text fields
+        if (answers.length < defaultAnswers)
+        {
+            hidePanels(answers.length);
+        }
+        
+        // display the answers
+        for (int i = 0; i < answers.length; i++)
+        {
+            int spaceIndex = answers[i].indexOf(" ");
+            if (spaceIndex == 0)
+            {
+                answers[i] = answers[i].substring(0, spaceIndex) + answers[i].substring(spaceIndex + 1);
+            }
+            
+            if (i > 1)
+            {
+                addAnswer();
+            }           
+            answerPanels[i].setVisible(true);
+            answerFields[i].setText(answers[i]);
+        }
+    }
+    
+    /**
+     * Hides any unused answer text fields
+     * 
+     * @param answers the number of answers for the question
+     */
+    private void hidePanels(int answers)
+    {
+        for (int i = 0; i < (defaultAnswers - answers); i++)
+        {
+            removeAnswer();            
+        }       
+    }
+      
     /**
      * Ensures that the question title, points value, and question description 
      * have been entered before addQuestionButton is enabled
@@ -579,25 +713,37 @@ public class FillInTheBlankPanel extends JComponent
      */
     private void addFITBQuestion(FillInTheBlankQuestion question, String questionString)
     {
-        ArrayList<String> questionTags = getTag(questionString);
-        // get each answer
-        for (int i = 0; i < numAnswers; i++)
-        {
-            String answer = answerFields[i].getText();                    
-            boolean empty = answer.isEmpty();
-            // if the text field isn't empty and it's visible add the answer to the quiz
-            if ((empty == false) && (answerPanels[i].isVisible() == true))
-            {
-                question.setAnswer(questionTags.get(i), new BlankAnswer(i, answer));
-            }
-        }        
+        addAnswers(question, questionString);
+     
         if (newQuiz != null)
-        {
+        {            
             newQuiz.addQuestion(question);
+            int index = newQuiz.getQuestionIndex(question);
+            Question newQuestion = newQuiz.getQuestion(index);
+            // if the abetCheckBox is selected mark the question as an abet question
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         if (questionBank != null)
         {
             questionBank.add(question);
+            int index = questionBank.getQuestionIndex(question);
+            Question newQuestion = questionBank.getQuestion(index);
+            // if the abetCheckBox is selected mark the question as an abet question
+            if (abetCheckBox.isSelected() == true)
+            {
+                newQuestion.setAbet(true);
+            }            
+            else
+            {
+                newQuestion.setAbet(false);
+            }
         }
         populateTable();
     }
@@ -630,6 +776,79 @@ public class FillInTheBlankPanel extends JComponent
         }
                
         return tags;
+    }
+    
+    /**
+     * Updates a quiz question
+     * 
+     * @param updateTitle the question title
+     * @param updatePoints the points amount for the question
+     * @param updateQuestion the question
+     */
+    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    {
+        FillInTheBlankQuestion newQuestion = (FillInTheBlankQuestion) editQuestion;
+        newQuestion.setPoints(updatePoints);
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        addAnswers(newQuestion, updateQuestion);        
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }
+    
+    /**
+     * Updates a bank question
+     * 
+     * @param updateTitle the question title
+     * @param updateQuestion the question
+     */
+    private void updateBankQuestion(String updateTitle, String updateQuestion)
+    {
+        FillInTheBlankQuestion newQuestion = (FillInTheBlankQuestion) editQuestion;
+        newQuestion.setTitle(updateTitle);
+        newQuestion.setLabel(new Label(updateQuestion));
+        
+        addAnswers(newQuestion, updateQuestion);
+        if (abetCheckBox.isSelected() == true)
+        {
+            newQuestion.setAbet(true);
+        }            
+        else
+        {
+            newQuestion.setAbet(false);
+        }
+
+        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
+    }
+    
+    /**
+     * Adds answers to a multiple choice question
+     * 
+     * @param question 
+     */
+    private void addAnswers(FillInTheBlankQuestion question, String questionString)
+    {
+        ArrayList<String> questionTags = getTag(questionString);
+        // get each answer
+        for (int i = 0; i < numAnswers; i++)
+        {
+            String answer = answerFields[i].getText();                    
+            boolean empty = answer.isEmpty();
+            // if the text field isn't empty and it's visible add the answer to the quiz
+            if ((empty == false) && (answerPanels[i].isVisible() == true))
+            {
+                question.setAnswer(questionTags.get(i), new BlankAnswer(i, answer));
+            }
+        } 
     }
     
     /**
