@@ -346,7 +346,7 @@ public class MatchingPanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        addQuestionButton = new JButton("Add");
+        addQuestionButton = new JButton("Save");
         addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addQuestionButton);

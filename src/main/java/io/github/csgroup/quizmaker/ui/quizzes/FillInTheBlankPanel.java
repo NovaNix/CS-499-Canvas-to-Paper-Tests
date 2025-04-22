@@ -338,7 +338,7 @@ public class FillInTheBlankPanel extends JComponent
      */
     private JPanel addButtonPanel()
     {
-        addQuestionButton = new JButton("Add");
+        addQuestionButton = new JButton("Save");
         addQuestionButton.setEnabled(false);
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(addQuestionButton);
