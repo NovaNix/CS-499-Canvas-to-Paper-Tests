@@ -5,6 +5,7 @@ import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 
 import java.awt.GridBagLayout;
@@ -65,10 +66,13 @@ public class GenerateDialog
         if(isTemplateMode)
         {
         	generatePanel = new GeneratePanel(205, replacements);
-        } else
+        } 
+        else
         {
-        	generatePanel = new GeneratePanel(205, metadata);
+        	generatePanel = new GeneratePanel(205, metadata); //Need to get this to give metadata values if present in SessionMemory but no metadata in quiz
         }
+
+
         generateConstraint.fill = GridBagConstraints.HORIZONTAL;
         generateConstraint.gridx = 0;
         generateConstraint.gridy = 0;
@@ -104,6 +108,7 @@ public class GenerateDialog
             {
             	// TODO THIS IS HACKY, FIX LATER
             	var generated = quiz.regenerate();
+            	SessionMemory.getInstance().setLastMetadata(generated.getQuizMetadata());
             	App.getCurrentProject().addGeneratedQuiz(generated);
             	
             	successDialog(generated.getTitle());

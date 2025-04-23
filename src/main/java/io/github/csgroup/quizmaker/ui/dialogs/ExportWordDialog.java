@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
 import java.awt.CardLayout;
@@ -640,7 +641,8 @@ public class ExportWordDialog
      */
     private JPanel replacementPanel()
     {
-        replacements = new TemplateReplacements();
+    	replacements = SessionMemory.getInstance().getLastReplacements();
+        if(replacements == null) replacements = new TemplateReplacements();
         GeneratePanel generate = new GeneratePanel(180, replacements);
         JButton applyButton = new JButton("Apply");
         JPanel buttonPanel = new JPanel();
@@ -671,9 +673,9 @@ public class ExportWordDialog
             CardLayout layout = (CardLayout) (cardPanel.getLayout());
             replacementPanel.setVisible(false);
             layout.show(cardPanel, "Show");
+            SessionMemory.getInstance().setLastReplacements(replacements);
             generate.collectData();
         }); 
-               
         return replacementPanel;
     }
     
