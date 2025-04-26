@@ -59,12 +59,8 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 			Element choice = d.createElement("response_label");
 			choice.setAttribute("ident", String.valueOf(answer.getId()));
 
-			Element material = d.createElement("material");
-			Element mattextChoice = d.createElement("mattext");
-			mattextChoice.setAttribute("texttype", "text/html");
-			mattextChoice.setTextContent("<div><p>" + answer.getLabel().asText() + "</p></div>");
-
-			material.appendChild(mattextChoice);
+			Element material = labelSerializer.asElement(d, answer.getLabel());
+			
 			choice.appendChild(material);
 			renderChoice.appendChild(choice);
 		}
