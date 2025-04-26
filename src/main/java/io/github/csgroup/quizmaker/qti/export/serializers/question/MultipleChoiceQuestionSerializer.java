@@ -26,17 +26,22 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 	 * @return the generated {@code <item>} element 
 	 */
 	@Override
-	public Element serialize(Document d, MultipleChoiceQuestion question)
+	public Element serialize(Document d, MultipleChoiceQuestion question) 
 	{
 		Element item = d.createElement("item");
 		item.setAttribute("ident", question.getId());
 		item.setAttribute("title", question.getTitle());
 
-		// <presentation> block
+		// Presentation Block
 		Element presentation = d.createElement("presentation");
 
 		// Add question prompt
 		Element promptMaterial = labelSerializer.asElement(d, question.getLabel());
+		Element mattext = (Element) promptMaterial.getElementsByTagName("mattext").item(0);
+		if (mattext != null) 
+		{
+			mattext.setAttribute("texttype", "text/html");
+		}
 		presentation.appendChild(promptMaterial);
 
 		// <response_lid> with answer choices
@@ -49,17 +54,17 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 
 		Element renderChoice = d.createElement("render_choice");
 
-		for (SimpleAnswer answer : question.getAnswers())
+		for (SimpleAnswer answer : question.getAnswers()) 
 		{
 			Element choice = d.createElement("response_label");
 			choice.setAttribute("ident", String.valueOf(answer.getId()));
 
 			Element material = d.createElement("material");
-			Element mattext = d.createElement("mattext");
-			mattext.setAttribute("texttype", "text/html");
-			mattext.setTextContent("<div><p>" + answer.getLabel().asText() + "</p></div>");
+			Element mattextChoice = d.createElement("mattext");
+			mattextChoice.setAttribute("texttype", "text/html");
+			mattextChoice.setTextContent("<div><p>" + answer.getLabel().asText() + "</p></div>");
 
-			material.appendChild(mattext);
+			material.appendChild(mattextChoice);
 			choice.appendChild(material);
 			renderChoice.appendChild(choice);
 		}
@@ -68,7 +73,7 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 		presentation.appendChild(response);
 		item.appendChild(presentation);
 
-		// <resprocessing> block
+		// Resprocessing Block
 		Element resprocessing = d.createElement("resprocessing");
 
 		// <outcomes>
@@ -81,7 +86,7 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 		outcomes.appendChild(decvar);
 		resprocessing.appendChild(outcomes);
 
-		// <respcondition> for correct answers
+		// Respcondition Block
 		Element respcondition = d.createElement("respcondition");
 		respcondition.setAttribute("continue", "No");
 
@@ -89,20 +94,20 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 
 		List<SimpleAnswer> correctAnswers = question.getCorrectAnswers();
 
-		if (correctAnswers.size() == 1)
+		if (correctAnswers.size() == 1) 
 		{
 			// Single correct answer → <varequal>
 			Element varequal = d.createElement("varequal");
 			varequal.setAttribute("respident", "response1");
 			varequal.setTextContent(String.valueOf(correctAnswers.get(0).getId()));
 			conditionvar.appendChild(varequal);
-		}
-		else if (!correctAnswers.isEmpty())
+		} 
+		else if (!correctAnswers.isEmpty()) 
 		{
 			// Multiple correct answers → <and> block
 			Element and = d.createElement("and");
 
-			for (SimpleAnswer answer : correctAnswers)
+			for (SimpleAnswer answer : correctAnswers) 
 			{
 				Element varequal = d.createElement("varequal");
 				varequal.setAttribute("respident", "response1");
@@ -110,11 +115,11 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 				and.appendChild(varequal);
 			}
 
-			// Prevent incorrect answers using <not> (if needed)
+			// Prevent incorrect answers using <not>
 			List<SimpleAnswer> incorrectAnswers = question.getAnswers();
 			incorrectAnswers.removeAll(correctAnswers);
 
-			for (SimpleAnswer answer : incorrectAnswers)
+			for (SimpleAnswer answer : incorrectAnswers) 
 			{
 				Element not = d.createElement("not");
 				Element varequal = d.createElement("varequal");
@@ -123,10 +128,8 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 				not.appendChild(varequal);
 				and.appendChild(not);
 			}
-
 			conditionvar.appendChild(and);
 		}
-
 		respcondition.appendChild(conditionvar);
 
 		Element setvar = d.createElement("setvar");
@@ -139,4 +142,5 @@ public class MultipleChoiceQuestionSerializer implements QuestionSerializer<Mult
 
 		return item;
 	}
+	
 }

@@ -32,12 +32,11 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 		Element item = d.createElement("item");
 		item.setAttribute("ident", question.getId());
 		item.setAttribute("title", question.getTitle());
-		
-		// Add <itemmetadata> with question_type and points_possible
+
+		// Metadata Block
 		Element itemMetadata = d.createElement("itemmetadata");
 		Element qtiMetadata = d.createElement("qtimetadata");
 
-		// question_type = matching_question
 		Element questionType = d.createElement("qtimetadatafield");
 		Element typeLabel = d.createElement("fieldlabel");
 		typeLabel.setTextContent("question_type");
@@ -46,7 +45,6 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 		questionType.appendChild(typeLabel);
 		questionType.appendChild(typeEntry);
 
-		// points_possible = total points
 		Element points = d.createElement("qtimetadatafield");
 		Element pointsLabel = d.createElement("fieldlabel");
 		pointsLabel.setTextContent("points_possible");
@@ -55,58 +53,64 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 		points.appendChild(pointsLabel);
 		points.appendChild(pointsEntry);
 
-		// Assemble and attach metadata
+		Element idrefField = d.createElement("qtimetadatafield");
+		Element idrefLabel = d.createElement("fieldlabel");
+		idrefLabel.setTextContent("assessment_question_identifierref");
+		Element idrefEntry = d.createElement("fieldentry");
+		idrefEntry.setTextContent(question.getId());
+		idrefField.appendChild(idrefLabel);
+		idrefField.appendChild(idrefEntry);
+
 		qtiMetadata.appendChild(questionType);
 		qtiMetadata.appendChild(points);
+		qtiMetadata.appendChild(idrefField);
 		itemMetadata.appendChild(qtiMetadata);
 		item.appendChild(itemMetadata);
 
-		// ==========================
-		// <presentation> block
-		// ==========================
+		// Presentation Block
 		Element presentation = d.createElement("presentation");
 
-		// Add the question prompt
+		// Add question prompt
 		Element promptMaterial = labelSerializer.asElement(d, question.getLabel());
+		Element mattext = (Element) promptMaterial.getElementsByTagName("mattext").item(0);
+		if (mattext != null) 
+		{
+			mattext.setAttribute("texttype", "text/html");
+		}
 		presentation.appendChild(promptMaterial);
 
-		// Extract right-side unique options
+		// Right-side values
 		Set<String> rightTexts = new LinkedHashSet<>();
-		for (MatchingAnswer answer : question.getAnswers())
+		for (MatchingAnswer answer : question.getAnswers()) 
 		{
 			rightTexts.add(answer.getRight().asText());
 		}
 
-		// Assign a unique ID to each right-side value
 		Map<String, String> rightChoiceIds = new LinkedHashMap<>();
 		int rightId = 1000;
-		for (String rightText : rightTexts)
+		for (String rightText : rightTexts) 
 		{
 			rightChoiceIds.put(rightText, String.valueOf(rightId));
 			rightId++;
 		}
 
-		// Build a reusable <render_choice> block containing all right-side values
 		Element sharedRenderChoice = d.createElement("render_choice");
-		for (Map.Entry<String, String> entry : rightChoiceIds.entrySet())
+		for (Map.Entry<String, String> entry : rightChoiceIds.entrySet()) 
 		{
 			Element choice = d.createElement("response_label");
 			choice.setAttribute("ident", entry.getValue());
 
 			Element mat = d.createElement("material");
-			Element mattext = d.createElement("mattext");
-			mattext.setTextContent(entry.getKey());
-
-			mat.appendChild(mattext);
+			Element mattextChoice = d.createElement("mattext");
+			mattextChoice.setTextContent(entry.getKey());
+			mat.appendChild(mattextChoice);
 			choice.appendChild(mat);
 			sharedRenderChoice.appendChild(choice);
 		}
 
-		// Map left-side prompt IDs to their correct right-side match IDs
+		// Left-side response_lids
 		Map<String, String> correctMatches = new LinkedHashMap<>();
-
-		// Create a response_lid for each left-side match
-		for (MatchingAnswer answer : question.getAnswers())
+		for (MatchingAnswer answer : question.getAnswers()) 
 		{
 			String leftId = "response_" + answer.getId();
 			String leftText = answer.getLeft().asText();
@@ -117,29 +121,22 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 			responseLid.setAttribute("rcardinality", "Single");
 
 			Element material = d.createElement("material");
-			Element mattext = d.createElement("mattext");
-			mattext.setAttribute("texttype", "text/plain");
-			mattext.setTextContent(leftText);
-			material.appendChild(mattext);
+			Element mattextLeft = d.createElement("mattext");
+			mattextLeft.setAttribute("texttype", "text/plain");
+			mattextLeft.setTextContent(leftText);
+			material.appendChild(mattextLeft);
 			responseLid.appendChild(material);
 
-			// Clone the shared render_choice block for each <response_lid>
 			responseLid.appendChild(sharedRenderChoice.cloneNode(true));
 			presentation.appendChild(responseLid);
 
-			// Store correct response for scoring
 			String correctRightId = rightChoiceIds.get(rightText);
 			correctMatches.put(leftId, correctRightId);
 		}
-
 		item.appendChild(presentation);
 
-		// ==========================
-		// <resprocessing> block
-		// ==========================
+		// Resprocessing Block
 		Element resprocessing = d.createElement("resprocessing");
-
-		// <outcomes>
 		Element outcomes = d.createElement("outcomes");
 		Element decvar = d.createElement("decvar");
 		decvar.setAttribute("maxvalue", "100");
@@ -149,9 +146,8 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 		outcomes.appendChild(decvar);
 		resprocessing.appendChild(outcomes);
 
-		// Add a <respcondition> for each correct match
 		double perMatch = question.getPoints() / (double) correctMatches.size();
-		for (Map.Entry<String, String> match : correctMatches.entrySet())
+		for (Map.Entry<String, String> match : correctMatches.entrySet()) 
 		{
 			Element respcondition = d.createElement("respcondition");
 
@@ -169,9 +165,9 @@ public class MatchingQuestionSerializer implements QuestionSerializer<MatchingQu
 			respcondition.appendChild(setvar);
 			resprocessing.appendChild(respcondition);
 		}
-
 		item.appendChild(resprocessing);
 
 		return item;
 	}
+	
 }
