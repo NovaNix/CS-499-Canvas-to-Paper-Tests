@@ -231,37 +231,27 @@ public class QuestionsDialog
         titleConstraint.fill = GridBagConstraints.HORIZONTAL;
         titleConstraint.gridx = 0;
         titleConstraint.gridy = 0;
+        informationPanel.add(titlePanel, titleConstraint);
         
         // places questinTypesList to the right of titlePanel
         checkBoxConstraint.fill = GridBagConstraints.HORIZONTAL;
         checkBoxConstraint.gridx = 1;
         checkBoxConstraint.gridy = 0;
-               
-        if (quiz != null)
-        {
-            checkBoxConstraint.insets = new Insets(0, 0, 0, 48);
-            
-            // places pointsLabel to the right of questionTypesList
-            labelConstraint.fill = GridBagConstraints.HORIZONTAL;
-            labelConstraint.gridx = 2;
-            labelConstraint.gridy = 0;
-            labelConstraint.insets = new Insets(0, 25, 0, 0);
-            informationPanel.add(pointsLabel, labelConstraint);
-            
-            // places pointsPanel to the right of pointsLabel
-            pointsFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
-            pointsFieldConstraint.gridx = 3;
-            pointsFieldConstraint.gridy = 0;
-            informationPanel.add(pointsPanel, pointsFieldConstraint);
-        }
-        if (bank != null)
-        {
-            titleConstraint.insets = new Insets(0, 0, 0, 70);
-            checkBoxConstraint.insets = new Insets(0, 80, 0, 6);
-        }
-        
-        informationPanel.add(titlePanel, titleConstraint);
+        checkBoxConstraint.insets = new Insets(0, 0, 0, 48);
         informationPanel.add(questionTypesList, checkBoxConstraint);
+        
+        // places pointsLabel to the right of questionTypesList
+        labelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        labelConstraint.gridx = 2;
+        labelConstraint.gridy = 0;
+        labelConstraint.insets = new Insets(0, 25, 0, 0);
+        informationPanel.add(pointsLabel, labelConstraint);
+        
+        // places pointsPanel to the right of pointsLabel
+        pointsFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
+        pointsFieldConstraint.gridx = 3;
+        pointsFieldConstraint.gridy = 0;
+        informationPanel.add(pointsPanel, pointsFieldConstraint);
         
         // listens for when a user selects a question type
         questionTypesList.addActionListener((ActionEvent e) -> { 

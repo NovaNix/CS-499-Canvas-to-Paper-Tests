@@ -2,7 +2,6 @@ package io.github.csgroup.quizmaker.ui;
 
 import io.github.csgroup.quizmaker.ui.components.QuestionTable;
 import io.github.csgroup.quizmaker.ui.dialogs.BankToQuizDialog;
-import io.github.csgroup.quizmaker.ui.dialogs.ExportWordDialog;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.data.Label;
@@ -99,24 +98,7 @@ public class QuizPanel extends JComponent
             
         // contains listPanel and quizTabs
         this.setLayout(new BorderLayout());
-        //this.setLayout(new GridBagLayout());
-        GridBagConstraints listConstraint = new GridBagConstraints();
-        GridBagConstraints tabsConstraint = new GridBagConstraints();
-            
-        // places listPanel on the left side of the component
-        listConstraint.fill = GridBagConstraints.HORIZONTAL;
-        listConstraint.gridx = 0;
-        listConstraint.gridy = 0;
-        listConstraint.insets = new Insets(6, 0, 0, 0);
-        //this.add(listPanel, listConstraint); 
-           
-        // places quizTabs on the right side of the component
-        tabsConstraint.fill = GridBagConstraints.HORIZONTAL;
-        tabsConstraint.gridx = 1;
-        tabsConstraint.gridy = 0;
-        //this.add(quizTabs, tabsConstraint); 
-        
-        
+         
     	var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listPanel, quizTabs);
 		splitPane.setOneTouchExpandable(false);
 		splitPane.setDividerLocation(260);
@@ -141,7 +123,7 @@ public class QuizPanel extends JComponent
         quizTabs.setBackgroundAt(0, new Color(242, 242, 242));
         quizTabs.setBackgroundAt(1, new Color(242, 242, 242));
         UIManager.put("TabbedPane.contentAreaColor", new Color(242, 242, 242));
-        UIManager.put("TabbedPane.highlight", Color.GRAY);
+        UIManager.put("TabbedPane.highlight", new Color(181, 184, 183));
         quizTabs.setUI(new BasicTabbedPaneUI());
                 
         return quizTabs;
@@ -159,7 +141,7 @@ public class QuizPanel extends JComponent
         quizNames();
         quizList();
         JScrollPane quizScrollPane = new JScrollPane(quizList);
-        quizScrollPane.setPreferredSize(new Dimension(260, 560));
+        quizScrollPane.setPreferredSize(new Dimension(260, 566));
             
         // contains quizLabel and quizScrollPane
         JPanel listPanel = new JPanel(new GridBagLayout());
@@ -171,6 +153,7 @@ public class QuizPanel extends JComponent
         quizLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         quizLabelConstraint.gridx = 0;
         quizLabelConstraint.gridy = 0;
+        quizLabelConstraint.insets = new Insets(5, 0, 0, 0);
         listPanel.add(quizLabel, quizLabelConstraint);
             
         // places quizScrollPane below quizScrollPane
@@ -663,7 +646,7 @@ public class QuizPanel extends JComponent
         detailsPanel.add(addDelQuizButtons, bankButtonConstraint);
         
         // places expportGenButtons below addDelQuizButtons
-        JPanel exportGenButtons = exportGenerateButtonPanel();
+        JPanel exportGenButtons = exportButtonPanel();
         exportGenConstraint.fill = GridBagConstraints.HORIZONTAL;
         exportGenConstraint.gridx = 0;
         exportGenConstraint.gridy = 3;
@@ -682,7 +665,7 @@ public class QuizPanel extends JComponent
      * 
      * @return the button panel
      */
-    private JPanel exportGenerateButtonPanel()
+    private JPanel exportButtonPanel()
     {
         //JButton exportButton = new JButton("Export");
         generateButton = new JButton("Generate");
@@ -690,7 +673,6 @@ public class QuizPanel extends JComponent
         // contains exportButton and generateButton
         quizButtonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints exportConstraint = new GridBagConstraints();
-        GridBagConstraints generateConstraint = new GridBagConstraints();
         
         // places generateButton on the left side of quizActionButtonPanel
         exportConstraint.fill = GridBagConstraints.HORIZONTAL;
@@ -698,25 +680,7 @@ public class QuizPanel extends JComponent
         exportConstraint.gridy = 0;
         exportConstraint.insets = new Insets(0, 0, 0, 1);
         quizButtonPanel.add(generateButton, exportConstraint);
-        
-//        // places exportButton on the right side of quizActionButtonPanel
-//        generateConstraint.fill = GridBagConstraints.HORIZONTAL;
-//        generateConstraint.gridx = 1;
-//        generateConstraint.gridy = 0;
-//        generateConstraint.insets = new Insets(0, 1, 0, 0);
-//        quizButtonPanel.add(exportButton, generateConstraint);   
-        
-        quizButtonPanel.setVisible(false);
-        
-        // listens for when exportButton is clicked
-//        exportButton.addActionListener((ActionEvent e) -> {
-//            int index = quizList.getSelectedIndex();
-//            Quiz selectedQuiz = project.getQuiz(index);
-//            // show the export dialog
-//            ExportWordDialog exportDialog = new ExportWordDialog(selectedQuiz);
-//            exportDialog.show();
-//        });
-                
+                          
         // listens for when generateButton is clicked
         generateButton.addActionListener((ActionEvent e) -> { 
             int index = quizList.getSelectedIndex();
@@ -725,6 +689,8 @@ public class QuizPanel extends JComponent
             GenerateDialog generate = new GenerateDialog(quiz);
             generate.show();
         });
+        
+        quizButtonPanel.setVisible(false);
                 
         return quizButtonPanel;
     }
@@ -740,13 +706,13 @@ public class QuizPanel extends JComponent
         int numRows = 35;
 
         quizTable = new QuestionTable(quizTableHeaders, numRows);
-        quizTable.setTableSize(640, 588);      
+        quizTable.setTableSize(651, 588);      
         quizTable.setTableRowHeight(16);
         quizTable.setVisible(false);
         
         JPanel quizTablePanel = new JPanel();
         quizTablePanel.add(quizTable);
-        quizTablePanel.setPreferredSize(new Dimension(647, 592));
+        quizTablePanel.setPreferredSize(new Dimension(652, 589));
         
         JTable table = quizTable.getTable();  
         table.addMouseListener(new MouseAdapter() {
@@ -813,6 +779,7 @@ public class QuizPanel extends JComponent
         JMenuItem editQuestionItem = new JMenuItem("Edit question");
         editQuestionItem.setEnabled(false);
         JMenuItem questionUsage = new JMenuItem("Question Usage");
+        questionUsage.setEnabled(false);
         
         quizMenu.add(addQuestionItem);
         quizMenu.add(editQuestionItem); 
@@ -826,6 +793,7 @@ public class QuizPanel extends JComponent
             removeQuestionItem.setEnabled(true);
             addQuestionItem.setEnabled(false);
             editQuestionItem.setEnabled(true);
+            questionUsage.setEnabled(true);
         }
         // if the user selects an empty row allow them to add a question
         if (quiz.getQuestionCount() > 0 && (value == null))
@@ -833,6 +801,7 @@ public class QuizPanel extends JComponent
             removeQuestionItem.setEnabled(false);
             addQuestionItem.setEnabled(true);
             editQuestionItem.setEnabled(false);
+            questionUsage.setEnabled(false);
         }
         
         // listens for when the "Add question" menu item is clicked

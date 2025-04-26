@@ -102,7 +102,7 @@ public class GUIManager
         tabs.setBackgroundAt(1, new Color(242, 242, 242));
         tabs.setBackgroundAt(2, new Color(242, 242, 242));
         UIManager.put("TabbedPane.contentAreaColor", new Color(242, 242, 242));
-        UIManager.put("TabbedPane.highlight", Color.GRAY);
+        UIManager.put("TabbedPane.highlight", new Color(181, 184, 183));
         tabs.setUI(new BasicTabbedPaneUI());
         // add the tabs to homeFrame
         homeFrame.add(tabs);
