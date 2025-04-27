@@ -220,7 +220,7 @@ public class ImportQTIDialog
     private void successDialog()
     {
         JFrame successFrame = new JFrame();
-        JOptionPane.showMessageDialog(successFrame, "QTI File Successfully imported", null, JOptionPane.PLAIN_MESSAGE);        
+        JOptionPane.showMessageDialog(successFrame, "QTI file successfully imported", null, JOptionPane.PLAIN_MESSAGE);        
     }
             
     /**

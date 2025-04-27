@@ -226,7 +226,7 @@ public class ExportQTIDialog
     private void successDialog()
     {
         JFrame successFrame = new JFrame();
-        JOptionPane.showMessageDialog(successFrame, "QTI File Successfully Exported", null, JOptionPane.PLAIN_MESSAGE);        
+        JOptionPane.showMessageDialog(successFrame, "QTI file successfully exported", null, JOptionPane.PLAIN_MESSAGE);        
     }
                
     /**

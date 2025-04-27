@@ -2,7 +2,6 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Quiz;
-import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
 import io.github.csgroup.quizmaker.utils.SessionMemory;

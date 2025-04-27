@@ -214,12 +214,12 @@ public class WrittenResponsePanel extends JComponent
                 // update a quiz question
                 if (newQuiz != null && (edit == true))
                 {
-                    updateQuizQuestion(questionLabel, floatPoints, questionString, answerString);
+                    updateQuestion(questionLabel, floatPoints, questionString, answerString);
                 }
                 // add a question bank question
                 if ((questionBank != null) && (edit == false))
                 {
-                    WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel); 
+                    WrittenResponseQuestion wrQuestion = new WrittenResponseQuestion(questionLabel, floatPoints); 
                     wrQuestion.setLabel(new Label(questionString));
                     wrQuestion.setAnswer(answerString);
                     
@@ -238,7 +238,7 @@ public class WrittenResponsePanel extends JComponent
                 // update a question bank question
                 if ((questionBank != null) && (edit == true))
                 {
-                    updateBankQuestion(questionLabel, questionString, answerString);
+                    updateQuestion(questionLabel, floatPoints, questionString, answerString);
                 }
                 
                 populateTable();
@@ -284,8 +284,10 @@ public class WrittenResponsePanel extends JComponent
         // populate the quiz's question information
         if (questionBank != null)
         {
-            editQuestion = questionBank.getQuestion(index);            
-            questionTitle.setText(editQuestion.getTitle());           
+            editQuestion = questionBank.getQuestion(index); 
+            
+            questionTitle.setText(editQuestion.getTitle());   
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
             
             if (editQuestion.isAbet() == true)
             {
@@ -317,20 +319,10 @@ public class WrittenResponsePanel extends JComponent
             {
                 boolean points = (pointsValue.getText()).isEmpty();
                 boolean wrQuestion = (question.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((points == false) && (wrQuestion == false))
                 {
-                    if ((points == false) && (wrQuestion == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (wrQuestion == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }
             }
             
@@ -348,44 +340,41 @@ public class WrittenResponsePanel extends JComponent
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
-        
-        if (newQuiz != null)
-        {
-            Document pointsDocument = pointsValue.getDocument();
-            pointsDocument.addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) 
-                {
-                    try
-                    {
-                        String text = pointsValue.getText();
-                        Float.valueOf(text);
-                        boolean title = (questionTitle.getText()).isEmpty();
-                        boolean wrQuestion = (question.getText()).isEmpty();
-                        if ((title == false) && (wrQuestion == false))
-                        {
-                            addQuestionButton.setEnabled(true);
-                        }
-                    }
-                    catch (NumberFormatException n) {}
-                }
-            
-                @Override
-                public void removeUpdate(DocumentEvent e)
+
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                try
                 {
                     String text = pointsValue.getText();
-                    boolean empty = text.isEmpty();
-                    // disable the button if the title field is empty
-                    if (empty == true)
+                    Float.valueOf(text);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean wrQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (wrQuestion == false))
                     {
-                        addQuestionButton.setEnabled(false);
-                    }                
-                }          
-                @Override
-                public void changedUpdate(DocumentEvent e) {}                 
-            });
-        }
-        
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                catch (NumberFormatException n) {}
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the title field is empty
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }          
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
+       
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
             @Override
@@ -393,20 +382,10 @@ public class WrittenResponsePanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((title == false) && (points == false))
                 {
-                    if ((title == false) && (points == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (title == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }
             }
             
@@ -434,7 +413,7 @@ public class WrittenResponsePanel extends JComponent
      * @param updateQuestion the question
      * @param updateAnswer the answer 
      */
-    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion, String updateAnswer)
+    private void updateQuestion(String updateTitle, float updatePoints, String updateQuestion, String updateAnswer)
     {
         WrittenResponseQuestion newQuestion = (WrittenResponseQuestion) editQuestion;        
         newQuestion.setPoints(updatePoints);
@@ -445,34 +424,6 @@ public class WrittenResponsePanel extends JComponent
         newQuestion.setTitle(updateTitle);
         newQuestion.setAnswer(updateAnswer);
         
-        if (abetCheckBox.isSelected() == true)
-        {
-            newQuestion.setAbet(true);
-        }            
-        else
-        {
-            newQuestion.setAbet(false);
-        }
-
-        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
-    } 
-    
-    /**
-     * Updates a bank question
-     * 
-     * @param updateTitle the title of the question
-     * @param updateQuestion the question 
-     * @param updateAnswer the answer
-     */
-    private void updateBankQuestion(String updateTitle, String updateQuestion, String updateAnswer)
-    {
-        WrittenResponseQuestion newQuestion = (WrittenResponseQuestion) editQuestion;        
-        newQuestion.setTitle(updateTitle);
-        newQuestion.setLabel(new Label(updateQuestion));
-        
-        newQuestion.setLabel(new Label(updateQuestion));
-        newQuestion.setTitle(updateTitle);
-        newQuestion.setAnswer(updateAnswer);
         if (abetCheckBox.isSelected() == true)
         {
             newQuestion.setAbet(true);

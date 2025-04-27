@@ -11,7 +11,6 @@ import io.github.csgroup.quizmaker.data.questions.MultipleChoiceQuestion;
 import io.github.csgroup.quizmaker.data.questions.WrittenResponseQuestion;
 import io.github.csgroup.quizmaker.qti.model.assessment.structure.Item;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -103,19 +102,17 @@ public class QuestionMapper
 	{
 		Label prompt = MaterialMapper.toLabel(item.getPresentation().getMaterials().get(0));
 		List<SimpleAnswer> answers = AnswerMapper.mapSimpleAnswers(item);
-		Set<String> correctIds = new HashSet<>();
-		for (String full : item.getCorrectAnswers()) 
-		{
-			String id = full.split(":")[0].trim();
-			correctIds.add(id);
-		}
-		
+
+		// Get correct answer IDs directly from the QTI structure
+		Set<String> correctIds = AnswerMapper.getCorrectAnswerIdSet(item);
+
 		double points = item.getPointsPossible() != null ? item.getPointsPossible() : 0.0;
 		MultipleChoiceQuestion question = new MultipleChoiceQuestion(prompt.asText(), (float) points);
 		applyMetadata(question, item, prompt);
 
 		for (SimpleAnswer answer : answers)
 		{
+			// Compare string versions of IDs
 			boolean correct = correctIds.contains(String.valueOf(answer.getId()));
 			question.addAnswer(answer, correct);
 		}

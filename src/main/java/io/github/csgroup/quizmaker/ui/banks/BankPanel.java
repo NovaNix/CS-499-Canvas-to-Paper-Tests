@@ -11,8 +11,6 @@ import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -23,11 +21,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.BorderFactory;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.ListModel;
 import javax.swing.JComponent;
@@ -70,32 +66,16 @@ public class BankPanel extends JComponent
     private void bankPanel()
     {
         JPanel containerPanel = new JPanel();
-        //522, 535
-        containerPanel.setPreferredSize(new Dimension(648, 622));
-        //containerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 3));
+        containerPanel.setPreferredSize(new Dimension(648, 650));
         
         // contains bankNamePanel and questionTable
-        //this.setLayout(new GridBagLayout());
         this.setLayout(new BorderLayout());
-        GridBagConstraints listConstraint = new GridBagConstraints();
-        GridBagConstraints tableConstraint = new GridBagConstraints();
         
         // places bankNamePanel on the left of the component
         JPanel bankNamePanel = listPanel();
-        listConstraint.fill = GridBagConstraints.HORIZONTAL;
-        listConstraint.gridx = 0;
-        listConstraint.gridy = 0;
-        listConstraint.insets = new Insets(25, 3, 0, 0);
-        //this.add(bankNamePanel, listConstraint);
-        
-        // places questionTable on the right of the component
         JPanel tablePanel = bankTablePanel();
         containerPanel.add(tablePanel);
-        tableConstraint.fill = GridBagConstraints.HORIZONTAL;
-        tableConstraint.gridx = 1;
-        tableConstraint.gridy = 0;
-        //this.add(containerPanel, tableConstraint);      
-        
+          
         var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, bankNamePanel, containerPanel);
 		splitPane.setOneTouchExpandable(false);
 		splitPane.setDividerLocation(260);
@@ -116,7 +96,7 @@ public class BankPanel extends JComponent
         bankNames = project.getBankModel();
         bankList = new JList(bankNames);  
         JScrollPane bankScrollPane = new JScrollPane(bankList);
-        bankScrollPane.setPreferredSize(new Dimension(260, 560));
+        bankScrollPane.setPreferredSize(new Dimension(260, 566));
                 
         // contains quizBankLabel and bankScrollPane 
         JPanel bankPanel = new JPanel(new GridBagLayout());
@@ -128,6 +108,7 @@ public class BankPanel extends JComponent
         bankLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         bankLabelConstraint.gridx = 0;
         bankLabelConstraint.gridy = 0;
+        bankLabelConstraint.insets = new Insets(5, 0, 0, 0);
         bankPanel.add(bankLabel, bankLabelConstraint);
         
         // places bankScrollPanel at the bottom of the panel
@@ -252,18 +233,16 @@ public class BankPanel extends JComponent
     private JPanel bankTable()
     {        
         String[] bankTableHeaders = {"Questions", "Answers"};
-        int numRows = 34;
+        int numRows = 33;
                 
         bankTable = new QuestionTable(bankTableHeaders, numRows);
-        //520, 487
-        bankTable.setTableSize(640, 572);
+        bankTable.setTableSize(654, 572);
         bankTable.setTableRowHeight(16);
         bankTable.setVisible(false);
               
         JPanel tablePanel = new JPanel();
         tablePanel.add(bankTable); 
-        // 521, 490
-        tablePanel.setPreferredSize(new Dimension(641, 575));
+        tablePanel.setPreferredSize(new Dimension(655, 573));
         
         table = bankTable.getTable();
         
@@ -331,6 +310,7 @@ public class BankPanel extends JComponent
         JMenuItem editQuestionItem = new JMenuItem("Edit Question");
         editQuestionItem.setEnabled(false);
         JMenuItem questionUsage = new JMenuItem("Question Usage");
+        questionUsage.setEnabled(false);
         
         bankMenu.add(addQuestionItem);
         bankMenu.add(editQuestionItem);
@@ -344,6 +324,7 @@ public class BankPanel extends JComponent
             removeQuestionItem.setEnabled(true);
             addQuestionItem.setEnabled(false);
             editQuestionItem.setEnabled(true);
+            questionUsage.setEnabled(true);
         }
         // if the user selects an empty row allow them to add a question
         if (bank.getQuestionCount() > 0 && (value == null))
@@ -351,6 +332,7 @@ public class BankPanel extends JComponent
             removeQuestionItem.setEnabled(false);
             addQuestionItem.setEnabled(true);
             editQuestionItem.setEnabled(false);
+            questionUsage.setEnabled(false);
         }
         
         // listens for when the "Add question" menu item is clicked
@@ -395,7 +377,7 @@ public class BankPanel extends JComponent
         
         nameField = new JTextField();
         nameField.setFocusable(false);
-        nameField.setPreferredSize(new Dimension(190, 25));
+        nameField.setPreferredSize(new Dimension(190, 23));
         JPanel namePanel = new JPanel();
         namePanel.add(nameField);
         
