@@ -134,43 +134,51 @@ public class GUIManager
         homeFrame.setVisible(true);  
     }	
     
+    /**
+     * Creates a frame that displays the team members and what they did 
+     */
     private void credits()
     {
         JFrame creditsFrame = new JFrame();
-        creditsFrame.setSize(300, 250);
-        JLabel michaelLabel = new JLabel("Michael Nix: Full stack developer");
-        JLabel sarahLabel = new JLabel("Srash Sing: Back end developer");
+        creditsFrame.setSize(305, 210);
+        JLabel michaelLabel = new JLabel("Michael Nix: Team lead/Full stack developer");
+        JLabel sarahLabel = new JLabel("Sarah Sing: Back end developer");
         JLabel samLabel = new JLabel("Samuel Garcia: Back end developer");
         JLabel emilyLabel = new JLabel("Emily Palmer: Front end developer");
         
+        // contains michaelLabel, sarahLabel, sameLabel, and emilyLabel
         JPanel labelPanel = new JPanel(new GridBagLayout());
         GridBagConstraints michaelConstraint = new GridBagConstraints();
         GridBagConstraints sarahConstraint = new GridBagConstraints();
         GridBagConstraints samConstraint = new GridBagConstraints();
         GridBagConstraints emilyConstraint = new GridBagConstraints();
         
+        // places michaelLabel at the top of labelPanel
         michaelConstraint.fill = GridBagConstraints.HORIZONTAL;
         michaelConstraint.gridx = 0;
         michaelConstraint.gridy = 0;
-        michaelConstraint.insets = new Insets(0, 0, 10, 0);
+        michaelConstraint.insets = new Insets(0, 0, 12, 25);
         labelPanel.add(michaelLabel, michaelConstraint);   
         
+        // places sarahLabel below michaelLabel
         sarahConstraint.fill = GridBagConstraints.HORIZONTAL;
         sarahConstraint.gridx = 0;
         sarahConstraint.gridy = 1;
-        sarahConstraint.insets = new Insets(0, 0, 10, 0);
+        sarahConstraint.insets = new Insets(0, 0, 12, 25);
         labelPanel.add(sarahLabel, sarahConstraint); 
         
+        // places samLabel below sarahLabel
         samConstraint.fill = GridBagConstraints.HORIZONTAL;
         samConstraint.gridx = 0;
         samConstraint.gridy = 2;
-        samConstraint.insets = new Insets(0, 0, 10, 0);
+        samConstraint.insets = new Insets(0, 0, 12, 25);
         labelPanel.add(samLabel, samConstraint); 
         
+        // places emilyLabel below samLabel
         emilyConstraint.fill = GridBagConstraints.HORIZONTAL;
         emilyConstraint.gridx = 0;
         emilyConstraint.gridy = 3;
-        emilyConstraint.insets = new Insets(0, 0, 10, 0);
+        emilyConstraint.insets = new Insets(0, 0, 25, 25);
         labelPanel.add(emilyLabel, emilyConstraint); 
         
         creditsFrame.add(labelPanel);

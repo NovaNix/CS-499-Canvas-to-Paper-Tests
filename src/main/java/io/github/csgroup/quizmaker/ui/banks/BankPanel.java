@@ -11,7 +11,6 @@ import io.github.csgroup.quizmaker.ui.dialogs.RemoveQuestionDialog;
 import io.github.csgroup.quizmaker.ui.quizzes.QuestionsDialog;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -25,7 +24,6 @@ import javax.swing.JSplitPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.BorderFactory;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.ListModel;
 import javax.swing.JComponent;

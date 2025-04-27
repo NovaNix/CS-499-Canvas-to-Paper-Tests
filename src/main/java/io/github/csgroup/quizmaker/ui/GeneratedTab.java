@@ -56,6 +56,12 @@ public class GeneratedTab extends JComponent
 		this.add(splitPane, BorderLayout.CENTER);
 	}
 
+    /**
+     * Contains the list of generated assignments
+     * 
+     * @param p the current project
+     * @return the list panel
+     */
 	private JPanel createSidebar(Project p)
     {
 		JLabel label = new JLabel("Assignments");
@@ -83,6 +89,12 @@ public class GeneratedTab extends JComponent
 		return sidebar;
 	}
 
+    /**
+     * Shows the details panel once a generated assignment has been selected
+     * 
+     * @param p the current project
+     * @return the details panel
+     */
 	private JPanel createDetailsPanel(Project p)
 	{
 		JPanel details = new JPanel();
@@ -96,6 +108,13 @@ public class GeneratedTab extends JComponent
 		return details;
 	}
 	
+    /**
+     * Creates the details panel and populates each text box with the required 
+     * information
+     * 
+     * @param details the details panel
+     * @param quiz the selected quiz
+     */
 	private void populateDetailsPanel(JPanel details, GeneratedQuiz quiz)
 	{
 		details.removeAll(); // Remove the previous components
@@ -110,13 +129,13 @@ public class GeneratedTab extends JComponent
         GridBagConstraints buttonConstraint = new GridBagConstraints();
         
         JLabel title = new JLabel(quiz.toString());
-        JPanel test = new JPanel();
-        test.add(title);
+        JPanel titlePanel = new JPanel();
+        titlePanel.add(title);
         titleConstraint.fill = GridBagConstraints.HORIZONTAL;
         titleConstraint.gridx = 0;
         titleConstraint.gridy = 0;
         titleConstraint.insets = new Insets(10, 0, 10, 0);
-        contents.add(test, titleConstraint);        
+        contents.add(titlePanel, titleConstraint);        
       
         dataConstraint.fill = GridBagConstraints.HORIZONTAL;
         dataConstraint.gridx = 0;
@@ -139,6 +158,12 @@ public class GeneratedTab extends JComponent
 		details.validate();
 	}
 	
+    /**
+     * Creates the panel containing the metadata information
+     * 
+     * @param quiz the selected quiz
+     * @return the metadata panel
+     */
 	private JPanel createMetadataPanel(GeneratedQuiz quiz)
 	{
         GeneratePanel size = new GeneratePanel();
@@ -178,7 +203,6 @@ public class GeneratedTab extends JComponent
 			field.setText(value);
             field.setPreferredSize(new Dimension(170, 24));
             field.setFocusable(false); 
-			//StringStoreBinder binder = new StringStoreBinder();
             
             fieldConstraints[y] = new GridBagConstraints();
             fieldConstraints[y].fill = GridBagConstraints.HORIZONTAL;
@@ -207,6 +231,12 @@ public class GeneratedTab extends JComponent
 		return panel;
 	}
 	
+    /**
+     * Creates the question table for the quiz questions and answers
+     * 
+     * @param quiz the selected quiz
+     * @return 
+     */
 	private JPanel createQuestionTable(GeneratedQuiz quiz)
     {        
         String[] bankTableHeaders = {"Questions", "Answers"};
@@ -225,6 +255,12 @@ public class GeneratedTab extends JComponent
         return tablePanel;
     }
     
+    /**
+     * Creates the button panel that allows the user to export a quiz
+     * 
+     * @param quiz
+     * @return 
+     */
     private JPanel exportButtonPanel(GeneratedQuiz quiz)
     {
         JButton exportButton = new JButton("Export");
@@ -240,10 +276,21 @@ public class GeneratedTab extends JComponent
         return buttonPanel;
     }
 	
+    /**
+     * Populates the table with the quiz questions and answers
+     * 
+     * @param quiz
+     * @param table 
+     */
 	private void populateQuestionTable(GeneratedQuiz quiz, QuestionTable table)
     {
 		for (int i = 0; i < quiz.getQuestions().size(); i++)
 		{
+            if (i > (table.getRows() - 1))
+            {
+                table.addEmptyRow();
+            }            
+            
 			Question q = quiz.getQuestions().get(i);
 			String answer = q.getAnswerString();
 			table.setValue(q, i, 0);  

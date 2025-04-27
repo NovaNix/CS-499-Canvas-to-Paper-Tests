@@ -116,7 +116,7 @@ public class QuizMetadata
 		TestNum("Test Number"), 
 		Date("Date"), 
 		Professor("Professor"), 
-		Minutes("Minutes");
+		Minutes("Base Time Limit");
 		
 		private String displayName;
 		private boolean dynamic;
