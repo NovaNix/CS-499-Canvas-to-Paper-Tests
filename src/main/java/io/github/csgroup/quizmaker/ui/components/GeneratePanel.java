@@ -35,9 +35,9 @@ public class GeneratePanel extends JComponent
     private GridBagConstraints[] labelConstraint;
     private List<QuizMetadata.MetadataType> metadataOrder;
     private final Map<QuizMetadata.MetadataType, String> initialValues = new LinkedHashMap<>();
-    private final BiConsumer<QuizMetadata.MetadataType, String> onSubmit;
-    private final boolean includeDynamics;
-    private final int width;
+    private BiConsumer<QuizMetadata.MetadataType, String> onSubmit;
+    private boolean includeDynamics;
+    private int width;
     
     public GeneratePanel(int setWidth, QuizMetadata metadata)
     {
@@ -47,6 +47,10 @@ public class GeneratePanel extends JComponent
     public GeneratePanel(int setWidth, TemplateReplacements replacements)
     {
         this(setWidth, replacements, (type, value) -> replacements.setReplacementString(type, value), true);
+    }
+    
+    public GeneratePanel()
+    {       
     }
     
     private GeneratePanel(int setWidth, Object dataSource, BiConsumer<QuizMetadata.MetadataType, String> onSubmit, boolean includeDynamics)
@@ -73,6 +77,7 @@ public class GeneratePanel extends JComponent
     	}
     	generateDialog();
     }
+    
     /**
      * Adds generatePanel to the component
      */
@@ -89,7 +94,7 @@ public class GeneratePanel extends JComponent
      * 
      * @return the number of non-dynamic quiz metadata types
      */
-    private int getDataSize()
+    public int getDataSize()
     {
         int size = 0;
         for (QuizMetadata.MetadataType name : QuizMetadata.MetadataType.values())
@@ -116,8 +121,7 @@ public class GeneratePanel extends JComponent
         	panelLabels[i] = new JLabel(type.getDisplayName() + ":");
         }
     }
-            
-    
+                
     /**
      * Creates the text fields for the panel
      */

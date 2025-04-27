@@ -375,19 +375,19 @@ public class MatchingPanel extends JComponent
                 // updates a quiz question
                 if ((newQuiz != null) && (edit == true))
                 {
-                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                    updateQuestion(questionLabel, floatPoints, questionString);
                 }
                 // adds a bank question
                 if ((questionBank != null) && (edit == false))
                 {
-                    MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel);
+                    MatchingQuestion matchingQuestion = new MatchingQuestion(questionLabel, floatPoints);
                     matchingQuestion.setLabel(new Label(questionString));
                     addMatchingQuestion(matchingQuestion);
                 }
                 // updates a bank question
                 if ((questionBank != null) && (edit == true))
                 {
-                    updateBankQuestion(questionLabel, questionString);    
+                    updateQuestion(questionLabel, floatPoints, questionString);    
                 }
                     
                 mainFrame.dispose();
@@ -431,8 +431,10 @@ public class MatchingPanel extends JComponent
         }
         if (questionBank != null)
         {
-            editQuestion = questionBank.getQuestion(index);            
-            questionTitle.setText(editQuestion.getTitle());           
+            editQuestion = questionBank.getQuestion(index);  
+            
+            questionTitle.setText(editQuestion.getTitle()); 
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
             
             if (editQuestion.isAbet() == true)
             {
@@ -534,21 +536,11 @@ public class MatchingPanel extends JComponent
             {
                 boolean points = (pointsValue.getText()).isEmpty();
                 boolean matchQuestion = (question.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((points == false) && (matchQuestion == false))
                 {
-                    if ((points == false) && (matchQuestion == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }                    
-                }
-                if (questionBank != null)
-                {
-                    if (matchQuestion == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    } 
-                }               
+                    addQuestionButton.setEnabled(true);
+                }                                 
             }
             
             @Override
@@ -565,43 +557,40 @@ public class MatchingPanel extends JComponent
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
-        
-        if (newQuiz != null)
-        {
-            Document pointsDocument = pointsValue.getDocument();
-            pointsDocument.addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) 
-                {
-                    try
-                    {
-                        String text = pointsValue.getText();
-                        Float.valueOf(text);
-                        boolean title = (questionTitle.getText()).isEmpty();
-                        boolean matchQuestion = (question.getText()).isEmpty();
-                        if ((title == false) && (matchQuestion == false))
-                        {
-                            addQuestionButton.setEnabled(true);
-                        }
-                    }
-                    catch (NumberFormatException n) {}
-                }
-            
-                @Override
-                public void removeUpdate(DocumentEvent e)
+
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                try
                 {
                     String text = pointsValue.getText();
-                    boolean empty = text.isEmpty();
-                    // disable the button if the title field is empty
-                    if (empty == true)
+                    Float.valueOf(text);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean matchQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (matchQuestion == false))
                     {
-                        addQuestionButton.setEnabled(false);
-                    }                
-                }               
-                @Override
-                public void changedUpdate(DocumentEvent e) {}                 
-            });
-        }
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                catch (NumberFormatException n) {}
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the title field is empty
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }               
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
                 
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
@@ -610,20 +599,10 @@ public class MatchingPanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((title == false) && (points == false))
                 {
-                    if ((title == false) && (points == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (title == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }
             }
             
@@ -788,7 +767,7 @@ public class MatchingPanel extends JComponent
      * @param updatePoints the points amount for the question
      * @param updateQuestion the question
      */
-    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    private void updateQuestion(String updateTitle, float updatePoints, String updateQuestion)
     {
         MatchingQuestion newQuestion = (MatchingQuestion) editQuestion;        
         newQuestion.setPoints(updatePoints);
@@ -808,33 +787,7 @@ public class MatchingPanel extends JComponent
 
         questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
     }  
-    
-    /**
-     * Updates a bank question
-     * 
-     * @param updateTitle the question title
-     * @param updateQuestion the question
-     */
-    private void updateBankQuestion(String updateTitle, String updateQuestion)
-    {
-        MatchingQuestion newQuestion = (MatchingQuestion) editQuestion;        
-        newQuestion.setTitle(updateTitle);
-        newQuestion.setLabel(new Label(updateQuestion));
-        
-        clearAnswers(newQuestion);
-        addAnswers(newQuestion);
-        if (abetCheckBox.isSelected() == true)
-        {
-            newQuestion.setAbet(true);
-        }            
-        else
-        {
-            newQuestion.setAbet(false);
-        }
-        
-        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
-    }  
-    
+     
     /**
      * Adds answers to a multiple choice question
      * 

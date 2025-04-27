@@ -367,19 +367,19 @@ public class FillInTheBlankPanel extends JComponent
                 // update quiz question
                 if ((newQuiz != null) && (edit == true))
                 {
-                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                    updateQuestion(questionLabel, floatPoints, questionString);
                 }
                 // add bank question
                 if ((questionBank != null) && (edit == false))
                 {
-                    FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel);
+                    FillInTheBlankQuestion fitbQuestion = new FillInTheBlankQuestion(questionLabel, floatPoints);
                     fitbQuestion.setLabel(new Label(questionString));
                     addFITBQuestion(fitbQuestion, questionString);
                 }
                 // update bank question
                 if ((questionBank != null) && (edit == true))
                 { 
-                    updateBankQuestion(questionLabel, questionString);                    
+                    updateQuestion(questionLabel, floatPoints, questionString);                    
                 }
 
                 mainFrame.dispose();
@@ -425,8 +425,10 @@ public class FillInTheBlankPanel extends JComponent
         // populate the banks's question information
         if (questionBank != null)
         {
-            editQuestion = questionBank.getQuestion(index);            
-            questionTitle.setText(editQuestion.getTitle());           
+            editQuestion = questionBank.getQuestion(index); 
+            
+            questionTitle.setText(editQuestion.getTitle());  
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
             
             if (editQuestion.isAbet() == true)
             {
@@ -505,20 +507,10 @@ public class FillInTheBlankPanel extends JComponent
             {
                 boolean points = (pointsValue.getText()).isEmpty();
                 boolean fitbQuestion = (question.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((points == false) && (fitbQuestion == false))
                 {
-                    if ((points == false) && (fitbQuestion == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (fitbQuestion == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }
             }
             
@@ -537,42 +529,39 @@ public class FillInTheBlankPanel extends JComponent
             public void changedUpdate(DocumentEvent e) {}                 
         });
         
-        if (newQuiz != null)
-        {
-            Document pointsDocument = pointsValue.getDocument();
-            pointsDocument.addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) 
-                {
-                    try
-                    {
-                        String text = pointsValue.getText();
-                        Float.valueOf(text);
-                        boolean title = (questionTitle.getText()).isEmpty();
-                        boolean fitbQuestion = (question.getText()).isEmpty();
-                        if ((title == false) && (fitbQuestion == false))
-                        {
-                            addQuestionButton.setEnabled(true);
-                        }
-                    }
-                    catch (NumberFormatException n) {}
-                }
-            
-                @Override
-                public void removeUpdate(DocumentEvent e)
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                try
                 {
                     String text = pointsValue.getText();
-                    boolean empty = text.isEmpty();
-                    // disable the button if the points text field is empty 
-                    if (empty == true)
+                    Float.valueOf(text);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean fitbQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (fitbQuestion == false))
                     {
-                        addQuestionButton.setEnabled(false);
-                    }                
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                catch (NumberFormatException n) {}
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the points text field is empty 
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
             }           
-                @Override
-                public void changedUpdate(DocumentEvent e) {}                 
-            });
-        }
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
+        });
         
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
@@ -581,20 +570,10 @@ public class FillInTheBlankPanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((title == false) && (points == false))
                 {
-                    if ((title == false) && (points == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (title == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }
             }
             
@@ -785,7 +764,7 @@ public class FillInTheBlankPanel extends JComponent
      * @param updatePoints the points amount for the question
      * @param updateQuestion the question
      */
-    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    private void updateQuestion(String updateTitle, float updatePoints, String updateQuestion)
     {
         FillInTheBlankQuestion newQuestion = (FillInTheBlankQuestion) editQuestion;
         newQuestion.setPoints(updatePoints);
@@ -793,31 +772,6 @@ public class FillInTheBlankPanel extends JComponent
         newQuestion.setLabel(new Label(updateQuestion));
         
         addAnswers(newQuestion, updateQuestion);        
-        if (abetCheckBox.isSelected() == true)
-        {
-            newQuestion.setAbet(true);
-        }            
-        else
-        {
-            newQuestion.setAbet(false);
-        }
-
-        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
-    }
-    
-    /**
-     * Updates a bank question
-     * 
-     * @param updateTitle the question title
-     * @param updateQuestion the question
-     */
-    private void updateBankQuestion(String updateTitle, String updateQuestion)
-    {
-        FillInTheBlankQuestion newQuestion = (FillInTheBlankQuestion) editQuestion;
-        newQuestion.setTitle(updateTitle);
-        newQuestion.setLabel(new Label(updateQuestion));
-        
-        addAnswers(newQuestion, updateQuestion);
         if (abetCheckBox.isSelected() == true)
         {
             newQuestion.setAbet(true);

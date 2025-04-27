@@ -194,7 +194,6 @@ public class MultipleChoicePanel extends JComponent
         for(int i = 0; i < numAnswers; i++)
         {
             radioButtons[i] = new JRadioButton();
-            group.add(radioButtons[i]);
             
             // by default set the first question to be correct
             if (i == 0)
@@ -401,19 +400,19 @@ public class MultipleChoicePanel extends JComponent
                 // update quiz question
                 if ((newQuiz != null) && (edit == true))
                 { 
-                    updateQuizQuestion(questionLabel, floatPoints, questionString);
+                    updateQuestion(questionLabel, floatPoints, questionString);
                 }
                 // add bank question
                 if ((questionBank != null) && (edit == false))
                 {
-                    MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel);
+                    MultipleChoiceQuestion mcQuestion = new MultipleChoiceQuestion(questionLabel, floatPoints);
                     mcQuestion.setLabel(new Label(questionString));
                     addMCQuestion(mcQuestion);
                 }
                 // update bank question
                 if ((questionBank != null) && (edit == true))
                 {
-                    updateBankQuestion(questionLabel, questionString);
+                    updateQuestion(questionLabel, floatPoints, questionString);
                 }
                 
                 mainFrame.dispose();  
@@ -459,8 +458,10 @@ public class MultipleChoicePanel extends JComponent
         // populate the bank's question information
         if (questionBank != null)
         {
-            editQuestion = questionBank.getQuestion(index);            
-            questionTitle.setText(editQuestion.getTitle());            
+            editQuestion = questionBank.getQuestion(index);    
+            
+            questionTitle.setText(editQuestion.getTitle());   
+            pointsValue.setText(Float.toString(editQuestion.getPoints()));
             
             if (editQuestion.isAbet() == true)
             {
@@ -485,7 +486,10 @@ public class MultipleChoicePanel extends JComponent
      * @param answer the question's answer
      */
     private void populateAnswers(String answer)
-    {     
+    {             
+        MultipleChoiceQuestion mcQuestion = (MultipleChoiceQuestion) editQuestion;
+        int size = mcQuestion.getCorrectAnswers().size();
+        
         // parse the html out of the answer string
         String removeRoot = parseString(answer, "<html>");
         String removeRootEnd = parseString(removeRoot, "</html>");
@@ -514,9 +518,11 @@ public class MultipleChoicePanel extends JComponent
             }           
             answerPanels[i].setVisible(true);
             answerFields[i].setText(answers[i]);
+            if (i < size)
+            {
+                radioButtons[i].setSelected(true);
+            }
         }
-        // set the raido button to the correct answer
-        radioButtons[0].setSelected(true);
     }
     
     /**
@@ -560,20 +566,10 @@ public class MultipleChoicePanel extends JComponent
             {
                 boolean points = (pointsValue.getText()).isEmpty();
                 boolean mcQuestion = (question.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((points == false) && (mcQuestion == false))
                 {
-                    if ((points == false) && (mcQuestion == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
-                }
-                if (questionBank != null)
-                {
-                    if (mcQuestion == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }
+                    addQuestionButton.setEnabled(true);
                 }         
             }
             
@@ -591,43 +587,40 @@ public class MultipleChoicePanel extends JComponent
             @Override
             public void changedUpdate(DocumentEvent e) {}                 
         });
-        
-        if (newQuiz != null)
-        {
-            Document pointsDocument = pointsValue.getDocument();
-            pointsDocument.addDocumentListener(new DocumentListener() {
-                @Override
-                public void insertUpdate(DocumentEvent e) 
-                {
-                    try
-                    {
-                        String text = pointsValue.getText();
-                        Float.valueOf(text);
-                        boolean title = (questionTitle.getText()).isEmpty();
-                        boolean mcQuestion = (question.getText()).isEmpty();
-                        if ((title == false) && (mcQuestion == false))
-                        {
-                            addQuestionButton.setEnabled(true);
-                        }
-                    }
-                    catch (NumberFormatException n) {}
-                }
-            
-                @Override
-                public void removeUpdate(DocumentEvent e)
+
+        Document pointsDocument = pointsValue.getDocument();
+        pointsDocument.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) 
+            {
+                try
                 {
                     String text = pointsValue.getText();
-                    boolean empty = text.isEmpty();
-                    // disable the button if the title field is empty
-                    if (empty == true)
+                    Float.valueOf(text);
+                    boolean title = (questionTitle.getText()).isEmpty();
+                    boolean mcQuestion = (question.getText()).isEmpty();
+                    if ((title == false) && (mcQuestion == false))
                     {
-                        addQuestionButton.setEnabled(false);
-                    }                
-                }           
-                @Override
-                public void changedUpdate(DocumentEvent e) {}                 
+                        addQuestionButton.setEnabled(true);
+                    }
+                }
+                catch (NumberFormatException n) {}
+            }
+            
+            @Override
+            public void removeUpdate(DocumentEvent e)
+            {
+                String text = pointsValue.getText();
+                boolean empty = text.isEmpty();
+                // disable the button if the title field is empty
+                if (empty == true)
+                {
+                    addQuestionButton.setEnabled(false);
+                }                
+            }           
+            @Override
+            public void changedUpdate(DocumentEvent e) {}                 
         });
-        }
                 
         Document questionDocument = question.getDocument();
         questionDocument.addDocumentListener(new DocumentListener() {
@@ -636,21 +629,11 @@ public class MultipleChoicePanel extends JComponent
             {
                 boolean title = (questionTitle.getText()).isEmpty();
                 boolean points = (pointsValue.getText()).isEmpty();
-                
-                if (newQuiz != null)
+
+                if ((title == false) && (points == false))
                 {
-                    if ((title == false) && (points == false))
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }                    
-                }
-                if (questionBank != null)
-                {
-                    if (title == false)
-                    {
-                        addQuestionButton.setEnabled(true);
-                    }  
-                }
+                    addQuestionButton.setEnabled(true);
+                }                    
             }
             
             @Override
@@ -812,7 +795,7 @@ public class MultipleChoicePanel extends JComponent
      * @param updatePoints the points amount for the question
      * @param updateQuestion the question
      */
-    private void updateQuizQuestion(String updateTitle, float updatePoints, String updateQuestion)
+    private void updateQuestion(String updateTitle, float updatePoints, String updateQuestion)
     {
         MultipleChoiceQuestion newQuestion = (MultipleChoiceQuestion) editQuestion;
         newQuestion.setPoints(updatePoints);
@@ -831,33 +814,6 @@ public class MultipleChoicePanel extends JComponent
             newQuestion.setAbet(false);
         }
         
-        questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
-    }
-    
-    /**
-     * Updates a bank question
-     * 
-     * @param updateTitle the question title
-     * @param updateQuestion the question
-     */
-    private void updateBankQuestion(String updateTitle, String updateQuestion)
-    {
-        MultipleChoiceQuestion newQuestion = (MultipleChoiceQuestion) editQuestion;
-        newQuestion.setTitle(updateTitle);
-        newQuestion.setLabel(new Label(updateQuestion));
-
-        newQuestion.clearAnswers();
-        addAnswers(newQuestion);
-        
-        if (abetCheckBox.isSelected() == true)
-        {
-            newQuestion.setAbet(true);
-        }            
-        else
-        {
-            newQuestion.setAbet(false);
-        }
-
         questionTable.setValue(newQuestion.getAnswerString(), editedRow, 1);
     }
     
