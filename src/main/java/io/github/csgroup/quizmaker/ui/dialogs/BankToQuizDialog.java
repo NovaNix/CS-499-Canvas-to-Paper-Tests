@@ -21,6 +21,9 @@ import javax.swing.JButton;
 import javax.swing.table.TableColumnModel;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.event.DocumentEvent;
@@ -45,6 +48,7 @@ public class BankToQuizDialog
     private BankSelection selectedBank;
     private JTextField pointsTextField;
     private JButton addButton;
+    private JComboBox numQuestions;
     
     private JScrollPane tableScrollPane;
     
@@ -63,7 +67,7 @@ public class BankToQuizDialog
     private void createBankToQuizDialog()
     {
         bankFrame = new JFrame("Add Bank to Quiz");
-        bankFrame.setSize(430, 390);
+        bankFrame.setSize(440, 425);
         
         // contains bankInfoPanel and questionPanel
         JPanel addBankPanel = new JPanel(new GridBagLayout());
@@ -76,7 +80,7 @@ public class BankToQuizDialog
         bankInfoConstraint.fill = GridBagConstraints.HORIZONTAL;
         bankInfoConstraint.gridx = 0;
         bankInfoConstraint.gridy = 0;
-        bankInfoConstraint.insets = new Insets(10, 0, 10, 95);
+        bankInfoConstraint.insets = new Insets(10, 0, 10, 60);
         addBankPanel.add(bankInfoPanel, bankInfoConstraint);
         
         // places questionPanel below bankInfoPanel
@@ -109,6 +113,17 @@ public class BankToQuizDialog
         bankList = new JComboBox(bankNames.toArray());
         bankList.setPreferredSize(new Dimension(180, 20));
         
+        JLabel numbersLabel = new JLabel("Number of bank questions:");
+        int size = project.getBank(0).getQuestionCount();
+        
+        int[] numArray = IntStream.rangeClosed(0, size).toArray();
+        String[] displayArray = createStringArray(numArray);    
+        numQuestions = new JComboBox(displayArray);
+        numQuestions.setPreferredSize(new Dimension(55, 20));
+          
+        JPanel numberPanel = new JPanel();       
+        numberPanel.add(numQuestions);
+        
         JLabel pointsLabel = new JLabel ("Points per question:");
         pointsTextField();
         
@@ -119,6 +134,8 @@ public class BankToQuizDialog
         JPanel bankInfoPanel = new JPanel(new GridBagLayout());
         GridBagConstraints bankLabelConstraint = new GridBagConstraints();
         GridBagConstraints bankListConstraint = new GridBagConstraints();
+        GridBagConstraints numberLabelConstraint = new GridBagConstraints();
+        GridBagConstraints numberListConstraint = new GridBagConstraints();
         GridBagConstraints pointsLabelConstraint = new GridBagConstraints();
         GridBagConstraints textFieldConstraint = new GridBagConstraints();
         
@@ -126,25 +143,39 @@ public class BankToQuizDialog
         bankLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         bankLabelConstraint.gridx = 0;
         bankLabelConstraint.gridy = 0;
+        bankLabelConstraint.insets = new Insets(0, 0, 5, 0);
         bankInfoPanel.add(bankLabel, bankLabelConstraint);
         
         // places bankList to the right of bankInfoPanel
         bankListConstraint.fill = GridBagConstraints.HORIZONTAL;
         bankListConstraint.gridx = 1;
         bankListConstraint.gridy = 0;
-        bankListConstraint.insets = new Insets(0, 7, 0, 0);
+        bankListConstraint.insets = new Insets(0, 7, 5, 0);
         bankInfoPanel.add(bankList, bankListConstraint);
         
+        // places bankLabel at the top of bankInfoPanel
+        numberLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
+        numberLabelConstraint.gridx = 0;
+        numberLabelConstraint.gridy = 1;
+        bankInfoPanel.add(numbersLabel, numberLabelConstraint);
+        
+        // places bankLabel at the top of bankInfoPanel
+        numberListConstraint.fill = GridBagConstraints.HORIZONTAL;
+        numberListConstraint.gridx = 1;
+        numberListConstraint.gridy = 1;
+        numberListConstraint.insets = new Insets(0, 0, 0, 117);
+        bankInfoPanel.add(numberPanel, numberListConstraint);
+               
         // places pointsLabel below bankList
         pointsLabelConstraint.fill = GridBagConstraints.HORIZONTAL;
         pointsLabelConstraint.gridx = 0;
-        pointsLabelConstraint.gridy = 1;
+        pointsLabelConstraint.gridy = 2;
         bankInfoPanel.add(pointsLabel, pointsLabelConstraint);
         
         // places textFieldPanel to the right of pointsLabel
         textFieldConstraint.fill = GridBagConstraints.HORIZONTAL;
         textFieldConstraint.gridx = 1;
-        textFieldConstraint.gridy = 1;
+        textFieldConstraint.gridy = 2;
         textFieldConstraint.insets = new Insets(0, 0, 0, 123); 
         bankInfoPanel.add(textFieldPanel, textFieldConstraint);
         
@@ -152,12 +183,35 @@ public class BankToQuizDialog
         bankList.addActionListener((ActionEvent e) -> {
             // display the total points of the bank
             int index = bankList.getSelectedIndex();
+            int num = project.getBank(index).getQuestionCount();
+                       
+            int[] intArray = IntStream.rangeClosed(0, num).toArray();
+            String[] stringArray = createStringArray(intArray);
+            DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(stringArray);           
+            numQuestions.setModel(model);
             
             clearTable();
             populateTable(index); 
         });
                              
         return bankInfoPanel;
+    }
+    
+    /**
+     * Converts an integer array to a string array
+     * 
+     * @param array the string array
+     * @return the integer array
+     */
+    private String[] createStringArray(int[] array)
+    {
+        String[] stringArray = new String[array.length];
+        for (int i = 0; i < array.length; i++)
+        {
+            stringArray[i] = String.valueOf(array[i]);
+        }
+        
+        return stringArray;
     }
     
     /**
@@ -317,8 +371,11 @@ public class BankToQuizDialog
         float points = Float.parseFloat(pointsTextField.getText());
         
         // add the bank to the quiz
-        QuestionBank bank = project.getBank(bankList.getSelectedIndex());        
-        selectedBank = new BankSelection(bank, bank.getQuestionCount(), points);
+        QuestionBank bank = project.getBank(bankList.getSelectedIndex());   
+        
+        int questionCount = numQuestions.getSelectedIndex();
+        
+        selectedBank = new BankSelection(bank, questionCount, points);
         quiz.addBank(selectedBank);
         
         int rows = bank.getQuestionCount();
@@ -390,7 +447,7 @@ public class BankToQuizDialog
             {  
                 BankSelection bankSelection = quizQuestionBanks.get(i);
                 QuestionBank bank = bankSelection.getBank();
-                int size = bank.getQuestionCount();
+                int size = bankSelection.getQuestionCount();
                 int questions = bankSelection.getBlockedQuestions().size();
                 float points = bankSelection.getPointsPerQuestion() * (size - questions);               
                 if (i <= (table.getRows() - 1))

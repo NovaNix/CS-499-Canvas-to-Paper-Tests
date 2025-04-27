@@ -870,7 +870,7 @@ public class QuizPanel extends JComponent
             QuestionBank bank = selectedBank.getBank();
             
             int excludedQuestions = selectedBank.getBlockedQuestions().size();
-            int totalQuestions = bank.getQuestionCount();            
+            int totalQuestions = selectedBank.getQuestionCount();            
             float points = selectedBank.getPointsPerQuestion() * (totalQuestions - excludedQuestions);
                                     
             bankTable.setValue(bank, i, 0);
