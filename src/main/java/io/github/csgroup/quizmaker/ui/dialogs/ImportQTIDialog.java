@@ -3,6 +3,7 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.qti.QTIContents;
 import io.github.csgroup.quizmaker.qti.QTIReader;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -15,6 +16,8 @@ import javax.swing.JLabel;
 import java.awt.Dimension;
 import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
+import java.nio.file.Path;
+
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JOptionPane;
 
@@ -138,6 +141,10 @@ public class ImportQTIDialog
         // listens for when attachButton is clicked 
         attachButton.addActionListener((ActionEvent e) -> {
             JFileChooser fileChooser = new JFileChooser();
+            Path lastFolder = SessionMemory.getInstance().getLastImportQtiFolder();
+            if (lastFolder != null) {
+                fileChooser.setCurrentDirectory(lastFolder.toFile());
+            }
             // only allow zip files to be selected
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Zip files", "zip");
             fileChooser.addChoosableFileFilter(filter);
@@ -149,6 +156,7 @@ public class ImportQTIDialog
                 importButton.setEnabled(true);
                 String fileName = fileChooser.getSelectedFile().getName();
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
+                SessionMemory.getInstance().setLastImportQtiFolder(fileChooser.getSelectedFile().toPath().getParent());
                 setPath(qtiFilePath);     
                 // display the file name in the text field
                 textField.setText(fileName);   

@@ -400,7 +400,10 @@ public class ExportWordDialog
 
 		selectTempButton.addActionListener((ActionEvent e) -> {
 			JFileChooser tempFileChooser = new JFileChooser();
-
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    tempFileChooser.setCurrentDirectory(lastFolder.toFile());
+			}
 			// Allow files only (not directories)
 			tempFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -415,6 +418,7 @@ public class ExportWordDialog
 				if (selectedFile != null) {
 					tempTextField.setText(selectedFile.getAbsolutePath());
 				}
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 			}
 		});
 		return selectTempButtonPanel;
@@ -437,6 +441,10 @@ public class ExportWordDialog
 		selectLocButton.addActionListener((ActionEvent e) -> {
 			JFileChooser locFileChooser = new JFileChooser();
 			locFileChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    locFileChooser.setCurrentDirectory(lastFolder.toFile());
+			}
 			// Allow file selection
 			locFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			locFileChooser.setDialogTitle("Select and name your exported document");
@@ -451,7 +459,7 @@ public class ExportWordDialog
 					path += ".docx";
 					selectedFile = new File(path);
 				}
-
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 				locTextField.setText(selectedFile.getAbsolutePath());
 				lastUsedDirectory = selectedFile.toPath().getParent();
 			}
@@ -473,6 +481,12 @@ public class ExportWordDialog
 		selectRefButton.addActionListener((ActionEvent e) -> {
 			JFileChooser refChooser = new JFileChooser();
 			refChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    refChooser.setCurrentDirectory(lastFolder.toFile());
+			}
+
+			
 			refChooser.setDialogTitle("Select Reference Material");
 			refChooser.setFileFilter(new FileNameExtensionFilter("Word Documents (*.doc, *.docx)", "doc", "docx"));
 			int result = refChooser.showOpenDialog(null);
@@ -480,6 +494,7 @@ public class ExportWordDialog
 				File selectedFile = refChooser.getSelectedFile();
 				lastUsedDirectory = selectedFile.toPath().getParent();
 				refTextField.setText(selectedFile.getAbsolutePath());
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 			}
 		});
 
