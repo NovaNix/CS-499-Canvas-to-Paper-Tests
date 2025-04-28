@@ -444,6 +444,12 @@ public class BankPanel extends JComponent
             int count = bank.getQuestionCount();
             for (int i = 0; i < count; i++)
             {
+                // add another row if the question count exceeds the row count
+                if (i > bankTable.getRows() - 1)
+                {
+                    bankTable.addEmptyRow();
+                }
+                
                 Question question = bank.get(i);
                 String answer = question.getAnswerString();
                 bankTable.setValue(question, i, 0);  
