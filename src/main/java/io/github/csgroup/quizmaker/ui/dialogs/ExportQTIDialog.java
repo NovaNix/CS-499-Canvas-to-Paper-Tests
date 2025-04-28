@@ -2,6 +2,8 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.Project;
 import io.github.csgroup.quizmaker.qti.QTIWriter;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -137,6 +139,10 @@ public class ExportQTIDialog
         attachButton.addActionListener((ActionEvent e) -> {
             JFileChooser fileChooser = new JFileChooser();
             // only allow zip files to be selected
+            Path lastFolder = SessionMemory.getInstance().getLastExportQtiFolder();
+            if (lastFolder != null) {
+                fileChooser.setCurrentDirectory(lastFolder.toFile());
+            }
             FileNameExtensionFilter filter = new FileNameExtensionFilter("Zip files", "zip");
             fileChooser.addChoosableFileFilter(filter);
             fileChooser.setAcceptAllFileFilterUsed(false);
@@ -151,7 +157,12 @@ public class ExportQTIDialog
                 	fileName += ".zip";
                 }
                 String qtiFilePath = fileChooser.getSelectedFile().getPath();
-                setPath(qtiFilePath);     
+                if(!qtiFilePath.toLowerCase().endsWith(".zip"))
+                {
+                	qtiFilePath += ".zip";
+                }
+                setPath(qtiFilePath);
+                SessionMemory.getInstance().setLastExportQtiFolder(fileChooser.getSelectedFile().toPath().getParent());
                 // display the file name in the text field
                 textField.setText(fileName);  
             }   

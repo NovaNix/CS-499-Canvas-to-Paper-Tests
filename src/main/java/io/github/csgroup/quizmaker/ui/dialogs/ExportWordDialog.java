@@ -2,6 +2,7 @@ package io.github.csgroup.quizmaker.ui.dialogs;
 
 import io.github.csgroup.quizmaker.data.quiz.GeneratedQuiz;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 import io.github.csgroup.quizmaker.word.WordExporter;
 import java.awt.CardLayout;
@@ -399,7 +400,10 @@ public class ExportWordDialog
 
 		selectTempButton.addActionListener((ActionEvent e) -> {
 			JFileChooser tempFileChooser = new JFileChooser();
-
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    tempFileChooser.setCurrentDirectory(lastFolder.toFile());
+			}
 			// Allow files only (not directories)
 			tempFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -414,6 +418,7 @@ public class ExportWordDialog
 				if (selectedFile != null) {
 					tempTextField.setText(selectedFile.getAbsolutePath());
 				}
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 			}
 		});
 		return selectTempButtonPanel;
@@ -436,6 +441,10 @@ public class ExportWordDialog
 		selectLocButton.addActionListener((ActionEvent e) -> {
 			JFileChooser locFileChooser = new JFileChooser();
 			locFileChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    locFileChooser.setCurrentDirectory(lastFolder.toFile());
+			}
 			// Allow file selection
 			locFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			locFileChooser.setDialogTitle("Select and name your exported document");
@@ -450,7 +459,7 @@ public class ExportWordDialog
 					path += ".docx";
 					selectedFile = new File(path);
 				}
-
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 				locTextField.setText(selectedFile.getAbsolutePath());
 				lastUsedDirectory = selectedFile.toPath().getParent();
 			}
@@ -472,6 +481,12 @@ public class ExportWordDialog
 		selectRefButton.addActionListener((ActionEvent e) -> {
 			JFileChooser refChooser = new JFileChooser();
 			refChooser.setCurrentDirectory(lastUsedDirectory.toFile());
+			Path lastFolder = SessionMemory.getInstance().getLastExportWordFolder();
+			if (lastFolder != null) {
+			    refChooser.setCurrentDirectory(lastFolder.toFile());
+			}
+
+			
 			refChooser.setDialogTitle("Select Reference Material");
 			refChooser.setFileFilter(new FileNameExtensionFilter("Word Documents (*.doc, *.docx)", "doc", "docx"));
 			int result = refChooser.showOpenDialog(null);
@@ -479,6 +494,7 @@ public class ExportWordDialog
 				File selectedFile = refChooser.getSelectedFile();
 				lastUsedDirectory = selectedFile.toPath().getParent();
 				refTextField.setText(selectedFile.getAbsolutePath());
+				SessionMemory.getInstance().setLastExportWordFolder(selectedFile.toPath().getParent());
 			}
 		});
 
@@ -640,7 +656,8 @@ public class ExportWordDialog
      */
     private JPanel replacementPanel()
     {
-        replacements = new TemplateReplacements();
+    	replacements = SessionMemory.getInstance().getLastReplacements();
+        if(replacements == null) replacements = new TemplateReplacements();
         GeneratePanel generate = new GeneratePanel(180, replacements);
         JButton applyButton = new JButton("Apply");
         JPanel buttonPanel = new JPanel();
@@ -671,9 +688,9 @@ public class ExportWordDialog
             CardLayout layout = (CardLayout) (cardPanel.getLayout());
             replacementPanel.setVisible(false);
             layout.show(cardPanel, "Show");
+            SessionMemory.getInstance().setLastReplacements(replacements);
             generate.collectData();
         }); 
-               
         return replacementPanel;
     }
     

@@ -4,6 +4,7 @@ import io.github.csgroup.quizmaker.App;
 import io.github.csgroup.quizmaker.data.Quiz;
 import io.github.csgroup.quizmaker.data.quiz.QuizMetadata;
 import io.github.csgroup.quizmaker.ui.components.GeneratePanel;
+import io.github.csgroup.quizmaker.utils.SessionMemory;
 import io.github.csgroup.quizmaker.word.TemplateReplacements;
 
 import java.awt.GridBagLayout;
@@ -64,10 +65,22 @@ public class GenerateDialog
         if(isTemplateMode)
         {
         	generatePanel = new GeneratePanel(205, replacements);
-        } else
+        } 
+        else 
         {
-        	generatePanel = new GeneratePanel(205, metadata);
+            QuizMetadata actualMetadata = quiz.getMetadata();
+
+            if (isMetadataEmpty(actualMetadata)) {
+                QuizMetadata last = SessionMemory.getInstance().getLastMetadata();
+                if (last != null) {
+                    for (var pair : last.asList()) {
+                        actualMetadata.setValue(pair.key(), pair.value());
+                    }
+                }
+            }
+            generatePanel = new GeneratePanel(205, actualMetadata);
         }
+
         generateConstraint.fill = GridBagConstraints.HORIZONTAL;
         generateConstraint.gridx = 0;
         generateConstraint.gridy = 0;
@@ -98,13 +111,13 @@ public class GenerateDialog
         
         // listens for when generateButton is selected
         generateButton.addActionListener((ActionEvent e) -> { 
-            generatePanel.collectData();
             if(!isTemplateMode && quiz != null) 
             {
+            	generatePanel.collectData();
             	// TODO THIS IS HACKY, FIX LATER
+            	SessionMemory.getInstance().setLastMetadata(quiz.getMetadata());
             	var generated = quiz.regenerate();
             	App.getCurrentProject().addGeneratedQuiz(generated);
-            	
             	successDialog(generated.getTitle());
             }
             generateFrame.dispose();
@@ -129,4 +142,20 @@ public class GenerateDialog
         // makes the JFrame visible
         generateFrame.setVisible(true);
     }
+    
+    /**
+     * Checks whether a metadata object is empty or not
+     * @param metadata Metadata object to check
+     * @return True if empty, false if not
+     */
+    private boolean isMetadataEmpty(QuizMetadata metadata) {
+        if (metadata == null) return true;
+        for (var entry : metadata.asList()) {
+            if (entry.value() != null && !entry.value().isBlank()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
