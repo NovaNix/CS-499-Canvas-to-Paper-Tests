@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
+import org.fusesource.jansi.AnsiConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ public class App
 
 	public static void main(String[] args)
 	{
+		AnsiConsole.systemInstall();
 		logger.info("Starting Application");
 
 		// Create a new blank project
