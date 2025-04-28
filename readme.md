@@ -26,20 +26,17 @@ ___
 
 ___
 
-## Project Scope 
-* 
-
-___
-
 ## Getting Started
-### Installation
-1. Clone the repository:
-2. Naviagte to the project directory:
-3. Install dependencies:
 
-### Usuage 
-1. Begin the application:
-2. Access the application:
+### Installation
+
+Note: your installed Java version must support Java 21
+
+1. Install [Maven](https://maven.apache.org/index.html)
+2. Clone the repository
+3. Run `mvn package`
+
+The compiled jar file should be inside the `target` folder
 
 
 
